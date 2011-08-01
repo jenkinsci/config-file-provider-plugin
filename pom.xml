@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.420</version>
+		<version>1.425-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>mvn-settings</artifactId>
