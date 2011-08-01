@@ -15,7 +15,7 @@ import java.util.Map;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.plugins.configfiles.model.Config;
-import org.jenkinsci.plugins.configfiles.model.ContentType;
+import org.jenkinsci.plugins.configfiles.model.ConfigDescription;
 
 public abstract class AbstractConfigProvider extends ConfigProvider implements Saveable {
 
@@ -38,7 +38,12 @@ public abstract class AbstractConfigProvider extends ConfigProvider implements S
 	}
 
 	@Override
-	public abstract ContentType getSupportedContentType();
+	public abstract ConfigDescription getConfigDescription();
+
+	@Override
+	public String getProviderId() {
+		return ID_PREFIX;
+	}
 
 	@Override
 	public boolean isResponsibleFor(String configId) {
@@ -47,8 +52,8 @@ public abstract class AbstractConfigProvider extends ConfigProvider implements S
 
 	@Override
 	public Config newConfig() {
-		String id = ID_PREFIX + System.currentTimeMillis();
-		return new Config(id, null, null, null, this.getSupportedContentType().name());
+		String id = this.getProviderId() + System.currentTimeMillis();
+		return new Config(id, null, null, null);
 	}
 
 	@Override

@@ -45,11 +45,15 @@ THE SOFTWARE.
 					<f:entry title="${%Comment}">
 						<f:textbox name="config.comment" value="${config.comment}" />
 					</f:entry>
-					<f:entry title="${%Content Type}">
-						<f:textbox readonly="readonly" name="config.contentTypeStr" value="${config.contentType}" />
-					</f:entry>
 					<f:entry title="${%Content}">
-						<f:textarea id="config.content" name="config.content" value="${config.content}" codemirror-mode="${config.contentType.cmMode}" codemirror-config="mode:'${config.contentType.mime}'" /> 
+						<j:choose>
+							<j:when test="${contentType!=null}">
+								<f:textarea id="config.content" name="config.content" value="${config.content}" codemirror-mode="${contentType.cmMode}" codemirror-config="mode:'${contentType.mime}'" />
+							</j:when>
+							<j:otherwise>
+								<f:textarea id="config.content" name="config.content" value="${config.content}" />
+							</j:otherwise>
+						</j:choose>
 					</f:entry>
 				<f:block>
 					<f:submit value="${%Submit}" />
