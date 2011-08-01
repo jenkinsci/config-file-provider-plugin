@@ -35,12 +35,10 @@ THE SOFTWARE.
 				<j:out value="${%title}" />
 			</h1>
 			<f:form method="post" action="addConfig">
-					<f:entry title="Content Type">
-						<select name="contentTypeStr">
-							<j:forEach var="ctype" items="${contenttypes}" varStatus="loop">
-								 <option value="${ctype}" >${ctype}</option>
+					<f:entry title="File Type">
+							<j:forEach var="desc" items="${configdescriptions}" varStatus="loop">
+								 <f:radio name="providerId" value="${desc.key}" /> ${desc.value.name} - ${desc.value.description}<br />
 							</j:forEach>
-						</select>
 					</f:entry>
 				<f:block>
 					<f:submit value="${%Submit}" />

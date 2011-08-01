@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -22,6 +24,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.configfiles.model.Config;
+import org.jenkinsci.plugins.configfiles.model.ConfigDescription;
 import org.jenkinsci.plugins.configfiles.model.ContentType;
 import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
@@ -43,7 +46,12 @@ public class ConfigFilesManagement extends ManagementLink {
 	 * @see hudson.model.Action#getDisplayName()
 	 */
 	public String getDisplayName() {
-		return "Configuration Files";
+		return Messages.display_name();
+	}
+
+	@Override
+	public String getDescription() {
+		return Messages.description();
 	}
 
 	/**
@@ -62,9 +70,13 @@ public class ConfigFilesManagement extends ManagementLink {
 		return "configfiles";
 	}
 
-	@Override
-	public String getDescription() {
-		return "manage different config files";
+	public ContentType getContentTypeForProvider(String providerId) {
+		for (ConfigProvider provider : ConfigProvider.all()) {
+			if (provider.getProviderId().equals(providerId)) {
+				return provider.getContentType();
+			}
+		}
+		return null;
 	}
 
 	public Collection<Config> getConfigs() {
@@ -75,10 +87,10 @@ public class ConfigFilesManagement extends ManagementLink {
 		return Collections.unmodifiableCollection(all);
 	}
 
-	public Set<ContentType> getAllModes() {
-		Set<ContentType> all = new HashSet<ContentType>();
+	public Set<ConfigDescription> getAllModes() {
+		Set<ConfigDescription> all = new HashSet<ConfigDescription>();
 		for (ConfigProvider provider : ConfigProvider.all()) {
-			all.add(provider.getSupportedContentType());
+			all.add(provider.getConfigDescription());
 		}
 		return Collections.unmodifiableSet(all);
 	}
@@ -96,7 +108,6 @@ public class ConfigFilesManagement extends ManagementLink {
 			}
 
 		} catch (ServletException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return new HttpRedirect("index");
@@ -117,8 +128,10 @@ public class ConfigFilesManagement extends ManagementLink {
 	public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
 		checkPermission(Hudson.ADMINISTER);
 
-		Config config = this.getConfigById(confgiId);
+		ConfigProvider provider = getProviderForConfigId(confgiId);
+		Config config = provider.getConfigById(confgiId);
 		if (config != null) {
+			req.setAttribute("contentType", provider.getContentType());
 			req.setAttribute("config", config);
 			req.getView(this, "edit.jelly").forward(req, rsp);
 		} else {
@@ -133,17 +146,18 @@ public class ConfigFilesManagement extends ManagementLink {
 	 *            request
 	 * @param rsp
 	 *            response
-	 * @param confgiId
-	 *            the id of the config to be loaded in to the edit view.
+	 * @param providerId
+	 *            the id of the provider to create a new config instance with
 	 * @throws IOException
 	 * @throws ServletException
 	 */
-	public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("contentTypeStr") String contentTyString) throws IOException, ServletException {
+	public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId) throws IOException, ServletException {
 		checkPermission(Hudson.ADMINISTER);
 
 		Config config = null;
 		for (ConfigProvider provider : ConfigProvider.all()) {
-			if (provider.getSupportedContentType().name().equals(contentTyString)) {
+			if (provider.getProviderId().equals(providerId)) {
+				req.setAttribute("contentType", provider.getContentType());
 				config = provider.newConfig();
 				break;
 			}
@@ -156,12 +170,12 @@ public class ConfigFilesManagement extends ManagementLink {
 	public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
 		checkPermission(Hudson.ADMINISTER);
 
-		Set<ContentType> ctypes = new HashSet<ContentType>();
+		Map<String, ConfigDescription> ctypes = new HashMap<String, ConfigDescription>();
 		for (ConfigProvider provider : ConfigProvider.all()) {
-			ctypes.add(provider.getSupportedContentType());
+			ctypes.put(provider.getProviderId(), provider.getConfigDescription());
 		}
 
-		req.setAttribute("contenttypes", ctypes);
+		req.setAttribute("configdescriptions", ctypes);
 		req.getView(this, "selectprovider.jelly").forward(req, rsp);
 	}
 
@@ -191,15 +205,14 @@ public class ConfigFilesManagement extends ManagementLink {
 		return new HttpRedirect("index");
 	}
 
-	private Config getConfigById(String id) {
+	private ConfigProvider getProviderForConfigId(String id) {
 		if (!StringUtils.isBlank(id)) {
 			for (ConfigProvider provider : ConfigProvider.all()) {
 				if (provider.isResponsibleFor(id)) {
-					return provider.getConfigById(id);
+					return provider;
 				}
 			}
 		}
 		return null;
 	}
-
 }
