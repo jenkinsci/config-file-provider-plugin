@@ -1,9 +1,12 @@
-package org.jenkinsci.plugins.mvnsettings.model;
+package org.jenkinsci.plugins.configfiles.model;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class Config {
 
+	/**
+	 * a unique id along all providers!
+	 */
 	public final String id;
 	public final String name;
 	public final String comment;

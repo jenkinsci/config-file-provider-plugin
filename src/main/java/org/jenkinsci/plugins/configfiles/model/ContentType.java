@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.mvnsettings.model;
+package org.jenkinsci.plugins.configfiles.model;
 
 public enum ContentType {
 
