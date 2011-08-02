@@ -55,6 +55,11 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
 			target.copyFrom(bs);
 		}
 		return new Environment() {
+			@Override
+			public boolean tearDown(@SuppressWarnings("rawtypes") AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
+				// let build continue
+				return true;
+			}
 		};
 	}
 
