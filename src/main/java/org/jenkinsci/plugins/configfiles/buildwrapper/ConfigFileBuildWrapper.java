@@ -27,11 +27,15 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
+import jenkins.configprovider.ConfigProvider;
+import jenkins.configprovider.model.Config;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,11 +43,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.configfiles.ConfigProvider;
-import org.jenkinsci.plugins.configfiles.model.Config;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 public class ConfigFileBuildWrapper extends BuildWrapper {
 
