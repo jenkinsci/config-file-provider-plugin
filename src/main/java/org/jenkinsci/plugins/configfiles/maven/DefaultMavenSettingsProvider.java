@@ -21,23 +21,23 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-package org.jenkinsci.plugins.configfiles.mvnsettings;
+package org.jenkinsci.plugins.configfiles.maven;
 
 import hudson.Extension;
-
-import org.jenkinsci.plugins.configfiles.AbstractConfigProvider;
-import org.jenkinsci.plugins.configfiles.Messages;
-import org.jenkinsci.plugins.configfiles.model.Config;
-import org.jenkinsci.plugins.configfiles.model.ConfigDescription;
-import org.jenkinsci.plugins.configfiles.model.ContentType;
-import org.jenkinsci.plugins.configfiles.model.ContentType.DefinedType;
+import hudson.maven.settings.MavenSettingsProvider;
+import jenkins.configprovider.AbstractConfigProvider;
+import jenkins.configprovider.model.Config;
+import jenkins.configprovider.model.ConfigDescription;
+import jenkins.configprovider.model.ContentType;
 
 @Extension
-public class MavenSettingsProvider extends AbstractConfigProvider {
+public class DefaultMavenSettingsProvider extends AbstractConfigProvider implements MavenSettingsProvider
+{
 
-	@Override
+    @Override
 	public ConfigDescription getConfigDescription() {
-		return new ConfigDescription(Messages.mvn_settings_provider_name(), Messages.mvn_settings_provider_description());
+		return new ConfigDescription(Messages.mvn_settings_provider_name(),
+				Messages.mvn_settings_provider_description());
 	}
 
 	@Override
@@ -53,6 +53,6 @@ public class MavenSettingsProvider extends AbstractConfigProvider {
 
 	@Override
 	public ContentType getContentType() {
-		return DefinedType.HTML;
+		return ContentType.DefinedType.XML;
 	}
 }
