@@ -83,7 +83,7 @@ public class ConfigFilesManagement extends ManagementLink {
 	 */
 	@Override
 	public String getIconFileName() {
-		return "/plugin/mvn-settings/images/mvn_s.png";
+		return "/plugin/config-file-provider/images/mvn_s.png";
 	}
 
 	/**
