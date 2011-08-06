@@ -29,7 +29,7 @@ THE SOFTWARE.
   <l:header />
   <l:side-panel>
     <l:tasks>
-      <l:task icon="images/24x24/setting.gif" href="${rootURL}/manage" title="${%Manage Hudson}" />
+      <l:task icon="images/24x24/setting.gif" href="${rootURL}/manage" title="${%Manage Jenkins}" />
       <l:task icon="images/24x24/next.gif" href="${rootURL}/configfiles" title="${%Config Files}" />
       <l:task icon="images/24x24/new-package.gif" href="selectProvider" title="${%Add a new Config}" />
     </l:tasks>
