@@ -23,10 +23,10 @@
  */
 package org.jenkinsci.lib.configprovider.model;
 
-import jenkins.configprovider.ConfigProvider;
 
 /**
- * Describes the {@link Config} a {@link ConfigProvider} is able to handle. This
+ * Describes the {@link Config} a {@link org.jenkinsci.lib.configprovider.ConfigProvider}
+ * is able to handle. This
  * information can be used for display in the UI.
  * 
  * @author domi

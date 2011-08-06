@@ -23,14 +23,13 @@
  */
 package org.jenkinsci.lib.configprovider.model;
 
-import jenkins.configprovider.ConfigProvider;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.Serializable;
 
 /**
  * Represents a configuration file. A Config object is always managed by one
- * specific {@link ConfigProvider}
+ * specific {@link org.jenkinsci.lib.configprovider.ConfigProvider}
  * 
  * @author domi
  * 

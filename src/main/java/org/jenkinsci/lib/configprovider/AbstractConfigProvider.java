@@ -27,9 +27,9 @@ import hudson.BulkChange;
 import hudson.XmlFile;
 import hudson.model.Saveable;
 import hudson.model.listeners.SaveableListener;
-import jenkins.configprovider.model.Config;
-import jenkins.configprovider.model.ConfigDescription;
 import jenkins.model.Jenkins;
+import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ConfigDescription;
 
 import java.io.File;
 import java.io.IOException;
