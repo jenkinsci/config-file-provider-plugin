@@ -14,6 +14,8 @@
 
   <packaging>hpi</packaging>
 
+  <url>https://wiki.jenkins-ci.org/display/JENKINS/Config+File+Provider+Plugin</url>
+
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/config-file-provider-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/config-file-provider-plugin.git</developerConnection>
