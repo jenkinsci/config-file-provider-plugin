@@ -40,13 +40,13 @@ import java.util.Set;
 
 import javax.servlet.ServletException;
 
-import jenkins.configprovider.ConfigProvider;
-import jenkins.configprovider.model.Config;
-import jenkins.configprovider.model.ConfigDescription;
-import jenkins.configprovider.model.ContentType;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
+import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ConfigDescription;
+import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;

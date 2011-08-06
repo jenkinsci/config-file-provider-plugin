@@ -32,9 +32,9 @@ import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
-import jenkins.configprovider.ConfigProvider;
-import jenkins.configprovider.model.Config;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
+import org.jenkinsci.lib.configprovider.model.Config;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.ByteArrayInputStream;
