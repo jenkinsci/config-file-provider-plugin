@@ -54,6 +54,9 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 /**
+ * Provides a new link in the "Manage Jenkins" view and builds the UI to manage
+ * the configfiles.
+ * 
  * @author domi
  * 
  */
