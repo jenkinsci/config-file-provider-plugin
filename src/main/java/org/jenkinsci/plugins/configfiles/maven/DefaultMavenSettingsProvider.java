@@ -25,25 +25,27 @@ package org.jenkinsci.plugins.configfiles.maven;
 
 import hudson.Extension;
 import hudson.maven.settings.MavenSettingsProvider;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import jenkins.configprovider.AbstractConfigProvider;
 import jenkins.configprovider.model.Config;
 import jenkins.configprovider.model.ConfigDescription;
 import jenkins.configprovider.model.ContentType;
 
 @Extension
-public class DefaultMavenSettingsProvider extends AbstractConfigProvider implements MavenSettingsProvider
-{
+public class DefaultMavenSettingsProvider extends AbstractConfigProvider implements MavenSettingsProvider {
 
-    @Override
+	@Override
 	public ConfigDescription getConfigDescription() {
-		return new ConfigDescription(Messages.mvn_settings_provider_name(),
-				Messages.mvn_settings_provider_description());
+		return new ConfigDescription(Messages.mvn_settings_provider_name(), Messages.mvn_settings_provider_description());
 	}
 
 	@Override
 	public Config newConfig() {
 		String id = this.getProviderId() + System.currentTimeMillis();
-		return new Config(id, "MySettings", "", "<settings></settings>");
+		return new Config(id, "MySettings", "", loadTemplateContent());
 	}
 
 	@Override
@@ -54,5 +56,26 @@ public class DefaultMavenSettingsProvider extends AbstractConfigProvider impleme
 	@Override
 	public ContentType getContentType() {
 		return ContentType.DefinedType.XML;
+	}
+
+	private String loadTemplateContent() {
+		String tpl;
+		try {
+			InputStream is = this.getClass().getResourceAsStream("settings-tpl.xml");
+			StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
+			char[] tmp = new char[4096];
+
+			try {
+				InputStreamReader reader = new InputStreamReader(is, "UTF-8");
+				for (int cnt; (cnt = reader.read(tmp)) > 0;)
+					sb.append(tmp, 0, cnt);
+			} finally {
+				is.close();
+			}
+			tpl = sb.toString();
+		} catch (Exception e) {
+			tpl = "<settings></settingns>";
+		}
+		return tpl;
 	}
 }
