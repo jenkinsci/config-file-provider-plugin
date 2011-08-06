@@ -1,30 +1,29 @@
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.jenkins-ci.plugins</groupId>
-		<artifactId>plugin</artifactId>
-		<version>1.424</version>
-	</parent>
+  <parent>
+    <groupId>org.jenkins-ci.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>1.424</version>
+  </parent>
 
-	<artifactId>config-file-provider</artifactId>
-	<version>1.0-SNAPSHOT</version>
+  <artifactId>config-file-provider</artifactId>
+  <version>1.0-SNAPSHOT</version>
 
-	<packaging>hpi</packaging>
+  <packaging>hpi</packaging>
 
   <scm>
-   <connection>scm:git:git://github.com/jenkinsci/config-file-provider-plugin.git</connection>
-   <developerConnection>scm:git:git@github.com:jenkinsci/config-file-provider-plugin.git</developerConnection>
-   <url>https://github.com/jenkinsci/config-file-provider-plugin</url>
+    <connection>scm:git:git://github.com/jenkinsci/config-file-provider-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:jenkinsci/config-file-provider-plugin.git</developerConnection>
+    <url>https://github.com/jenkinsci/config-file-provider-plugin</url>
   </scm>
 
-	<name>Config File Provider Plugin</name>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+  <name>Config File Provider Plugin</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
   <dependencies>
     <dependency>
