@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<style>.CodeMirror {border: 2px inset #dee;}</style>
 	<l:layout norefresh="true">
 		<st:include page="sidepanel.jelly" />
 		<l:main-panel>
@@ -48,7 +49,7 @@ THE SOFTWARE.
 					<f:entry title="${%Content}">
 						<j:choose>
 							<j:when test="${contentType!=null}">
-								<f:textarea id="config.content" name="config.content" value="${config.content}" codemirror-mode="${contentType.cmMode}" codemirror-config="mode:'${contentType.mime}'" />
+								<f:textarea id="config.content" name="config.content" value="${config.content}" codemirror-mode="${contentType.cmMode}" codemirror-config="mode:'${contentType.mime}',lineNumbers: true" />
 							</j:when>
 							<j:otherwise>
 								<f:textarea id="config.content" name="config.content" value="${config.content}" />
