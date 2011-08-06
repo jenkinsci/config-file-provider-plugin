@@ -24,14 +24,14 @@
 package org.jenkinsci.plugins.configfiles.custom;
 
 import hudson.Extension;
-import jenkins.configprovider.AbstractConfigProvider;
-import jenkins.configprovider.model.Config;
-import jenkins.configprovider.model.ConfigDescription;
-import jenkins.configprovider.model.ContentType;
+import org.jenkinsci.lib.configprovider.AbstractConfigProvider;
+import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ConfigDescription;
+import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
 
 @Extension
-public class CustomConfigProvider extends AbstractConfigProvider {
+public class CustomConfigProvider extends AbstractConfigProvider{
 
 	@Override
 	public ConfigDescription getConfigDescription() {
