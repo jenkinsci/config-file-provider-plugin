@@ -19,6 +19,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <scm>
+   <connection>scm:git:git://github.com/jenkinsci/config-provider-model.git</connection>
+   <developerConnection>scm:git:git@github.com:jenkinsci/config-provider-model.git</developerConnection>
+   <url>https://github.com/jenkinsci/config-provider-model</url>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
