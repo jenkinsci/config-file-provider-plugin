@@ -25,6 +25,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <developers>
+    <developer>
+      <id>olamy</id>
+      <name>Olivier Lamy</name>
+    </developer>
+  </developers>
+
   <dependencies>
     <dependency>
       <groupId>org.jenkins-ci.lib</groupId>
