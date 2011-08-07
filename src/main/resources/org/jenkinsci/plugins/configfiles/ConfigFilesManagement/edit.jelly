@@ -47,14 +47,7 @@ THE SOFTWARE.
 						<f:textbox name="config.comment" value="${config.comment}" />
 					</f:entry>
 					<f:entry title="${%Content}">
-						<j:choose>
-							<j:when test="${contentType!=null}">
-								<f:textarea id="config.content" name="config.content" value="${config.content}" /> 
-							</j:when>
-							<j:otherwise>
-								<f:textarea id="config.content" name="config.content" value="${config.content}" />
-							</j:otherwise>
-						</j:choose>
+						<f:textarea id="config.content" name="config.content" value="${config.content}" /> 
 					</f:entry>
 				<f:block>
 					<f:submit value="${%Submit}" />
