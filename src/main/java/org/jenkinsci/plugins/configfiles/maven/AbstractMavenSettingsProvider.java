@@ -1,7 +1,7 @@
 /*
  The MIT License
 
- Copyright (c) 2011, Dominik Bartholdi
+ Copyright (c) 2011, Dominik Bartholdi, Olivier Lamy
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,6 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
-import hudson.Extension;
-import hudson.maven.settings.MavenSettingsProvider;
 import org.jenkinsci.lib.configprovider.AbstractConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ConfigDescription;
@@ -33,13 +31,47 @@ import org.jenkinsci.lib.configprovider.model.ContentType;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-
-@Extension
-public class DefaultMavenSettingsProvider extends AbstractMavenSettingsProvider implements MavenSettingsProvider {
-
+/**
+ * @author Olivier Lamy
+ */
+public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvider
+{
 	@Override
-	public ConfigDescription getConfigDescription() {
-		return new ConfigDescription(Messages.mvn_settings_provider_name(), Messages.mvn_settings_provider_description());
+	public Config newConfig() {
+		String id = this.getProviderId() + System.currentTimeMillis();
+		return new Config(id, "MySettings", "", loadTemplateContent());
 	}
 
+	@Override
+	protected String getXmlFileName() {
+		return "maven-settings-files.xml";
+	}
+
+	@Override
+	public ContentType getContentType() {
+		return ContentType.DefinedType.XML;
+	}
+
+	private String loadTemplateContent() {
+		String tpl;
+		try {
+			InputStream is = this.getClass().getResourceAsStream("settings-tpl.xml");
+			StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
+			char[] tmp = new char[4096];
+
+			try {
+				InputStreamReader reader = new InputStreamReader(is, "UTF-8");
+				for (int cnt; (cnt = reader.read(tmp)) > 0;)
+					sb.append(tmp, 0, cnt);
+
+
+			} finally {
+				is.close();
+			}
+			tpl = sb.toString();
+		} catch (Exception e) {
+			tpl = "<settings></settingns>";
+		}
+		return tpl;
+	}
 }
