@@ -25,6 +25,12 @@ import org.jenkinsci.lib.configprovider.model.ConfigDescription;
 @Extension
 public class DefaultGlobalMavenSettingsProvider extends AbstractMavenSettingsProvider implements GlobalMavenSettingsProvider
 {
+
+	@Override
+	protected String getXmlFileName() {
+		return "maven-global-settings-files.xml";
+	}
+
     @Override
     public ConfigDescription getConfigDescription()
     {
