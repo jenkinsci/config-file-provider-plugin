@@ -35,7 +35,7 @@ THE SOFTWARE.
 			<h1>
 				<img src="${it.iconFileName}" alt="" />
 				<j:out value=" " />
-				<j:out value="${%title}" />
+				${%Config File Management}
 			</h1>
 
 			<j:out value="${%intro}" />
