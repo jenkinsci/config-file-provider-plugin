@@ -47,14 +47,7 @@ THE SOFTWARE.
 						<f:textbox name="config.comment" value="${config.comment}" />
 					</f:entry>
 					<f:entry title="${%Content}">
-						<j:choose>
-							<j:when test="${contentType!=null}">
-								<f:textarea id="config.content" name="config.content" value="${config.content}" codemirror-mode="${contentType.cmMode}" codemirror-config="mode:'${contentType.mime}',lineNumbers: true" />
-							</j:when>
-							<j:otherwise>
-								<f:textarea id="config.content" name="config.content" value="${config.content}" />
-							</j:otherwise>
-						</j:choose>
+						<f:textarea id="config.content" name="config.content" value="${config.content}" /> 
 					</f:entry>
 				<f:block>
 					<f:submit value="${%Submit}" />
@@ -63,4 +56,16 @@ THE SOFTWARE.
 			</f:form>
 		</l:main-panel>
 	</l:layout>
+	<j:if test="${contentType!=null}">
+		<st:adjunct includes="
+	        org.kohsuke.stapler.codemirror.mode.${contentType.cmMode}.${contentType.cmMode},
+	        org.kohsuke.stapler.codemirror.theme.default"/>
+		<script>
+	      var editor = CodeMirror.fromTextArea(document.getElementById("config.content"), {
+	        lineNumbers: true,
+	        matchBrackets: true,
+	        mode: "${contentType.mime}"
+	      });
+	    </script>
+    </j:if>	
 </j:jelly>
