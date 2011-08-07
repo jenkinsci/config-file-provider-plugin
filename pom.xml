@@ -32,6 +32,10 @@
       <id>olamy</id>
       <name>Olivier Lamy</name>
     </developer>
+    <developer>
+      <id>domi</id>
+      <name>domi</name>
+    </developer>
   </developers>
 
   <dependencies>
