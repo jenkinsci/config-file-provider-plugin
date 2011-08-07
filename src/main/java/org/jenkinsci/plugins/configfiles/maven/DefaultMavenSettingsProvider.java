@@ -38,6 +38,11 @@ import java.io.InputStreamReader;
 public class DefaultMavenSettingsProvider extends AbstractMavenSettingsProvider implements MavenSettingsProvider {
 
 	@Override
+	protected String getXmlFileName() {
+		return "maven-settings-files.xml";
+	}
+
+	@Override
 	public ConfigDescription getConfigDescription() {
 		return new ConfigDescription(Messages.mvn_settings_provider_name(), Messages.mvn_settings_provider_description());
 	}

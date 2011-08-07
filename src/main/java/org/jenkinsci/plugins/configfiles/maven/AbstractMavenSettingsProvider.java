@@ -43,11 +43,6 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
 	}
 
 	@Override
-	protected String getXmlFileName() {
-		return "maven-settings-files.xml";
-	}
-
-	@Override
 	public ContentType getContentType() {
 		return ContentType.DefinedType.XML;
 	}
