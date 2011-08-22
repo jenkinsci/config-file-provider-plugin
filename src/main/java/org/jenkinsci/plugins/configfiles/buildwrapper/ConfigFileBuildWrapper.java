@@ -30,22 +30,16 @@ import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.remoting.Callable;
-import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -62,93 +56,27 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
 	@Override
 	public Environment setUp(@SuppressWarnings("rawtypes") AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException,
 			InterruptedException {
+
 		final PrintStream logger = listener.getLogger();
 
-		final Map<ManagedFile, FilePath> file2Path = new HashMap<ManagedFile, FilePath>();
-
-		for (ManagedFile managedFile : managedFiles) {
-			ConfigProvider provider = this.getProviderForConfigId(managedFile.fileId);
-			Config configFile = provider.getConfigById(managedFile.fileId);
-
-			boolean isTargetGiven = !StringUtils.isBlank(managedFile.targetLocation);
-
-			FilePath target = null;
-			if (isTargetGiven) {
-				String targetLocation = managedFile.targetLocation;
-				if (!targetLocation.contains(".")) {
-					if (StringUtils.isBlank(targetLocation)) {
-						targetLocation = configFile.name.replace(" ", "_");
-					} else {
-						targetLocation = targetLocation + "/" + configFile.name.replace(" ", "_");
-					}
-				}
-				target = new FilePath(build.getWorkspace(), targetLocation);
-			} else {
-				target = ConfigFileBuildWrapper.createTempFile(build.getWorkspace().getChannel());
-			}
-
-			logger.println(Messages.console_output(configFile.name, target.toURI()));
-			ByteArrayInputStream bs = new ByteArrayInputStream(configFile.content.getBytes());
-			target.copyFrom(bs);
-			file2Path.put(managedFile, target);
+		if (build.getWorkspace() == null) {
+			throw new IllegalStateException("the workspace does not yet exist, can't provision config files - maybe slave is offline?");
 		}
-		return new Environment() {
 
+		final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build.getWorkspace(), logger);
+		final hudson.model.Environment managedFileEnv = new ManagedFilesEnvironment(file2Path);
+
+		return new Environment() {
 			@Override
 			public void buildEnvVars(Map<String, String> env) {
-				for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
-					ManagedFile mf = entry.getKey();
-					FilePath fp = entry.getValue();
-					if (!StringUtils.isBlank(mf.variable)) {
-						env.put(mf.variable, fp.getRemote());
-					}
-				}
+				managedFileEnv.buildEnvVars(env);
 			}
 
 			@Override
 			public boolean tearDown(@SuppressWarnings("rawtypes") AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
-				// delete the temporary files
-				for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
-					ManagedFile mf = entry.getKey();
-					FilePath fp = entry.getValue();
-
-					// we only created temp files if there was no targetLocation
-					// given
-					if (StringUtils.isBlank(mf.targetLocation)) {
-						if (fp != null && fp.exists()) {
-							fp.delete();
-						}
-					}
-				}
-
-				return true;
+				return managedFileEnv.tearDown(build, listener);
 			}
 		};
-	}
-
-	/**
-	 * creates a tmp file on the given channel
-	 */
-	public static FilePath createTempFile(VirtualChannel channel) throws IOException, InterruptedException {
-		return channel.call(new Callable<FilePath, IOException>() {
-			public FilePath call() throws IOException {
-				final File tmpTarget = File.createTempFile("config", "tmp");
-				return new FilePath(tmpTarget);
-			}
-
-			private static final long serialVersionUID = 1L;
-		});
-	}
-
-	private ConfigProvider getProviderForConfigId(String id) {
-		if (!StringUtils.isBlank(id)) {
-			for (ConfigProvider provider : ConfigProvider.all()) {
-				if (provider.isResponsibleFor(id)) {
-					return provider;
-				}
-			}
-		}
-		return null;
 	}
 
 	public List<ManagedFile> getManagedFiles() {
@@ -181,4 +109,5 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
 		}
 
 	}
+
 }
