@@ -87,7 +87,7 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
 	 * Descriptor for {@link ExclusiveBuildWrapper}. Used as a singleton. The
 	 * class is marked as public so that it can be accessed from views.
 	 */
-	@Extension
+	@Extension(ordinal = 50)
 	public static final class DescriptorImpl extends BuildWrapperDescriptor {
 		@Override
 		public String getDisplayName() {
