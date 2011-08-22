@@ -33,11 +33,13 @@ public class ManagedFile {
 
 	public final String fileId;
 	public final String targetLocation;
+	public final String variable;
 
 	@DataBoundConstructor
-	public ManagedFile(String fileId, String targetLocation) {
+	public ManagedFile(String fileId, String targetLocation, String variable) {
 		this.fileId = fileId;
 		this.targetLocation = targetLocation;
+		this.variable = variable;
 	}
-
+	
 }

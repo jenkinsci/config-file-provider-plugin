@@ -27,22 +27,28 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
+import hudson.remoting.Callable;
+import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
-import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
-import org.jenkinsci.lib.configprovider.model.Config;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
+import org.jenkinsci.lib.configprovider.model.Config;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class ConfigFileBuildWrapper extends BuildWrapper {
 
@@ -58,31 +64,80 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
 			InterruptedException {
 		final PrintStream logger = listener.getLogger();
 
+		final Map<ManagedFile, FilePath> file2Path = new HashMap<ManagedFile, FilePath>();
+
 		for (ManagedFile managedFile : managedFiles) {
 			ConfigProvider provider = this.getProviderForConfigId(managedFile.fileId);
 			Config configFile = provider.getConfigById(managedFile.fileId);
 
-			String targetLocation = StringUtils.isBlank(managedFile.targetLocation) ? "" : managedFile.targetLocation;
-			if (!targetLocation.contains(".")) {
-				if (StringUtils.isBlank(targetLocation)) {
-					targetLocation = configFile.name.replace(" ", "_");
-				} else {
-					targetLocation = targetLocation + "/" + configFile.name.replace(" ", "_");
+			boolean isTargetGiven = !StringUtils.isBlank(managedFile.targetLocation);
+
+			FilePath target = null;
+			if (isTargetGiven) {
+				String targetLocation = managedFile.targetLocation;
+				if (!targetLocation.contains(".")) {
+					if (StringUtils.isBlank(targetLocation)) {
+						targetLocation = configFile.name.replace(" ", "_");
+					} else {
+						targetLocation = targetLocation + "/" + configFile.name.replace(" ", "_");
+					}
 				}
+				target = new FilePath(build.getWorkspace(), targetLocation);
+			} else {
+				target = ConfigFileBuildWrapper.createTempFile(build.getWorkspace().getChannel());
 			}
 
-			FilePath target = new FilePath(build.getWorkspace(), targetLocation);
 			logger.println(Messages.console_output(configFile.name, target.toURI()));
 			ByteArrayInputStream bs = new ByteArrayInputStream(configFile.content.getBytes());
 			target.copyFrom(bs);
+			file2Path.put(managedFile, target);
 		}
 		return new Environment() {
+
+			@Override
+			public void buildEnvVars(Map<String, String> env) {
+				for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
+					ManagedFile mf = entry.getKey();
+					FilePath fp = entry.getValue();
+					if (!StringUtils.isBlank(mf.variable)) {
+						env.put(mf.variable, fp.getRemote());
+					}
+				}
+			}
+
 			@Override
 			public boolean tearDown(@SuppressWarnings("rawtypes") AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
-				// let build continue
+				// delete the temporary files
+				for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
+					ManagedFile mf = entry.getKey();
+					FilePath fp = entry.getValue();
+
+					// we only created temp files if there was no targetLocation
+					// given
+					if (StringUtils.isBlank(mf.targetLocation)) {
+						if (fp != null && fp.exists()) {
+							fp.delete();
+						}
+					}
+				}
+
 				return true;
 			}
 		};
+	}
+
+	/**
+	 * creates a tmp file on the given channel
+	 */
+	public static FilePath createTempFile(VirtualChannel channel) throws IOException, InterruptedException {
+		return channel.call(new Callable<FilePath, IOException>() {
+			public FilePath call() throws IOException {
+				final File tmpTarget = File.createTempFile("config", "tmp");
+				return new FilePath(tmpTarget);
+			}
+
+			private static final long serialVersionUID = 1L;
+		});
 	}
 
 	private ConfigProvider getProviderForConfigId(String id) {
