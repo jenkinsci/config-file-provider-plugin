@@ -32,10 +32,11 @@ THE SOFTWARE.
 			<h1>
 				<img width="48" height="48" src="${imagesURL}/16x16/document_edit.gif" />
 				<img width="16" height="16" src="${imagesURL}/16x16/empty.gif" />
-				<j:out value="${%title}" />
+				<j:out value="${%filetypes}" />
 			</h1>
+			<j:out value="${%selectprovider}" />
 			<f:form method="post" action="addConfig">
-                <f:entry title="File Type">
+                <f:entry title="${%filetypes}">
                   <j:forEach var="desc" items="${configdescriptions}" varStatus="loop">
                     <f:radio name="providerId" value="${desc.key}" /> ${desc.value.name} - ${desc.value.description}<br />
                   </j:forEach>
