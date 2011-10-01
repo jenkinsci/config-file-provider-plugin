@@ -1,6 +1,5 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
 xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-
 	<j:choose>
 		<j:when test="${empty(descriptor.availableBuildTemplates)}">
 			<div>
@@ -9,8 +8,9 @@ xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 			</div>
 		</j:when>
 		<j:otherwise>
+			
 			<f:entry title="${%Build template}" field="buildStepContent">
-				<select name="buildStepId">
+				<select name="buildStepId" onChange="javascript:initDetailLink();" >
 					<option value="">(Default)</option>
 					<j:forEach var="inst" items="${descriptor.availableBuildTemplates}" varStatus="loop">
 						<j:choose>
@@ -23,6 +23,7 @@ xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 						</j:choose>
 					</j:forEach>
 				</select>
+				<a target="_blank" name="showDetail" href="" style="display:none;"> view selected script </a>
 				<f:entry title="${%Argument list}" field="buildStepArgs">
 					<f:repeatable var="arg" items="${instance.buildStepArgs}" name="buildStepArgs" noAddButton="true" minimum="1">
 						<table width="100%">
@@ -37,4 +38,24 @@ xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 			</f:entry>
 		</j:otherwise>
 	</j:choose>
+	
+	<script>
+	function initDetailLink(){
+		var all = new Array();
+        all = document.getElementsByName('buildStepId');
+       
+       for(var i = 0; i &lt; all.length; i++) {
+            var selId = document.getElementsByName('buildStepId').item(i).value;
+            if(selId.length != 0){
+            	document.getElementsByName('showDetail').item(i).href="/configfiles/show?id=".concat(selId);
+	    		document.getElementsByName('showDetail').item(i).style.display = 'block';
+	    	}else{
+	    		document.getElementsByName('showDetail').item(i).style.display = 'none';
+	    	}
+        }
+       
+	}
+	initDetailLink();
+    </script>
+	
 </j:jelly>
