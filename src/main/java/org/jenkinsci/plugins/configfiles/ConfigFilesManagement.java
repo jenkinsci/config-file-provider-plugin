@@ -134,7 +134,18 @@ public class ConfigFilesManagement extends ManagementLink {
 		} catch (ServletException e) {
 			e.printStackTrace();
 		}
-		return new HttpRedirect("index");
+		return new HttpRedirect("edit.jelly");
+	}
+
+	public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
+
+		ConfigProvider provider = getProviderForConfigId(confgiId);
+		Config config = provider.getConfigById(confgiId);
+		if (config != null) {
+			req.setAttribute("contentType", provider.getContentType());
+			req.setAttribute("config", config);
+			req.getView(this, "show.jelly").forward(req, rsp);
+		}
 	}
 
 	/**
