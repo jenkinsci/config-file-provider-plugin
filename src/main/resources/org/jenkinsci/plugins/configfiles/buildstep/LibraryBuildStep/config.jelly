@@ -1,0 +1,40 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+	<j:choose>
+		<j:when test="${empty(descriptor.availableBuildTemplates)}">
+			<div>
+				No build templates are defined. Please define one
+				<a href="/configfiles">here</a>.
+			</div>
+		</j:when>
+		<j:otherwise>
+			<f:entry title="${%Build template}" field="buildStepContent">
+				<select name="buildStepId">
+					<option value="">(Default)</option>
+					<j:forEach var="inst" items="${descriptor.availableBuildTemplates}" varStatus="loop">
+						<j:choose>
+							<j:when test="${inst.id == instance.buildStepId}">
+								<option value="${inst.id}" selected="selected">${inst.name}</option>
+							</j:when>
+							<j:otherwise>
+								<option value="${inst.id}">${inst.name}</option>
+							</j:otherwise>
+						</j:choose>
+					</j:forEach>
+				</select>
+				<f:entry title="${%Argument list}" field="buildStepArgs">
+					<f:repeatable var="arg" items="${instance.buildStepArgs}" name="buildStepArgs" noAddButton="true" minimum="1">
+						<table width="100%">
+							<f:entry>
+								<input type="text" name="arg" value="${arg}" />
+								<input type="button" name="add_button" value="${%Add argument}" class="repeatable-add show-if-last" />
+								<input type="button" name="delete_button" value="${%Delete}" class="repeatable-delete show-if-not-only" style="margin-left: 1em;" />
+							</f:entry>
+						</table>
+					</f:repeatable>
+				</f:entry>
+			</f:entry>
+		</j:otherwise>
+	</j:choose>
+</j:jelly>
