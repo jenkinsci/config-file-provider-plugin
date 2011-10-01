@@ -134,7 +134,7 @@ public class ConfigFilesManagement extends ManagementLink {
 		} catch (ServletException e) {
 			e.printStackTrace();
 		}
-		return new HttpRedirect("edit.jelly");
+		return new HttpRedirect("index");
 	}
 
 	public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
