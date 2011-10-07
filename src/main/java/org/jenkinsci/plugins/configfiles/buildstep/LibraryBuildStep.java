@@ -15,6 +15,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
+import hudson.util.VariableResolver;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -50,6 +51,8 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author Norman Baumann
  */
 public class LibraryBuildStep extends Builder {
+
+	private static Logger log = Logger.getLogger(LibraryBuildStep.class.getName());
 
 	private final String buildStepId;
 	private final String[] buildStepArgs;
@@ -137,8 +140,12 @@ public class LibraryBuildStep extends Builder {
 			}
 
 			// Add additional parameters set by user
-			if (buildStepArgs != null)
-				args.add(buildStepArgs);
+			if (buildStepArgs != null) {
+				final VariableResolver<String> variableResolver = build.getBuildVariableResolver();
+				for (String arg : buildStepArgs) {
+					args.add(resolveVariable(variableResolver, arg));
+				}
+			}
 
 			/*
 			 * Copying temporary file to remote execution host
@@ -297,4 +304,26 @@ public class LibraryBuildStep extends Builder {
 		}
 	}
 
+	/**
+	 * Checks whether the given parameter is a build parameter and if so,
+	 * returns the value of it.
+	 * 
+	 * @param variableResolver
+	 *            resolver to be used
+	 * @param potentalVariable
+	 *            the potential variable string. The string will be treated as
+	 *            variable, if it follows this pattern: ${XXX}
+	 * @return value of the build parameter or the origin passed string
+	 */
+	public static String resolveVariable(VariableResolver<String> variableResolver, String potentalVariable) {
+		String value = potentalVariable;
+		if (potentalVariable != null) {
+			if (potentalVariable.startsWith("${") && potentalVariable.endsWith("}")) {
+				value = potentalVariable.substring(2, potentalVariable.length() - 1);
+				value = variableResolver.resolve(value);
+				log.log(Level.FINE, "resolve " + potentalVariable + " to " + value);
+			}
+		}
+		return value;
+	}
 }
