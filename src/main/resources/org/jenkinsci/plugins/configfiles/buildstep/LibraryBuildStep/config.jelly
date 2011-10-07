@@ -29,8 +29,8 @@ xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 						<table width="100%">
 							<f:entry>
 								<input type="text" name="arg" value="${arg}" />
-								<input type="button" name="add_button" value="${%Add argument}" class="repeatable-add show-if-last" />
 								<input type="button" name="delete_button" value="${%Delete}" class="repeatable-delete show-if-not-only" style="margin-left: 1em;" />
+								<input type="button" name="add_button" value="${%Add argument}" class="repeatable-add show-if-last" />
 							</f:entry>
 						</table>
 					</f:repeatable>
