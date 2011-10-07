@@ -23,6 +23,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -49,6 +51,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * <p>
  * 
  * @author Norman Baumann
+ * @author domi (imod)
  */
 public class LibraryBuildStep extends Builder {
 
@@ -187,10 +190,6 @@ public class LibraryBuildStep extends Builder {
 	 */
 	@Extension(ordinal = 50)
 	public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
-		/**
-		 * A list of available files to choose from when creating a build step.
-		 */
-		private List<ManagedFile> managedFiles = new ArrayList<ManagedFile>();
 		final Logger logger = Logger.getLogger(LibraryBuildStep.class.getName());
 
 		/**
@@ -203,9 +202,9 @@ public class LibraryBuildStep extends Builder {
 		 */
 		public FormValidation doCheckBuildStepId(@QueryParameter String value) throws IOException, ServletException {
 			logger.log(Level.WARNING, "in doCheckBuildStepId '" + value + "'");
-			if (value == null || value.length() == 0)
+			if (value == null || value.length() == 0) {
 				return FormValidation.error("Please choose a build script from the drop down box.");
-
+			}
 			return FormValidation.ok();
 		}
 
@@ -220,24 +219,24 @@ public class LibraryBuildStep extends Builder {
 		 * This human readable name is used in the configuration screen.
 		 */
 		public String getDisplayName() {
-			return "Build step from ConfigFile library";
+			return org.jenkinsci.plugins.configfiles.Messages.buildstep_name();
 		}
 
 		/**
 		 * Return all config files (templates) that the user can choose from
 		 * when creating a build step.
 		 * 
-		 * @return A colleaction of config files of type
+		 * @return A collection of config files of type
 		 *         {@link BuildStepConfigProvider}.
 		 */
 		public Collection<Config> getAvailableBuildTemplates() {
-			ExtensionList<ConfigProvider> providers = ConfigProvider.all();
-			List<Config> allFiles = new ArrayList<Config>();
-			for (ConfigProvider provider : providers) {
-				if (provider.getClass().getName().endsWith("BuildStepConfigProvider"))
-					allFiles.addAll(provider.getAllConfigs());
-			}
-			return allFiles;
+			List<Config> allConfigs = new ArrayList(getBuildStepConfigProvider().getAllConfigs());
+			Collections.sort(allConfigs, new Comparator<Config>() {
+				public int compare(Config o1, Config o2) {
+					return o1.name.compareTo(o2.name);
+				}
+			});
+			return allConfigs;
 		}
 
 		/**
@@ -249,14 +248,17 @@ public class LibraryBuildStep extends Builder {
 		 *         Id is returned. Otherwise null.
 		 */
 		public Config getBuildStepConfigById(String id) {
-			Collection<Config> configs = getAvailableBuildTemplates();
-			Iterator<Config> iterator = configs.iterator();
-			while (iterator.hasNext()) {
-				Config c = iterator.next();
-				if (c.id.equals(id)) {
-					return c;
+			return getBuildStepConfigProvider().getConfigById(id);
+		}
+
+		private BuildStepConfigProvider getBuildStepConfigProvider() {
+			ExtensionList<ConfigProvider> providers = ConfigProvider.all();
+			for (ConfigProvider provider : providers) {
+				if (provider instanceof BuildStepConfigProvider) {
+					return (BuildStepConfigProvider) provider;
 				}
 			}
+			// should never happen
 			return null;
 		}
 
