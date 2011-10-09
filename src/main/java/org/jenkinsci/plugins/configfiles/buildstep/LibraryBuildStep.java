@@ -37,7 +37,6 @@ import net.sf.json.JSONObject;
 
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -273,31 +272,28 @@ public class LibraryBuildStep extends Builder {
 		 */
 		@Override
 		public LibraryBuildStep newInstance(StaplerRequest req, JSONObject json) {
-			logger.log(Level.WARNING, "New instance of LibraryBuildStep requested with JSON data:");
-			logger.log(Level.WARNING, json.toString(2));
+			logger.log(Level.FINE, "New instance of LibraryBuildStep requested with JSON data:");
+			logger.log(Level.FINE, json.toString(2));
 
 			String id = json.getString("buildStepId");
-			if (json.has("buildStepArgs") == true) {
-				boolean isArray = false;
-				try {
-					// read with wrong type
-					json.getJSONObject("buildStepArgs");
-				} catch (Exception e) {
-					isArray = true;
-				}
-
-				if (isArray) {
-					JSONArray argsObj = json.getJSONArray("buildStepArgs");
-					Iterator<JSONObject> arguments = argsObj.iterator();
-					String[] args = new String[argsObj.size()];
-					int i = 0;
-					while (arguments.hasNext()) {
-						args[i++] = arguments.next().getString("arg");
+			final JSONObject definedArgs = json.getJSONObject("defineArgs");
+			if (!definedArgs.isNullObject()) {
+				JSONObject argsObj = definedArgs.optJSONObject("buildStepArgs");
+				if (argsObj == null) {
+					JSONArray argsArrayObj = definedArgs.optJSONArray("buildStepArgs");
+					String[] args = null;
+					if (argsArrayObj != null) {
+						Iterator<JSONObject> arguments = argsArrayObj.iterator();
+						args = new String[argsArrayObj.size()];
+						int i = 0;
+						while (arguments.hasNext()) {
+							args[i++] = arguments.next().getString("arg");
+						}
 					}
 					return new LibraryBuildStep(id, args);
 				} else {
 					String[] args = new String[1];
-					args[0] = json.getJSONObject("buildStepArgs").getString("arg");
+					args[0] = argsObj.getString("arg");
 					return new LibraryBuildStep(id, args);
 				}
 			} else {
