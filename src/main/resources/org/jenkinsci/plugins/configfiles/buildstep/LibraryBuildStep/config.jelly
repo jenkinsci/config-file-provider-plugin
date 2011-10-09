@@ -15,26 +15,32 @@ xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 					<j:forEach var="inst" items="${descriptor.availableBuildTemplates}" varStatus="loop">
 						<j:choose>
 							<j:when test="${inst.id == instance.buildStepId}">
-								<option value="${inst.id}" selected="selected">${inst.name}</option>
+								<option value="${inst.id}" selected="selected">${inst.name} - ${inst.comment}</option>
 							</j:when>
 							<j:otherwise>
-								<option value="${inst.id}">${inst.name}</option>
+								<option value="${inst.id}">${inst.name} - ${inst.comment}</option>
 							</j:otherwise>
 						</j:choose>
 					</j:forEach>
 				</select>
 				<a target="_blank" name="showDetail" href="" style="display:none;"> view selected script </a>
-				<f:entry title="${%Argument list}" field="buildStepArgs">
-					<f:repeatable var="arg" items="${instance.buildStepArgs}" name="buildStepArgs" noAddButton="true" minimum="1">
-						<table width="100%">
-							<f:entry>
-								<input type="text" name="arg" value="${arg}" />
-								<input type="button" name="delete_button" value="${%Delete}" class="repeatable-delete show-if-not-only" style="margin-left: 1em;" />
-								<input type="button" name="add_button" value="${%Add argument}" class="repeatable-add show-if-last" />
-							</f:entry>
-						</table>
-					</f:repeatable>
-				</f:entry>
+				<f:block>
+				  <table>
+				    <f:optionalBlock name="defineArgs" title="Define script arguments" checked="${!empty(instance.buildStepArgs)}">
+				      <f:entry title="${%Argument list}" field="buildStepArgs">
+							<f:repeatable var="arg" items="${instance.buildStepArgs}" name="buildStepArgs" noAddButton="true" minimum="1">
+								<table width="100%">
+									<f:entry>
+										<input type="text" name="arg" value="${arg}" />
+										<input type="button" name="delete_button" value="${%Delete}" class="repeatable-delete show-if-not-only" style="margin-left: 1em;" />
+										<input type="button" name="add_button" value="${%Add argument}" class="repeatable-add show-if-last" />
+									</f:entry>
+								</table>
+							</f:repeatable>
+					</f:entry>
+				    </f:optionalBlock>
+				  </table>
+				</f:block>
 			</f:entry>
 		</j:otherwise>
 	</j:choose>
