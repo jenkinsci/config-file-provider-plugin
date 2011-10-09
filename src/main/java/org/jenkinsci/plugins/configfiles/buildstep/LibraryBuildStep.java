@@ -223,7 +223,7 @@ public class LibraryBuildStep extends Builder {
 
 		/**
 		 * Return all config files (templates) that the user can choose from
-		 * when creating a build step.
+		 * when creating a build step. Ordered by name.
 		 * 
 		 * @return A collection of config files of type
 		 *         {@link BuildStepConfigProvider}.
@@ -252,13 +252,7 @@ public class LibraryBuildStep extends Builder {
 
 		private BuildStepConfigProvider getBuildStepConfigProvider() {
 			ExtensionList<ConfigProvider> providers = ConfigProvider.all();
-			for (ConfigProvider provider : providers) {
-				if (provider instanceof BuildStepConfigProvider) {
-					return (BuildStepConfigProvider) provider;
-				}
-			}
-			// should never happen
-			return null;
+			return providers.get(BuildStepConfigProvider.class);
 		}
 
 		/**
