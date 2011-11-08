@@ -55,7 +55,6 @@ public class ManagedFileUtil {
 		for (ManagedFile managedFile : managedFiles) {
 			ConfigProvider provider = getProviderForConfigId(managedFile.fileId);
 
-			System.out.println("P: " + provider + ", F: " + managedFile);
 			if (provider == null) {
 				throw new IOException(
 						"not able to resolve a provider responsible for the following file - maybe a config-file-provider plugin got deleted by an administrator: "
