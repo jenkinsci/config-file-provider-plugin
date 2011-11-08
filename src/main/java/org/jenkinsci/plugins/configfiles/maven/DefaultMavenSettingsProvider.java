@@ -24,16 +24,14 @@
 package org.jenkinsci.plugins.configfiles.maven;
 
 import hudson.Extension;
-import hudson.maven.settings.MavenSettingsProvider;
-import org.jenkinsci.lib.configprovider.AbstractConfigProvider;
-import org.jenkinsci.lib.configprovider.model.Config;
+
+import org.jenkinsci.lib.configprovider.maven.MavenSettingsProvider;
 import org.jenkinsci.lib.configprovider.model.ConfigDescription;
-import org.jenkinsci.lib.configprovider.model.ContentType;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-
+/**
+ * @author Olivier Lamy
+ * @author domi (imod)
+ */
 @Extension
 public class DefaultMavenSettingsProvider extends AbstractMavenSettingsProvider implements MavenSettingsProvider {
 

@@ -26,11 +26,9 @@ THE SOFTWARE.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 	<l:layout permission="${app.ADMINISTER}" norefresh="true">
-		<!--
-			<st:include it="${it.primaryView}" page="sidepanel.jelly"
-			xmlns:st="jelly:stapler" />
-		-->
+
 		<st:include page="sidepanel.jelly" />
+		
 		<l:main-panel>
 			<h1>
 				<img src="${it.iconFileName}" alt="" />
@@ -39,32 +37,43 @@ THE SOFTWARE.
 			</h1>
 
 			<j:out value="${%intro}" />
-
+			
 			<div class="excerpt">
-				<table class="pane">
-					<j:forEach var="t" items="${it.configs}">
+				
+				<j:forEach var="p" items="${it.providers}">
+					<p/>
+					<p/>
+					<table class="pane">
 						<tr valign="center" style="border-top: 0px;">
-							<td class="pane" width="32">
-								<a href="editConfig?id=${t.id}">
-									<img width="16" height="16" title="${%edit script} ${t.name}"
-										src="${imagesURL}/16x16/document_edit.gif" />
-								</a>
-								<j:out value=" " />
-								<a href="removeConfig?id=${t.id}">
-									<img width="16" height="16" title="${%remove script} ${t.name}"
-										src="${imagesURL}/16x16/edit-delete.gif" />
-								</a>
-							</td>
-							<td class="pane-header">
-								<j:out value="${t.name}" />
+							<td class="pane-header" colspan="2">
+								<i><j:out value="${p.configDescription.name}" /> - <j:out value="${p.configDescription.description}" /></i>
 							</td>
 						</tr>
-						<tr>
-							<td><j:out value="${t.contentType}" /></td>
-							<td><j:out value="${t.comment}" /></td>
-						</tr>
-					</j:forEach>
-				</table>
+						<j:forEach var="t" items="${p.allConfigs}">
+							<tr valign="center" style="border-top: thin inset darkgray">
+								<td width="32">
+									<a href="editConfig?id=${t.id}">
+										<img width="16" height="16" title="${%edit script} ${t.name}"
+											src="${imagesURL}/16x16/document_edit.gif" />
+									</a>
+									<j:out value=" " />
+									<a href="removeConfig?id=${t.id}">
+										<img width="16" height="16" title="${%remove script} ${t.name}"
+											src="${imagesURL}/16x16/edit-delete.gif" />
+									</a>
+								</td>
+								<td >
+									<i><j:out value="${t.name}" /></i>
+								</td>
+							</tr>
+							<tr>
+								<td><j:out value="${t.contentType}" /></td>
+								<td><j:out value="${t.comment}" /></td>
+							</tr>
+						</j:forEach>
+					</table>
+				</j:forEach>
+				
 			</div>
 
 		</l:main-panel>

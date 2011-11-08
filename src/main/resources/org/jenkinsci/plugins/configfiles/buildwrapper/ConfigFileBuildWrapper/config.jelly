@@ -8,13 +8,16 @@
 
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<st:once>
+		<script type="text/javascript" src="/plugin/config-file-provider/js/fileprovider.js" />
+	</st:once>
 
 	<f:entry title="${%Managed Files}">
 		<f:repeatable var="managedFile" items="${instance.managedFiles}" name="managedFiles" noAddButton="true" minimum="1">
 			<table width="100%">
 
 				<f:entry title="File">
-					<select name="fileId">
+					<select name="fileId" onChange="fp_initDetailLink(this);">
 						<j:forEach var="aFile" items="${descriptor.configFiles}" varStatus="loop">
 							<j:choose>
 								<j:when test="${managedFile.fileId==aFile.id}">
@@ -27,6 +30,14 @@
 						</j:forEach>
 					</select>
 				</f:entry>
+				
+				<tr>
+					<td></td>
+					<td></td>
+					<td>
+						<a target="_blank" name="showFileDetailLink" href="" style="display:none;" onclick="window.open(this.href,'window','width=900,height=640,resizable,scrollbars,toolbar,menubar') ;return false;">view selected file</a>
+					</td>
+				</tr>
 
 				<f:entry title="Target" field="targetLocation">
 					<f:textbox value="${managedFile.targetLocation}" />
@@ -46,6 +57,16 @@
 			</table>
 		</f:repeatable>
 	</f:entry>
-
+	<st:once>
+		<script type="text/javascript">
+			Event.observe(window, 'load', function() { 
+				var all = new Array();
+	   			all = document.getElementsByName('fileId');
+				for(var i = 0; i &lt; all.length; i++) {
+					fp_initDetailLink(all.item(i));
+				}
+			});
+		</script>
+	</st:once>
 
 </j:jelly>

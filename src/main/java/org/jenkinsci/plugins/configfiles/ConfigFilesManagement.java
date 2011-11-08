@@ -103,6 +103,10 @@ public class ConfigFilesManagement extends ManagementLink {
 		return null;
 	}
 
+	public List<ConfigProvider> getProviders() {
+		return ConfigProvider.all();
+	}
+
 	public Collection<Config> getConfigs() {
 		List<Config> all = new ArrayList<Config>();
 		for (ConfigProvider provider : ConfigProvider.all()) {
@@ -168,6 +172,7 @@ public class ConfigFilesManagement extends ManagementLink {
 		if (config != null) {
 			req.setAttribute("contentType", provider.getContentType());
 			req.setAttribute("config", config);
+			req.setAttribute("provider", provider);
 			req.getView(this, "edit.jelly").forward(req, rsp);
 		} else {
 			req.getView(this, "index").forward(req, rsp);
@@ -175,7 +180,8 @@ public class ConfigFilesManagement extends ManagementLink {
 	}
 
 	/**
-	 * Loads the config by its id and forwards the request to "edit.jelly".
+	 * Requests a new config object from provider (defined by the given id) and
+	 * forwards the request to "edit.jelly".
 	 * 
 	 * @param req
 	 *            request
@@ -189,16 +195,16 @@ public class ConfigFilesManagement extends ManagementLink {
 	public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId) throws IOException, ServletException {
 		checkPermission(Hudson.ADMINISTER);
 
-		Config config = null;
 		for (ConfigProvider provider : ConfigProvider.all()) {
 			if (provider.getProviderId().equals(providerId)) {
 				req.setAttribute("contentType", provider.getContentType());
-				config = provider.newConfig();
+				req.setAttribute("provider", provider);
+				Config config = provider.newConfig();
+				req.setAttribute("config", config);
 				break;
 			}
 		}
 
-		req.setAttribute("config", config);
 		req.getView(this, "edit.jelly").forward(req, rsp);
 	}
 

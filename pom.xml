@@ -1,78 +1,81 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.jenkins-ci.plugins</groupId>
-    <artifactId>plugin</artifactId>
-    <version>1.427</version>
-  </parent>
+	<parent>
+		<groupId>org.jenkins-ci.plugins</groupId>
+		<artifactId>plugin</artifactId>
+		<version>1.427</version>
+	</parent>
 
-  <artifactId>config-file-provider</artifactId>
-  <version>1.2-SNAPSHOT</version>
+	<artifactId>config-file-provider</artifactId>
+	<version>1.2-SNAPSHOT</version>
 
-  <packaging>hpi</packaging>
+	<packaging>hpi</packaging>
 
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/Config+File+Provider+Plugin</url>
+	<url>https://wiki.jenkins-ci.org/display/JENKINS/Config+File+Provider+Plugin</url>
 
-  <scm>
-    <connection>scm:git:git://github.com/jenkinsci/config-file-provider-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/config-file-provider-plugin.git</developerConnection>
-    <url>https://github.com/jenkinsci/config-file-provider-plugin</url>
-  </scm>
+	<scm>
+		<connection>scm:git:git://github.com/jenkinsci/config-file-provider-plugin.git</connection>
+		<developerConnection>scm:git:git@github.com:jenkinsci/config-file-provider-plugin.git</developerConnection>
+		<url>https://github.com/jenkinsci/config-file-provider-plugin</url>
+	</scm>
 
-  <name>Config File Provider Plugin</name>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+	<name>Config File Provider Plugin</name>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
-  <developers>
-    <developer>
-      <id>olamy</id>
-      <name>Olivier Lamy</name>
-    </developer>
-    <developer>
-      <id>domi</id>
-      <name>domi</name>
-    </developer>
-  </developers>
+	<developers>
+		<developer>
+			<id>olamy</id>
+			<name>Olivier Lamy</name>
+		</developer>
+		<developer>
+			<id>domi</id>
+			<name>domi</name>
+		</developer>
+	</developers>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.jenkins-ci.lib</groupId>
-      <artifactId>config-provider-model</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.main</groupId>
-      <artifactId>maven-plugin</artifactId>
-      <scope>compile</scope>
-    </dependency>
-  </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>org.jenkins-ci.lib</groupId>
+			<artifactId>config-provider-model</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.main</groupId>
+			<artifactId>maven-plugin</artifactId>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 
-  <repositories>
-    <repository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
+	<repositories>
+		<repository>
+			<id>m.g.o-public</id>
+			<url>http://maven.glassfish.org/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>m.g.o-public</id>
+			<url>http://maven.glassfish.org/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+	</build>
 
 </project>

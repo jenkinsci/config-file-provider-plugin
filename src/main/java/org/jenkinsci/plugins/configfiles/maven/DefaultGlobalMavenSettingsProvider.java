@@ -16,24 +16,24 @@
 package org.jenkinsci.plugins.configfiles.maven;
 
 import hudson.Extension;
-import hudson.maven.settings.GlobalMavenSettingsProvider;
+
+import org.jenkinsci.lib.configprovider.maven.GlobalMavenSettingsProvider;
 import org.jenkinsci.lib.configprovider.model.ConfigDescription;
 
 /**
  * @author Olivier Lamy
+ * @author domi (imod)
  */
 @Extension
-public class DefaultGlobalMavenSettingsProvider extends AbstractMavenSettingsProvider implements GlobalMavenSettingsProvider
-{
+public class DefaultGlobalMavenSettingsProvider extends AbstractMavenSettingsProvider implements GlobalMavenSettingsProvider{
 
 	@Override
 	protected String getXmlFileName() {
 		return "maven-global-settings-files.xml";
 	}
 
-    @Override
-    public ConfigDescription getConfigDescription()
-    {
-        return new ConfigDescription(Messages.mvn_global_settings_provider_name(), Messages.mvn_global_settings_provider_description());
-    }
+	@Override
+	public ConfigDescription getConfigDescription() {
+		return new ConfigDescription(Messages.mvn_global_settings_provider_name(), Messages.mvn_global_settings_provider_description());
+	}
 }
