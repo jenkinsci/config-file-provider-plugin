@@ -37,21 +37,18 @@ THE SOFTWARE.
 			</h1>
 			<f:form method="post" action="saveConfig">
 			   <f:section title="${%the configuration}" name="config">
-					<f:entry title="${%ID}" >
-						<f:textbox readonly="readonly" name="config.id" value="${config.id}" />
-					</f:entry>
-					<f:entry title="${%Name}">
-						<f:textbox name="config.name" value="${config.name}" />
-					</f:entry>
-					<f:entry title="${%Comment}">
-						<f:textbox name="config.comment" value="${config.comment}" />
-					</f:entry>
-					<f:entry title="${%Content}">
-						<f:textarea id="config.content" name="config.content" value="${config.content}" /> 
-					</f:entry>
-				<f:block>
-					<f:submit value="${%Submit}" />
-				</f:block>
+			   		<input type="hidden" name="stapler-class" value="${config.class.name}" />
+			   		<j:choose>
+			          <j:when test="${config.class.name == 'org.jenkinsci.lib.configprovider.model.Config'}">
+			            	<st:include page="edit-config.jelly" from="${instance}"/>
+			          </j:when>
+			          <j:otherwise>
+			            	<st:include page="edit-config.jelly" from="${config}"/>
+			          </j:otherwise>
+			        </j:choose>
+					<f:block>
+						<f:submit value="${%Submit}" />
+					</f:block>
 				</f:section>
 			</f:form>
 		</l:main-panel>

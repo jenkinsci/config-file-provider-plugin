@@ -25,27 +25,25 @@ THE SOFTWARE.
 
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-
-
 	<style>.CodeMirror {border: 2px inset #dee;}</style>
-	<f:form method="" action="">
-	   <f:section title="${%the configuration}" name="config">
-			<f:entry title="${%ID}" >
-				<f:textbox readonly="readonly" name="config.id" value="${config.id}" />
-			</f:entry>
-			<f:entry title="${%Name}">
-				<f:textbox readonly="readonly" name="config.name" value="${config.name}" />
-			</f:entry>
-			<f:entry title="${%Comment}">
-				<f:textbox readonly="readonly" name="config.comment" value="${config.comment}" />
-			</f:entry>
-			<f:entry title="${%Content}">
-				<f:textarea readonly="readonly" id="config.content" name="config.content" value="${config.content}" /> 
-			</f:entry>
-		</f:section>
-	</f:form>	
+	<l:layout norefresh="true">
+		<l:main-panel>
 	
-	
+			<f:form method="" action="">
+				<f:section title="${%Script details}" name="config">
+					<j:choose>
+						<j:when test="${config.class.name == 'org.jenkinsci.lib.configprovider.model.Config'}">
+							<st:include page="show-config.jelly" from="${instance}" />
+						</j:when>
+						<j:otherwise>
+							<st:include page="show-config.jelly" from="${config}" />
+						</j:otherwise>
+					</j:choose>
+				</f:section>
+			</f:form>	
+		
+		</l:main-panel>
+	</l:layout>
 	<j:if test="${contentType!=null}">
 		<st:adjunct includes="
 	        org.kohsuke.stapler.codemirror.mode.${contentType.cmMode}.${contentType.cmMode},

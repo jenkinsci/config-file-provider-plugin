@@ -41,5 +41,9 @@ public class ManagedFile {
 		this.targetLocation = targetLocation;
 		this.variable = variable;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "[ManagedFile: id=" + fileId + ", targetLocation=" + targetLocation + ", variable=" + variable + "]";
+	}
 }

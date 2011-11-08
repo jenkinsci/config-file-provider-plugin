@@ -50,11 +50,23 @@ public class ManagedFileUtil {
 			throws IOException, InterruptedException {
 
 		final Map<ManagedFile, FilePath> file2Path = new HashMap<ManagedFile, FilePath>();
-		logger.print("provisoning config files...");
+		logger.println("provisoning config files...");
 
 		for (ManagedFile managedFile : managedFiles) {
 			ConfigProvider provider = getProviderForConfigId(managedFile.fileId);
+
+			System.out.println("P: " + provider + ", F: " + managedFile);
+			if (provider == null) {
+				throw new IOException(
+						"not able to resolve a provider responsible for the following file - maybe a config-file-provider plugin got deleted by an administrator: "
+								+ managedFile);
+			}
+
 			Config configFile = provider.getConfigById(managedFile.fileId);
+			if (configFile == null) {
+				throw new IOException("not able to provide the following file, can't be resolved by any provider - maybe it got deleted by an administrator: "
+						+ managedFile);
+			}
 
 			boolean isTargetGiven = !StringUtils.isBlank(managedFile.targetLocation);
 

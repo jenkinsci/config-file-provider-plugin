@@ -23,13 +23,12 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
-import org.jenkinsci.lib.configprovider.AbstractConfigProvider;
-import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.lib.configprovider.model.ConfigDescription;
-import org.jenkinsci.lib.configprovider.model.ContentType;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import org.jenkinsci.lib.configprovider.AbstractConfigProvider;
+import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ContentType;
 
 /**
  * @author Olivier Lamy
