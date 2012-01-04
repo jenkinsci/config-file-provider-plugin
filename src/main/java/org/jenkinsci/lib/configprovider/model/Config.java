@@ -23,16 +23,17 @@
  */
 package org.jenkinsci.lib.configprovider.model;
 
+import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.Serializable;
 
 /**
- * Represents a configuration file. A Config object is always managed by one
- * specific {@link org.jenkinsci.lib.configprovider.ConfigProvider}
- * 
+ * Represents a particular configuration file and its content.
+ *
+ * A Config object "belongs to" a {@link ConfigProvider} instance.
+ *
  * @author domi
- * 
  */
 public class Config implements Serializable {
 
@@ -40,8 +41,22 @@ public class Config implements Serializable {
 	 * a unique id along all providers!
 	 */
 	public final String id;
+
+    /**
+     * Human readable display name that distinguishes this {@link Config} instance among
+     * other {@link Config} instances.
+     */
 	public final String name;
+
+    /**
+     * Any note that the author of this configuration wants to associate with this.
+     * Jenkins doesn't use this. Can be null.
+     */
 	public final String comment;
+
+    /**
+     * Content of the file as-is.
+     */
 	public final String content;
 
 	@DataBoundConstructor
@@ -51,6 +66,19 @@ public class Config implements Serializable {
 		this.comment = comment;
 		this.content = content;
 	}
+
+    /**
+     * Gets the {@link ConfigProvider} that owns and manages this config.
+     *
+     * @return never null.
+     */
+    public ConfigProvider getOwner() {
+        for (ConfigProvider p : ConfigProvider.all()) {
+            if (p.isResponsibleFor(id))
+                return p;
+        }
+        throw new IllegalStateException("Unable to find the owner provider for ID="+id);
+    }
 
 	@Override
 	public String toString() {
