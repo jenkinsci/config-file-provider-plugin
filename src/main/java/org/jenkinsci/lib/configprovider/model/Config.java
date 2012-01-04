@@ -23,6 +23,9 @@
  */
 package org.jenkinsci.lib.configprovider.model;
 
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Describable;
+import hudson.model.Descriptor;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -35,7 +38,7 @@ import java.io.Serializable;
  *
  * @author domi
  */
-public class Config implements Serializable {
+public class Config implements Serializable, Describable<Config> {
 
 	/**
 	 * a unique id along all providers!
@@ -61,7 +64,8 @@ public class Config implements Serializable {
 
 	@DataBoundConstructor
 	public Config(String id, String name, String comment, String content) {
-		this.id = id == null ? String.valueOf(System.currentTimeMillis()) : id;
+        if (id==null)   throw new IllegalArgumentException();
+		this.id = id;
 		this.name = name;
 		this.comment = comment;
 		this.content = content;
@@ -72,7 +76,7 @@ public class Config implements Serializable {
      *
      * @return never null.
      */
-    public ConfigProvider getOwner() {
+    public ConfigProvider getDescriptor() {
         for (ConfigProvider p : ConfigProvider.all()) {
             if (p.isResponsibleFor(id))
                 return p;
