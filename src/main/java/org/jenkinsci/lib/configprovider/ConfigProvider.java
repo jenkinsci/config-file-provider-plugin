@@ -25,6 +25,7 @@ package org.jenkinsci.lib.configprovider;
 
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
+import hudson.model.Descriptor;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ConfigDescription;
@@ -43,7 +44,7 @@ import java.util.Collection;
  *
  * @author domi
  */
-public abstract class ConfigProvider implements ExtensionPoint {
+public abstract class ConfigProvider extends Descriptor<Config> implements ExtensionPoint {
 
 	/**
 	 * All registered {@link ConfigProvider}s.

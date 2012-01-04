@@ -89,9 +89,16 @@ public abstract class AbstractConfigProvider extends ConfigProvider implements S
 		this.save();
 	}
 
-	/**
-	 * @see hudson.model.Saveable#save()
+    // backward compatibility
+    @Override
+    public String getDisplayName() {
+        return getConfigDescription().getName();
+    }
+
+    /**
+     * Overridden for backward compatibility to let subtype customize the file name.
 	 */
+    @Override
 	public void save() {
 		if (BulkChange.contains(this))
 			return;
@@ -103,7 +110,10 @@ public abstract class AbstractConfigProvider extends ConfigProvider implements S
 		}
 	}
 
-	protected void load() {
+    /**
+     * Overridden for backward compatibility to let subtype customize the file name.
+	 */
+	public void load() {
 		XmlFile xml = getConfigXml();
 		if (xml.exists()) {
 			try {
@@ -118,6 +128,7 @@ public abstract class AbstractConfigProvider extends ConfigProvider implements S
 		return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getInstance().getRootDir(), this.getXmlFileName()));
 	}
 
-	protected abstract String getXmlFileName();
-
+	protected String getXmlFileName() {
+        return getClass().getName()+".xml";
+    }
 }

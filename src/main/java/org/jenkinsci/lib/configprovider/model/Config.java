@@ -64,8 +64,7 @@ public class Config implements Serializable, Describable<Config> {
 
 	@DataBoundConstructor
 	public Config(String id, String name, String comment, String content) {
-        if (id==null)   throw new IllegalArgumentException();
-		this.id = id;
+		this.id = id == null ? String.valueOf(System.currentTimeMillis()) : id;
 		this.name = name;
 		this.comment = comment;
 		this.content = content;
