@@ -25,7 +25,9 @@ package org.jenkinsci.lib.configprovider.maven;
 
 /**
  * @author Olivier Lamy
- * @since @since 1.1
+ * @since 1.1
+ * @deprecated
+ *      Use hudson.maven.settings.MavenSettingsProvider defined in the maven plugin.
  */
 public interface MavenSettingsProvider {
 	// no op only a marker interface

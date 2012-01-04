@@ -18,6 +18,8 @@ package org.jenkinsci.lib.configprovider.maven;
 /**
  * @author Olivier Lamy
  * @since 1.1
+ * @deprecated
+ *      Use hudson.maven.settings.GlobalMavenSettingsProvider defined in the maven plugin.
  */
 public interface GlobalMavenSettingsProvider {
 	// no op only a marker interface
