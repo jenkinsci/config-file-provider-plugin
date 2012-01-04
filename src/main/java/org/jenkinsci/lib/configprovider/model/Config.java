@@ -23,9 +23,7 @@
  */
 package org.jenkinsci.lib.configprovider.model;
 
-import hudson.model.AbstractDescribableImpl;
 import hudson.model.Describable;
-import hudson.model.Descriptor;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -83,6 +81,14 @@ public class Config implements Serializable, Describable<Config> {
         throw new IllegalStateException("Unable to find the owner provider for ID="+id);
     }
 
+    /**
+     * Alias for {@link #getProvider()}
+     */
+    public ConfigProvider getProvider() {
+        return getDescriptor();
+        
+    }
+    
 	@Override
 	public String toString() {
 		return "[Config: id=" + id + ", name=" + name + "]";

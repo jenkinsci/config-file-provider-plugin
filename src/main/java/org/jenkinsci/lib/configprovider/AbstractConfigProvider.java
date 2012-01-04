@@ -38,53 +38,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractConfigProvider extends ConfigProvider implements Saveable {
+/**
+ * Backward compatibility layer for old subtypes of {@link ConfigProvider}
+ * 
+ * @deprecated as of 1.2.
+ *      Extend {@link AbstractConfigProviderImpl} directly.
+ */
+public abstract class AbstractConfigProvider extends AbstractConfigProviderImpl {
 
 	protected final String ID_PREFIX = this.getClass().getSimpleName() + ".";
-
-	protected Map<String, Config> configs = new HashMap<String, Config>();
 
 	public AbstractConfigProvider() {
 		load();
 	}
 
-	@Override
-	public Collection<Config> getAllConfigs() {
-		return Collections.unmodifiableCollection(configs.values());
-	}
-
-	@Override
-	public Config getConfigById(String configId) {
-		return configs.get(configId);
-	}
-
-	@Override
-	public String getProviderId() {
-		return ID_PREFIX;
-	}
-
-	@Override
-	public boolean isResponsibleFor(String configId) {
-		return configId != null && configId.startsWith(ID_PREFIX);
-	}
-
-	@Override
-	public Config newConfig() {
-		String id = this.getProviderId() + System.currentTimeMillis();
-		return new Config(id, null, null, null);
-	}
-
-	@Override
-	public void remove(String configId) {
-		configs.remove(configId);
-		this.save();
-	}
-
-	@Override
-	public void save(Config config) {
-		configs.put(config.id, config);
-		this.save();
-	}
+    @Override
+    public String getProviderId() {
+        return ID_PREFIX;
+    }
 
     // backward compatibility
     @Override
