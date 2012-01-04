@@ -24,13 +24,17 @@
 package org.jenkinsci.lib.configprovider.model;
 
 
+import org.jenkinsci.lib.configprovider.ConfigProvider;
+
 /**
  * Describes the {@link Config} a {@link org.jenkinsci.lib.configprovider.ConfigProvider}
  * is able to handle. This
  * information can be used for display in the UI.
  * 
  * @author domi
- * 
+ * @deprecated as of 1.2
+ *      {@link ConfigProvider#getDisplayName()} should be overridden for the {@link #name} field,
+ *      and {@code newInstanceDetail.jelly} view for {@link ConfigProvider} replaces the {@link #description} field.
  */
 public class ConfigDescription {
 

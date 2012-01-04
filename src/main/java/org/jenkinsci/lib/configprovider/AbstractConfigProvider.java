@@ -59,9 +59,6 @@ public abstract class AbstractConfigProvider extends ConfigProvider implements S
 	}
 
 	@Override
-	public abstract ConfigDescription getConfigDescription();
-
-	@Override
 	public String getProviderId() {
 		return ID_PREFIX;
 	}

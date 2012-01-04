@@ -65,8 +65,13 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
 	 * of
 	 * 
 	 * @return the description
+     * @deprecated as of 1.2
+     *      Use {@link #getDisplayName()} for {@link ConfigDescription#name},
+     *      and {@code newInstanceDetail.jelly} view for {@link ConfigProvider} replaces the {@link ConfigDescription#description} field.
 	 */
-	public abstract ConfigDescription getConfigDescription();
+	public ConfigDescription getConfigDescription() {
+        return new ConfigDescription(getDisplayName(),"");
+    }
 
 	/**
 	 * The content type of the configs this provider manages. e.g. can be used
