@@ -37,6 +37,11 @@ public class CustomConfigProvider extends AbstractConfigProvider{
 	public ConfigDescription getConfigDescription() {
 		return new ConfigDescription(Messages.custom_provider_name(), Messages.custom_provider_description());
 	}
+	
+	@Override
+	public String getDisplayName() {
+	    return Messages.custom_provider_name();
+	}
 
 	@Override
 	public Config newConfig() {

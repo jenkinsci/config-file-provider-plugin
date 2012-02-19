@@ -36,4 +36,9 @@ public class DefaultGlobalMavenSettingsProvider extends AbstractMavenSettingsPro
 	public ConfigDescription getConfigDescription() {
 		return new ConfigDescription(Messages.mvn_global_settings_provider_name(), Messages.mvn_global_settings_provider_description());
 	}
+	
+	@Override
+	public String getDisplayName() {
+	    return Messages.mvn_global_settings_provider_name();
+	}
 }

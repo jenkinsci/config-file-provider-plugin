@@ -35,14 +35,19 @@ import org.jenkinsci.lib.configprovider.model.ConfigDescription;
 @Extension
 public class DefaultMavenSettingsProvider extends AbstractMavenSettingsProvider implements MavenSettingsProvider {
 
-	@Override
-	protected String getXmlFileName() {
-		return "maven-settings-files.xml";
-	}
+    @Override
+    protected String getXmlFileName() {
+        return "maven-settings-files.xml";
+    }
 
-	@Override
-	public ConfigDescription getConfigDescription() {
-		return new ConfigDescription(Messages.mvn_settings_provider_name(), Messages.mvn_settings_provider_description());
-	}
+    @Override
+    public ConfigDescription getConfigDescription() {
+        return new ConfigDescription(Messages.mvn_settings_provider_name(), Messages.mvn_settings_provider_description());
+    }
+
+    @Override
+    public String getDisplayName() {
+        return Messages.mvn_settings_provider_name();
+    }
 
 }

@@ -46,7 +46,7 @@ THE SOFTWARE.
 					<table class="pane">
 						<tr valign="center" style="border-top: 0px;">
 							<td class="pane-header" colspan="2">
-								<i><j:out value="${p.configDescription.name}" /> - <j:out value="${p.configDescription.description}" /></i>
+								<i><j:out value="${p.displayName}" /></i>
 							</td>
 						</tr>
 						<j:forEach var="t" items="${p.allConfigs}">

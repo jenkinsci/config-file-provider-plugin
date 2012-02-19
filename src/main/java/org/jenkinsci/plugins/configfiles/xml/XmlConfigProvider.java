@@ -34,25 +34,29 @@ import org.jenkinsci.plugins.configfiles.Messages;
 @Extension
 public class XmlConfigProvider extends AbstractConfigProvider {
 
-	@Override
-	public ConfigDescription getConfigDescription() {
-		return new ConfigDescription(Messages.xml_provider_name(), Messages.xml_provider_description());
-	}
+    @Override
+    public ConfigDescription getConfigDescription() {
+        return new ConfigDescription(Messages.xml_provider_name(), Messages.xml_provider_description());
+    }
 
-	@Override
-	public Config newConfig() {
-		String id = getProviderId() + System.currentTimeMillis();
-		return new Config(id, "XmlConfig", "", "<root></root>");
-	}
+    @Override
+    public Config newConfig() {
+        String id = getProviderId() + System.currentTimeMillis();
+        return new Config(id, "XmlConfig", "", "<root></root>");
+    }
 
-	@Override
-	protected String getXmlFileName() {
-		return "xml-config-files.xml";
-	}
+    @Override
+    protected String getXmlFileName() {
+        return "xml-config-files.xml";
+    }
 
-	@Override
-	public ContentType getContentType() {
-		return ContentType.DefinedType.XML;
-	}
+    @Override
+    public ContentType getContentType() {
+        return ContentType.DefinedType.XML;
+    }
 
+    @Override
+    public String getDisplayName() {
+        return Messages.xml_provider_name();
+    }
 }
