@@ -9,7 +9,7 @@
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 	<st:once>
-		<script type="text/javascript" src="/plugin/config-file-provider/js/fileprovider.js" />
+		<script type="text/javascript" src="${rootURL}/plugin/config-file-provider/js/fileprovider.js" />
 	</st:once>
 
 	<f:entry title="${%Managed Files}">
