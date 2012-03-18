@@ -30,12 +30,12 @@ import org.jenkinsci.lib.configprovider.model.ConfigDescription;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
 
-@Extension
+//@Extension
 public class CustomConfigProvider extends AbstractConfigProvider{
 
 	@Override
 	public ConfigDescription getConfigDescription() {
-		return new ConfigDescription(Messages.custom_provider_name(), Messages.custom_provider_description());
+		return new ConfigDescription(Messages.custom_provider_name(), "some desc");
 	}
 	
 	@Override

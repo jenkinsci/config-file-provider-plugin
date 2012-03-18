@@ -24,7 +24,7 @@ import org.jenkinsci.lib.configprovider.model.ConfigDescription;
  * @author Olivier Lamy
  * @author domi (imod)
  */
-@Extension
+//@Extension
 public class DefaultGlobalMavenSettingsProvider extends AbstractMavenSettingsProvider implements GlobalMavenSettingsProvider{
 
 	@Override
@@ -34,11 +34,11 @@ public class DefaultGlobalMavenSettingsProvider extends AbstractMavenSettingsPro
 
 	@Override
 	public ConfigDescription getConfigDescription() {
-		return new ConfigDescription(Messages.mvn_global_settings_provider_name(), Messages.mvn_global_settings_provider_description());
+		return new ConfigDescription("mvn_global_settings_provider_name()", "mvn_global_settings_provider_description()");
 	}
 	
 	@Override
 	public String getDisplayName() {
-	    return Messages.mvn_global_settings_provider_name();
+	    return "mvn_global_settings_provider_name";
 	}
 }

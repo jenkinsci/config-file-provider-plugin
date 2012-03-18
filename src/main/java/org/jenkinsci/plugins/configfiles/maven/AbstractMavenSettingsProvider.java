@@ -26,46 +26,46 @@ package org.jenkinsci.plugins.configfiles.maven;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.jenkinsci.lib.configprovider.AbstractConfigProvider;
+import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 
 /**
  * @author Olivier Lamy
+ * @author Dominik Bartholdi (imod)
  */
-public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvider
-{
-	@Override
-	public Config newConfig() {
-		String id = this.getProviderId() + System.currentTimeMillis();
-		return new Config(id, "MySettings", "", loadTemplateContent());
-	}
+public abstract class AbstractMavenSettingsProvider extends AbstractConfigProviderImpl {
 
-	@Override
-	public ContentType getContentType() {
-		return ContentType.DefinedType.XML;
-	}
+    @Override
+    public Config newConfig() {
+        String id = this.getProviderId() + System.currentTimeMillis();
+        return new Config(id, "MySettings", "", loadTemplateContent());
+    }
 
-	private String loadTemplateContent() {
-		String tpl;
-		try {
-			InputStream is = this.getClass().getResourceAsStream("settings-tpl.xml");
-			StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
-			char[] tmp = new char[4096];
+    @Override
+    public ContentType getContentType() {
+        return ContentType.DefinedType.XML;
+    }
 
-			try {
-				InputStreamReader reader = new InputStreamReader(is, "UTF-8");
-				for (int cnt; (cnt = reader.read(tmp)) > 0;)
-					sb.append(tmp, 0, cnt);
+    private String loadTemplateContent() {
+        String tpl;
+        try {
+            InputStream is = this.getClass().getResourceAsStream("settings-tpl.xml");
+            StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
+            char[] tmp = new char[4096];
 
+            try {
+                InputStreamReader reader = new InputStreamReader(is, "UTF-8");
+                for (int cnt; (cnt = reader.read(tmp)) > 0;)
+                    sb.append(tmp, 0, cnt);
 
-			} finally {
-				is.close();
-			}
-			tpl = sb.toString();
-		} catch (Exception e) {
-			tpl = "<settings></settingns>";
-		}
-		return tpl;
-	}
+            } finally {
+                is.close();
+            }
+            tpl = sb.toString();
+        } catch (Exception e) {
+            tpl = "<settings></settingns>";
+        }
+        return tpl;
+    }
 }

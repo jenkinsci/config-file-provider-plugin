@@ -1,7 +1,7 @@
 <!--
 The MIT License
 
-Copyright (c) 2011, Dominik Bartholdi
+Copyright (c) 2012, Dominik Bartholdi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,42 +25,5 @@ THE SOFTWARE.
 
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-	<l:layout norefresh="true">
-		<st:include page="sidepanel.jelly" />
-		<l:main-panel>
-			<h1>
-				<img width="48" height="48" src="${imagesURL}/16x16/document_edit.gif" />
-				<img width="16" height="16" src="${imagesURL}/16x16/empty.gif" />
-				<j:out value="${%filetype}" />
-			</h1>
-			<j:out value="${%selectprovider}" />
-			<f:form method="post" action="addConfig">
-				<f:entry>
-					<table width="100%">
-						<j:forEach var="provider" items="${providers}" varStatus="loop">
-							<tr>
-								<td colspan="2">
-									<f:radio name="providerId" value="${provider.id}" />
-									<b>
-										<label class="attach-previous">${provider.displayName}</label>
-									</b>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<j:out value=" " />
-								</td>
-								<td>
-									<st:include page="newInstanceDetail.jelly" from="${provider}" />
-								</td>
-							</tr>
-						</j:forEach>
-					</table>
-				</f:entry>
-				<f:block>
-					<f:submit value="${%Submit}" />
-				</f:block>
-			</f:form>
-		</l:main-panel>
-	</l:layout>
+ ${%xml_provider_description}
 </j:jelly>

@@ -32,7 +32,7 @@ import org.jenkinsci.lib.configprovider.model.ConfigDescription;
  * @author Olivier Lamy
  * @author domi (imod)
  */
-@Extension
+//@Extension
 public class DefaultMavenSettingsProvider extends AbstractMavenSettingsProvider implements MavenSettingsProvider {
 
     @Override
@@ -42,12 +42,12 @@ public class DefaultMavenSettingsProvider extends AbstractMavenSettingsProvider 
 
     @Override
     public ConfigDescription getConfigDescription() {
-        return new ConfigDescription(Messages.mvn_settings_provider_name(), Messages.mvn_settings_provider_description());
+        return new ConfigDescription("mvn_settings_provider_name()", "mvn_settings_provider_description()");
     }
 
     @Override
     public String getDisplayName() {
-        return Messages.mvn_settings_provider_name();
+        return "mvn_settings_provider_name";
     }
 
 }
