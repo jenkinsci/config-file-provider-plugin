@@ -25,32 +25,25 @@ package org.jenkinsci.lib.configprovider;
 
 import hudson.BulkChange;
 import hudson.XmlFile;
-import hudson.model.Saveable;
 import hudson.model.listeners.SaveableListener;
-import jenkins.model.Jenkins;
-import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.lib.configprovider.model.ConfigDescription;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+
+import jenkins.model.Jenkins;
 
 /**
  * Backward compatibility layer for old subtypes of {@link ConfigProvider}
  * 
- * @deprecated as of 1.2.
- *      Extend {@link AbstractConfigProviderImpl} directly.
+ * @deprecated as of 1.2. Extend {@link AbstractConfigProviderImpl} directly.
  */
 public abstract class AbstractConfigProvider extends AbstractConfigProviderImpl {
 
-	protected final String ID_PREFIX = this.getClass().getSimpleName() + ".";
+    protected final String ID_PREFIX = this.getClass().getSimpleName() + ".";
 
-	public AbstractConfigProvider() {
-		load();
-	}
+    public AbstractConfigProvider() {
+        load();
+    }
 
     @Override
     public String getProviderId() {
@@ -65,38 +58,39 @@ public abstract class AbstractConfigProvider extends AbstractConfigProviderImpl 
 
     /**
      * Overridden for backward compatibility to let subtype customize the file name.
-	 */
+     */
     @Override
-	public void save() {
-		if (BulkChange.contains(this))
-			return;
-		try {
-			getConfigXml().write(this);
-			SaveableListener.fireOnChange(this, getConfigXml());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    public void save() {
+        if (BulkChange.contains(this))
+            return;
+        try {
+            getConfigXml().write(this);
+            SaveableListener.fireOnChange(this, getConfigXml());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Overridden for backward compatibility to let subtype customize the file name.
-	 */
-	public void load() {
-		XmlFile xml = getConfigXml();
-		if (xml.exists()) {
-			try {
-				xml.unmarshal(this);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+     */
+    @Override
+    public void load() {
+        XmlFile xml = getConfigXml();
+        if (xml.exists()) {
+            try {
+                xml.unmarshal(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-	protected XmlFile getConfigXml() {
-		return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getInstance().getRootDir(), this.getXmlFileName()));
-	}
+    protected XmlFile getConfigXml() {
+        return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getInstance().getRootDir(), this.getXmlFileName()));
+    }
 
-	protected String getXmlFileName() {
-        return getClass().getName()+".xml";
+    protected String getXmlFileName() {
+        return getClass().getName() + ".xml";
     }
 }

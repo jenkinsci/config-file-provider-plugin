@@ -1,11 +1,21 @@
 package org.jenkinsci.lib.configprovider;
 
-import org.jenkinsci.lib.configprovider.model.Config;
+import hudson.BulkChange;
+import hudson.XmlFile;
+import hudson.model.listeners.SaveableListener;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import jenkins.model.Jenkins;
+
+import org.jenkinsci.lib.configprovider.model.Config;
 
 /**
  * Partial default implementation of {@link ConfigProvider}.
@@ -16,46 +26,84 @@ import java.util.Map;
  */
 public abstract class AbstractConfigProviderImpl extends ConfigProvider {
 
-	protected Map<String, Config> configs = new HashMap<String, Config>();
+    private static final Logger LOGGER = Logger.getLogger(AbstractConfigProviderImpl.class.getName());
 
-	public AbstractConfigProviderImpl() {
-	}
+    protected Map<String, Config> configs = new HashMap<String, Config>();
+    
+    public AbstractConfigProviderImpl() {
+    }
 
-	@Override
-	public Collection<Config> getAllConfigs() {
-		return Collections.unmodifiableCollection(configs.values());
-	}
+    @Override
+    public Collection<Config> getAllConfigs() {
+        return Collections.unmodifiableCollection(configs.values());
+    }
 
-	@Override
-	public Config getConfigById(String configId) {
-		return configs.get(configId);
-	}
+    @Override
+    public Config getConfigById(String configId) {
+        return configs.get(configId);
+    }
 
-	@Override
-	public String getProviderId() {
-		return getId();
-	}
+    @Override
+    public String getProviderId() {
+        return getId();
+    }
 
-	@Override
-	public boolean isResponsibleFor(String configId) {
-		return configId != null && configId.startsWith(getProviderId());
-	}
+    @Override
+    public boolean isResponsibleFor(String configId) {
+        return configId != null && configId.startsWith(getProviderId());
+    }
 
-	@Override
-	public Config newConfig() {
-		String id = this.getProviderId() + "." + System.currentTimeMillis();
-		return new Config(id, null, null, null);
-	}
+    @Override
+    public Config newConfig() {
+        String id = this.getProviderId() + "." + System.currentTimeMillis();
+        return new Config(id, null, null, null);
+    }
 
-	@Override
-	public void remove(String configId) {
-		configs.remove(configId);
-		this.save();
-	}
+    @Override
+    public void remove(String configId) {
+        configs.remove(configId);
+        this.save();
+    }
 
-	@Override
-	public void save(Config config) {
-		configs.put(config.id, config);
-		this.save();
-	}
+    @Override
+    public void save(Config config) {
+        configs.put(config.id, config);
+        this.save();
+    }
+
+    /**
+     * Saves the configuration info to the disk.
+     */
+    public synchronized void save() {
+        if (BulkChange.contains(this))
+            return;
+        try {
+            getConfigXml().write(this);
+            SaveableListener.fireOnChange(this, getConfigXml());
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Failed to save " + getConfigXml(), e);
+        }
+    }
+
+    /**
+     * Overridden for backward compatibility to let subtype customize the file name.
+     */
+    public void load() {
+        XmlFile xml = getConfigXml();
+        if (xml.exists()) {
+            try {
+                xml.unmarshal(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected XmlFile getConfigXml() {
+        return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getInstance().getRootDir(), this.getXmlFileName()));
+    }
+
+    protected String getXmlFileName() {
+        return getId() + ".xml";
+    }
 }
