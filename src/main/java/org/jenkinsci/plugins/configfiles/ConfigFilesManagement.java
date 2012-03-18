@@ -208,15 +208,7 @@ public class ConfigFilesManagement extends ManagementLink {
 
     public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
-
-        Map<String, ConfigDescription> ctypes = new HashMap<String, ConfigDescription>();
-        for (ConfigProvider provider : ConfigProvider.all()) {
-            System.out.println("1-->" + provider);
-            System.out.println("2-->" + provider.getId());
-            // ctypes.put(provider.getProviderId(), provider.getConfigDescription());
-        }
-
-        req.setAttribute("configdescriptions", ctypes);
+        req.setAttribute("providers", ConfigProvider.all());
         req.getView(this, "selectprovider.jelly").forward(req, rsp);
     }
 

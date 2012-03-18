@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.jenkinsci.plugins.configfiles.groovy.GroovyConfigProvider>
+  <ID__PREFIX>GroovyConfigProvider.</ID__PREFIX>
+  <configs>
+    <entry>
+      <string>GroovyConfigProvider.1331575774283</string>
+      <org.jenkinsci.lib.configprovider.model.Config>
+        <id>GroovyConfigProvider.1331575774283</id>
+        <name>GroovyConfig1</name>
+        <comment>xomment</comment>
+        <content>println(&apos;hello world&apos;)</content>
+      </org.jenkinsci.lib.configprovider.model.Config>
+    </entry>
+    <entry>
+      <string>GroovyConfigProvider.1331575888545</string>
+      <org.jenkinsci.lib.configprovider.model.Config>
+        <id>GroovyConfigProvider.1331575888545</id>
+        <name>GroovyConfig2</name>
+        <comment>Top Groovy</comment>
+        <content>println(&apos;hello world2&apos;)</content>
+      </org.jenkinsci.lib.configprovider.model.Config>
+    </entry>
+  </configs>
+</org.jenkinsci.plugins.configfiles.groovy.GroovyConfigProvider>

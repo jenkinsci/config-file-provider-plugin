@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.jenkinsci.plugins.configfiles.xml.XmlConfigProvider>
+  <ID__PREFIX>XmlConfigProvider.</ID__PREFIX>
+  <configs>
+    <entry>
+      <string>XmlConfigProvider.1331575814909</string>
+      <org.jenkinsci.lib.configprovider.model.Config>
+        <id>XmlConfigProvider.1331575814909</id>
+        <name>XmlConfig1</name>
+        <comment>my xml</comment>
+        <content>&lt;root&gt;&lt;A&gt;text&lt;/A&gt;&lt;/root&gt;</content>
+      </org.jenkinsci.lib.configprovider.model.Config>
+    </entry>
+  </configs>
+</org.jenkinsci.plugins.configfiles.xml.XmlConfigProvider>
