@@ -31,7 +31,7 @@ THE SOFTWARE.
 		
 		<l:main-panel>
 			<h1>
-				<img src="${it.iconFileName}" alt="" />
+				<img src="${rootURL}/${it.iconFileName}" alt="" />
 				<j:out value=" " />
 				${%Config File Management}
 			</h1>
