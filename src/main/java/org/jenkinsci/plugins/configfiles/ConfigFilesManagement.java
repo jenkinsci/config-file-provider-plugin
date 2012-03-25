@@ -32,11 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 
@@ -45,7 +41,6 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.lib.configprovider.model.ConfigDescription;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
@@ -112,14 +107,6 @@ public class ConfigFilesManagement extends ManagementLink {
             all.addAll(provider.getAllConfigs());
         }
         return Collections.unmodifiableCollection(all);
-    }
-
-    public Set<ConfigDescription> getAllModes() {
-        Set<ConfigDescription> all = new HashSet<ConfigDescription>();
-        for (ConfigProvider provider : ConfigProvider.all()) {
-            all.add(provider.getConfigDescription());
-        }
-        return Collections.unmodifiableSet(all);
     }
 
     public HttpResponse doSaveConfig(StaplerRequest req) {

@@ -3,7 +3,6 @@ package org.jenkinsci.plugins.configfiles.maven;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
-import org.jenkinsci.lib.configprovider.maven.MavenSettingsProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
@@ -16,7 +15,7 @@ public class MavenSettingsConfig extends Config {
     }
 
     @Extension(ordinal = 190)
-    public static class MavenSettingsConfigProvider extends AbstractMavenSettingsProvider implements MavenSettingsProvider {
+    public static class MavenSettingsConfigProvider extends AbstractMavenSettingsProvider {
 
         public MavenSettingsConfigProvider() {
             load();
