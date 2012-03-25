@@ -50,12 +50,6 @@ public abstract class AbstractConfigProvider extends AbstractConfigProviderImpl 
         return ID_PREFIX;
     }
 
-    // backward compatibility
-    @Override
-    public String getDisplayName() {
-        return getConfigDescription().getName();
-    }
-
     /**
      * Overridden for backward compatibility to let subtype customize the file name.
      */

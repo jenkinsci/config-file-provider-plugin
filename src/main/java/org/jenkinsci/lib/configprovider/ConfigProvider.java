@@ -32,7 +32,6 @@ import java.util.Collection;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.lib.configprovider.model.ConfigDescription;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 
 /**
@@ -60,17 +59,6 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      * @return collection of Configs
      */
     public abstract Collection<Config> getAllConfigs();
-
-    /**
-     * The description of the config this provider is able to provide instances of
-     * 
-     * @return the description
-     * @deprecated as of 1.2 Use {@link #getDisplayName()} for {@link ConfigDescription#name}, and {@code newInstanceDetail.jelly} view for {@link ConfigProvider} replaces the
-     *             {@link ConfigDescription#description} field.
-     */
-    public ConfigDescription getConfigDescription() {
-        return new ConfigDescription(getDisplayName(), "");
-    }
 
     /**
      * The content type of the configs this provider manages. e.g. can be used to display the content in the UI (editor).
