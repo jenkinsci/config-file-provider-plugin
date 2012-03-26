@@ -47,6 +47,7 @@
 			<groupId>org.jenkins-ci.main</groupId>
 			<artifactId>jenkins-test-harness</artifactId>
 			<version>${project.parent.version}</version>
+			<scope>test</scope>
 			<exclusions>
 				<exclusion>
 					<!-- the test harness depends on the maven plugin and therefore this plugin depends on it too... but as the maven plugin has an optional dependency to this 
