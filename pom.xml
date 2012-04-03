@@ -61,8 +61,8 @@
 
 	<repositories>
 		<repository>
-			<id>m.g.o-public</id>
-			<url>http://maven.jenkins-ci.org/content/groups/artifacts/</url>
+			<id>jenkins-ci.org</id>
+			<url>http://repo.jenkins-ci.org/public/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -73,8 +73,8 @@
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
-			<id>m.g.o-public</id>
-			<url>http://maven.jenkins-ci.org/content/groups/artifacts/</url>
+			<id>jenkins-ci.org</id>
+			<url>http://repo.jenkins-ci.org/public/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
