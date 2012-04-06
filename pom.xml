@@ -61,7 +61,7 @@
 
 	<repositories>
 		<repository>
-			<id>jenkins-ci.org</id>
+			<id>repo.jenkins-ci.org</id>
 			<url>http://repo.jenkins-ci.org/public/</url>
 			<releases>
 				<enabled>true</enabled>
@@ -73,7 +73,7 @@
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
-			<id>jenkins-ci.org</id>
+			<id>repo.jenkins-ci.org</id>
 			<url>http://repo.jenkins-ci.org/public/</url>
 			<releases>
 				<enabled>true</enabled>
