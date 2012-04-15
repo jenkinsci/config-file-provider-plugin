@@ -37,77 +37,103 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class ConfigFileBuildWrapper extends BuildWrapper {
 
-	private List<ManagedFile> managedFiles = new ArrayList<ManagedFile>();
+    private List<ManagedFile> managedFiles = new ArrayList<ManagedFile>();
 
-	@DataBoundConstructor
-	public ConfigFileBuildWrapper(List<ManagedFile> managedFiles) {
-		this.managedFiles = managedFiles;
-	}
+    @DataBoundConstructor
+    public ConfigFileBuildWrapper(List<ManagedFile> managedFiles) {
+        this.managedFiles = managedFiles;
+    }
 
-	@Override
-	public Environment setUp(@SuppressWarnings("rawtypes") AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException,
-			InterruptedException {
+    @Override
+    public Environment setUp(@SuppressWarnings("rawtypes") AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException,
+            InterruptedException {
 
-		final PrintStream logger = listener.getLogger();
+        final PrintStream logger = listener.getLogger();
 
-		if (build.getWorkspace() == null) {
-			throw new IllegalStateException("the workspace does not yet exist, can't provision config files - maybe slave is offline?");
-		}
+        if (build.getWorkspace() == null) {
+            throw new IllegalStateException("the workspace does not yet exist, can't provision config files - maybe slave is offline?");
+        }
 
-		final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build.getWorkspace(), logger);
-		final hudson.model.Environment managedFileEnv = new ManagedFilesEnvironment(file2Path);
+        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build.getWorkspace(), logger);
+        final ManagedFilesEnvironment env = new ManagedFilesEnvironment(file2Path);
+        // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by 'org.jenkinsci.plugins.configfiles.listener.CleanTempFilesRunListener'
+        build.addAction(new CleanTempFilesAction(env.getTempFiles()));
+        return env;
+    }
 
-		return new Environment() {
-			@Override
-			public void buildEnvVars(Map<String, String> env) {
-				managedFileEnv.buildEnvVars(env);
-			}
+    public List<ManagedFile> getManagedFiles() {
+        return managedFiles;
+    }
 
-			@Override
-			public boolean tearDown(@SuppressWarnings("rawtypes") AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
-				return managedFileEnv.tearDown(build, listener);
-			}
-		};
-	}
+    @Extension(ordinal = 50)
+    public static final class DescriptorImpl extends BuildWrapperDescriptor {
+        @Override
+        public String getDisplayName() {
+            return Messages.display_name();
+        }
 
-	public List<ManagedFile> getManagedFiles() {
-		return managedFiles;
-	}
+        @Override
+        public boolean isApplicable(AbstractProject<?, ?> item) {
+            return true;
+        }
 
-	/**
-	 * Descriptor for {@link ExclusiveBuildWrapper}. Used as a singleton. The
-	 * class is marked as public so that it can be accessed from views.
-	 */
-	@Extension(ordinal = 50)
-	public static final class DescriptorImpl extends BuildWrapperDescriptor {
-		@Override
-		public String getDisplayName() {
-			return Messages.display_name();
-		}
+        public Collection<Config> getConfigFiles() {
+            ExtensionList<ConfigProvider> providers = ConfigProvider.all();
+            List<Config> allFiles = new ArrayList<Config>();
+            for (ConfigProvider provider : providers) {
+                allFiles.addAll(provider.getAllConfigs());
+            }
+            return allFiles;
+        }
 
-		@Override
-		public boolean isApplicable(AbstractProject<?, ?> item) {
-			return true;
-		}
+    }
 
-		public Collection<Config> getConfigFiles() {
-			ExtensionList<ConfigProvider> providers = ConfigProvider.all();
-			List<Config> allFiles = new ArrayList<Config>();
-			for (ConfigProvider provider : providers) {
-				allFiles.addAll(provider.getAllConfigs());
-			}
-			return allFiles;
-		}
+    public class ManagedFilesEnvironment extends Environment {
+        private final Map<ManagedFile, FilePath> file2Path;
 
-	}
+        public ManagedFilesEnvironment(Map<ManagedFile, FilePath> file2Path) {
+            this.file2Path = file2Path == null ? new HashMap<ManagedFile, FilePath>() : file2Path;
+        }
+
+        @Override
+        public void buildEnvVars(Map<String, String> env) {
+            System.out.println("ConfigFileBuildWrapper.ManagedFilesEnvironment.buildEnvVars()");
+            for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
+                ManagedFile mf = entry.getKey();
+                FilePath fp = entry.getValue();
+                if (!StringUtils.isBlank(mf.variable)) {
+                    env.put(mf.variable, fp.getRemote());
+                }
+            }
+        }
+
+        /**
+         * Provides access to the files which have to be removed after the build
+         * 
+         * @return a list of temp files
+         */
+        public List<FilePath> getTempFiles() {
+            List<FilePath> tempFiles = new ArrayList<FilePath>();
+            for (Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
+                boolean noTargetGiven = StringUtils.isBlank(entry.getKey().targetLocation);
+                if (noTargetGiven) {
+                    tempFiles.add(entry.getValue());
+                }
+            }
+            return tempFiles;
+        }
+    }
 
 }
