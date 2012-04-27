@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -104,12 +104,11 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
         private final Map<ManagedFile, FilePath> file2Path;
 
         public ManagedFilesEnvironment(Map<ManagedFile, FilePath> file2Path) {
-            this.file2Path = file2Path == null ? new HashMap<ManagedFile, FilePath>() : file2Path;
+            this.file2Path = file2Path == null ? Collections.<ManagedFile, FilePath> emptyMap() : file2Path;
         }
 
         @Override
         public void buildEnvVars(Map<String, String> env) {
-            System.out.println("ConfigFileBuildWrapper.ManagedFilesEnvironment.buildEnvVars()");
             for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
                 ManagedFile mf = entry.getKey();
                 FilePath fp = entry.getValue();
@@ -122,14 +121,14 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
         /**
          * Provides access to the files which have to be removed after the build
          * 
-         * @return a list of temp files
+         * @return a list of paths to the temp files (remotes)
          */
-        public List<FilePath> getTempFiles() {
-            List<FilePath> tempFiles = new ArrayList<FilePath>();
+        List<String> getTempFiles() {
+            List<String> tempFiles = new ArrayList<String>();
             for (Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
                 boolean noTargetGiven = StringUtils.isBlank(entry.getKey().targetLocation);
                 if (noTargetGiven) {
-                    tempFiles.add(entry.getValue());
+                    tempFiles.add(entry.getValue().getRemote());
                 }
             }
             return tempFiles;
