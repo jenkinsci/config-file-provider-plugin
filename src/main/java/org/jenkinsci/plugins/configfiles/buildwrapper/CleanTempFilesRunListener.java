@@ -7,7 +7,11 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
+import hudson.model.Node;
 import hudson.model.listeners.RunListener;
+import hudson.remoting.VirtualChannel;
+
+import java.util.List;
 
 /**
  * Removes the temporarily created files at 'onComplete()' of each build, doing it at this state, ensures the files are available also for publishers.
@@ -19,16 +23,24 @@ public class CleanTempFilesRunListener extends RunListener<AbstractBuild<?, ?>> 
 
     @Override
     public void onCompleted(AbstractBuild<?, ?> build, TaskListener listener) {
-        CleanTempFilesAction action = build.getAction(CleanTempFilesAction.class);
-        if (action != null) {
+
+        final List<CleanTempFilesAction> actions = build.getActions(CleanTempFilesAction.class);
+        for (CleanTempFilesAction action : actions) {
             try {
-                for (FilePath fp : action.tempFiles) {
+                for (String remotePath : action.getTempFiles()) {
                     try {
-                        if (fp != null && fp.exists()) {
-                            fp.delete();
+                        final Node builtOn = build.getBuiltOn();
+                        if (builtOn != null) {
+                            final VirtualChannel channel = builtOn.getChannel();
+                            if (channel != null) {
+                                FilePath fp = new FilePath(channel, remotePath);
+                                if (fp.exists()) {
+                                    fp.delete();
+                                }
+                            }
                         }
                     } catch (Exception e) {
-                        listener.getLogger().println("[WARN] failed to delete temp file: " + fp.getRemote());
+                        listener.getLogger().println("[WARN] failed to delete temp file: " + remotePath + " - " + e.getMessage());
                     }
                 }
             } finally {
@@ -36,6 +48,6 @@ public class CleanTempFilesRunListener extends RunListener<AbstractBuild<?, ?>> 
                 build.getActions().remove(action);
             }
         }
-    }
 
+    }
 }

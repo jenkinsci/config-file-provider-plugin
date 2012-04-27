@@ -1,9 +1,8 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
-import hudson.FilePath;
 import hudson.model.InvisibleAction;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -14,13 +13,19 @@ import java.util.List;
  */
 public class CleanTempFilesAction extends InvisibleAction {
 
-    /**
-     * list of the temp files to be removed - never <code>null</code>
-     */
-    public List<FilePath> tempFiles;
+    private final transient List<String> tempFiles;
 
-    public CleanTempFilesAction(List<FilePath> tempFiles) {
-        this.tempFiles = tempFiles == null ? new ArrayList<FilePath>() : tempFiles;
+    public CleanTempFilesAction(List<String> tempFiles) {
+        this.tempFiles = tempFiles;
+    }
+
+    /**
+     * List of the temp files to be removed - never <code>null</code>.
+     * 
+     * @return list of temp files
+     */
+    public List<String> getTempFiles() {
+        return tempFiles == null ? Collections.<String> emptyList() : tempFiles;
     }
 
 }
