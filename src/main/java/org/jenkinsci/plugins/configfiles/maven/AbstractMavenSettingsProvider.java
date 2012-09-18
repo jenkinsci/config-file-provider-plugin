@@ -64,7 +64,7 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
             }
             tpl = sb.toString();
         } catch (Exception e) {
-            tpl = "<settings></settingns>";
+            tpl = "<settings></settings>";
         }
         return tpl;
     }
