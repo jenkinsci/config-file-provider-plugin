@@ -45,6 +45,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class ConfigFileBuildWrapper extends BuildWrapper {
@@ -68,7 +69,7 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
 
         final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build.getWorkspace(), logger);
         final ManagedFilesEnvironment env = new ManagedFilesEnvironment(file2Path);
-        // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by 'org.jenkinsci.plugins.configfiles.listener.CleanTempFilesRunListener'
+        // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
         build.addAction(new CleanTempFilesAction(env.getTempFiles()));
         return env;
     }

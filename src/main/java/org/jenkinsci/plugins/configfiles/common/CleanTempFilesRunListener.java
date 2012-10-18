@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.jenkinsci.plugins.configfiles.buildwrapper;
+package org.jenkinsci.plugins.configfiles.common;
 
 import hudson.Extension;
 import hudson.FilePath;
