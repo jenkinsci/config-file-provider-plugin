@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.458</version>
+		<version>1.491</version>
 	</parent>
 
 	<artifactId>config-file-provider</artifactId>
@@ -22,6 +22,8 @@
 	</scm>
 
 	<name>Config File Provider Plugin</name>
+        <description>Ability to provide configuration files (e.g. settings.xml for maven, XML, groovy, custom files,...) loaded trough the UI which will be copy to the job workspace</description>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
