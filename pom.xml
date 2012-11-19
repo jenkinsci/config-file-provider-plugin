@@ -122,29 +122,5 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	<profiles>
-
-		<profile>
-			<id>domi-default</id>
-			<properties>
-				<gpg.keyname>905C7874</gpg.keyname>
-				<gpg.passphrase>piranhasinthetank</gpg.passphrase>
-			</properties>
-			<repositories>
-				<repository>
-					<id>maven.jenkins-ci.org</id>
-					<name>jenkins-repo</name>
-					<url>http://repo.jenkins-ci.org/public</url>
-				</repository>
-			</repositories>
-			<pluginRepositories>
-				<pluginRepository>
-					<id>maven.jenkins-ci.org</id>
-					<name>jenkins-repo</name>
-					<url>http://repo.jenkins-ci.org/public</url>
-				</pluginRepository>
-			</pluginRepositories>
-		</profile>
-	</profiles>
 
 </project>
