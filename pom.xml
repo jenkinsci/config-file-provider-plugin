@@ -87,22 +87,6 @@
 	</pluginRepositories>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.jenkins-ci.tools</groupId>
-				<artifactId>maven-hpi-plugin</artifactId>
-				<version>1.90</version>
-				<extensions>true</extensions>
-			</plugin>
-			<plugin>
-				<groupId>org.jenkins-ci.tools</groupId>
-				<artifactId>maven-hpi-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<disabledTestInjection>true</disabledTestInjection>
-				</configuration>
-			</plugin>
-		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
