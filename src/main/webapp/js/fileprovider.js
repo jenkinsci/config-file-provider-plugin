@@ -1,5 +1,5 @@
 
-function fp_initDetailLink(referenceTag){
+function fp_initDetailLink(rootURL, referenceTag){
    var selId = referenceTag.value;
    var all = new Array();
    all = document.getElementsByName('fileId');
@@ -7,7 +7,7 @@ function fp_initDetailLink(referenceTag){
 	   if(referenceTag == all.item(i)){
 		   var detailsLinkTag = document.getElementsByName('showFileDetailLink').item(i);
 		   if(selId.length != 0){
-			   detailsLinkTag .href="/configfiles/show?id=".concat(selId);
+			   detailsLinkTag .href=rootURL+"/configfiles/show?id=".concat(selId);
 			   detailsLinkTag .style.display = 'block';
 			}else{
 			   detailsLinkTag .style.display = 'none';
