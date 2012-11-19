@@ -23,24 +23,28 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
+import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
 
-public class GlobalMavenSettingsConfig extends Config {
+public class MavenToolchainsConfig extends Config {
     private static final long serialVersionUID = 1L;
 
-    public GlobalMavenSettingsConfig(String id, String name, String comment, String content) {
+    public MavenToolchainsConfig(String id, String name, String comment, String content) {
         super(id, name, comment, content);
     }
 
-    @Extension(ordinal = 200)
-    public static class GlobalMavenSettingsConfigProvider extends AbstractMavenSettingsProvider {
+    @Extension(ordinal = 180)
+    public static class MavenToolchainsConfigProvider extends AbstractConfigProviderImpl {
 
-        public GlobalMavenSettingsConfigProvider() {
+        public MavenToolchainsConfigProvider() {
             load();
         }
 
@@ -51,28 +55,47 @@ public class GlobalMavenSettingsConfig extends Config {
 
         @Override
         public String getDisplayName() {
-            return Messages.mvn_global_settings_provider_name();
+            return Messages.mvn_toolchains_provider_name();
         }
 
-        // ======================
-        // start stuff for backward compatibility
-        protected transient String ID_PREFIX;
-
-        @Override
-        public boolean isResponsibleFor(String configId) {
-            return super.isResponsibleFor(configId) || configId.startsWith("DefaultGlobalMavenSettingsProvider.");
-        }
-
+        /* (non-Javadoc)
+         * @see org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl#getXmlFileName()
+         */
         @Override
         protected String getXmlFileName() {
-            return "maven-global-settings-files.xml";
+            return "maven-toolchains-files.xml";
         }
 
-        static {
-            Jenkins.XSTREAM.alias("org.jenkinsci.plugins.configfiles.maven.DefaultGlobalMavenSettingsProvider", GlobalMavenSettingsConfigProvider.class);
+        /* (non-Javadoc)
+         * @see org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl#newConfig()
+         */
+        @Override
+        public Config newConfig() {
+            String id = this.getProviderId() + System.currentTimeMillis();
+            return new Config(id, "MyToolchains", "", loadTemplateContent());
+         }
+
+        private String loadTemplateContent() {
+            String tpl;
+            try {
+                InputStream is = this.getClass().getResourceAsStream("toolchains-tpl.xml");
+                StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
+                char[] tmp = new char[4096];
+
+                try {
+                    InputStreamReader reader = new InputStreamReader(is, "UTF-8");
+                    for (int cnt; (cnt = reader.read(tmp)) > 0;)
+                        sb.append(tmp, 0, cnt);
+
+                } finally {
+                    is.close();
+                }
+                tpl = sb.toString();
+            } catch (Exception e) {
+                tpl = "<toolchains></toolchains>";
+            }
+            return tpl;
         }
-        // end stuff for backward compatibility
-        // ======================
 
     }
 
