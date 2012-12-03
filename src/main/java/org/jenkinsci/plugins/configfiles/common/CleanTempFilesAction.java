@@ -1,4 +1,5 @@
 package org.jenkinsci.plugins.configfiles.common;
+
 /*
  The MIT License
 
@@ -23,11 +24,21 @@ package org.jenkinsci.plugins.configfiles.common;
  THE SOFTWARE.
  */
 
+import hudson.EnvVars;
+import hudson.FilePath;
+import hudson.model.EnvironmentContributingAction;
 import hudson.model.InvisibleAction;
+import hudson.model.AbstractBuild;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
 
 /**
  * Temporal action to transport information about t files to be deleted to the CleanTempFilesRunListener.
@@ -35,25 +46,53 @@ import java.util.List;
  * @author Dominik Bartholdi (imod)
  * @see org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener
  */
-public class CleanTempFilesAction extends InvisibleAction {
+public class CleanTempFilesAction extends InvisibleAction implements EnvironmentContributingAction {
 
-    private final transient List<String> tempFiles = new ArrayList<String>();
+    private transient List<String> explicitTempFiles = new ArrayList<String>();
 
-    public CleanTempFilesAction(List<String> tempFiles) {
-        this.tempFiles.addAll(tempFiles);
+    private transient Map<ManagedFile, FilePath> file2Path = new HashMap<ManagedFile, FilePath>();
+
+    public CleanTempFilesAction(Map<ManagedFile, FilePath> file2Path) {
+        this.file2Path = file2Path == null ? Collections.<ManagedFile, FilePath> emptyMap() : file2Path;
+        this.explicitTempFiles = Collections.emptyList();
     }
 
-    public CleanTempFilesAction(String tempFile) {
-        this.tempFiles.add(tempFile);
+    public CleanTempFilesAction(String tempfile) {
+        this.file2Path = Collections.<ManagedFile, FilePath> emptyMap();
+        this.explicitTempFiles = new ArrayList<String>();
+        this.explicitTempFiles.add(tempfile);
     }
 
     /**
-     * List of the temp files to be removed - never <code>null</code>.
-     * 
-     * @return list of temp files
+     * @Override
      */
-    public List<String> getTempFiles() {
-        return tempFiles == null ? Collections.<String> emptyList() : tempFiles;
+    public void buildEnvVars(AbstractBuild<?, ?> build, EnvVars env) {
+        for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
+            ManagedFile mf = entry.getKey();
+            FilePath fp = entry.getValue();
+            if (!StringUtils.isBlank(mf.variable)) {
+                env.put(mf.variable, fp.getRemote());
+            }
+        }
+    }
+
+    /**
+     * Provides access to the files which have to be removed after the build
+     * 
+     * @return a list of paths to the temp files (remotes)
+     */
+    List<String> getTempFiles() {
+        List<String> tempFiles = new ArrayList<String>();
+        for (Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
+            boolean noTargetGiven = StringUtils.isBlank(entry.getKey().targetLocation);
+            if (noTargetGiven) {
+                tempFiles.add(entry.getValue().getRemote());
+            }
+        }
+        if (explicitTempFiles != null) {
+            tempFiles.addAll(explicitTempFiles);
+        }
+        return tempFiles;
     }
 
 }

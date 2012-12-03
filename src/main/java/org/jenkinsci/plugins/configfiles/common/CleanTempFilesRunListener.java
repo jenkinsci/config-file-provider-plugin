@@ -45,9 +45,11 @@ public class CleanTempFilesRunListener extends RunListener<AbstractBuild<?, ?>> 
     public void onCompleted(AbstractBuild<?, ?> build, TaskListener listener) {
 
         final List<CleanTempFilesAction> actions = build.getActions(CleanTempFilesAction.class);
+        
         for (CleanTempFilesAction action : actions) {
             try {
                 for (String remotePath : action.getTempFiles()) {
+                    listener.getLogger().println("remotePath: "+remotePath);
                     try {
                         final Node builtOn = build.getBuiltOn();
                         if (builtOn != null) {
