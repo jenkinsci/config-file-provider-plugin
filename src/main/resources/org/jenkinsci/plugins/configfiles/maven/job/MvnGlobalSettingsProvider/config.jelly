@@ -29,7 +29,7 @@ THE SOFTWARE.
         <select class="setting-input" name="settingsConfigId">
           <f:option value="">- select -</f:option>
           <j:forEach var="config" items="${mavenGlobalSettingsConfigs}">
-            <f:option selected="${it.globalSettings.settingsConfigId == config.id}" value="${config.id}">${config.name}</f:option>
+            <f:option selected="${instance.settingsConfigId == config.id}" value="${config.id}">${config.name}</f:option>
           </j:forEach>
         </select>
       </f:entry>    
