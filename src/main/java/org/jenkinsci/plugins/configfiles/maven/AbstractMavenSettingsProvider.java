@@ -24,8 +24,8 @@
 package org.jenkinsci.plugins.configfiles.maven;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
+import hudson.util.IOUtils;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -48,24 +48,16 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
     }
 
     private String loadTemplateContent() {
-        String tpl;
         try {
             InputStream is = this.getClass().getResourceAsStream("settings-tpl.xml");
-            StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
-            char[] tmp = new char[4096];
 
             try {
-                InputStreamReader reader = new InputStreamReader(is, "UTF-8");
-                for (int cnt; (cnt = reader.read(tmp)) > 0;)
-                    sb.append(tmp, 0, cnt);
-
+                return IOUtils.toString(is, "UTF-8");
             } finally {
                 is.close();
             }
-            tpl = sb.toString();
         } catch (Exception e) {
-            tpl = "<settings></settings>";
+            return "<settings></settings>";
         }
-        return tpl;
     }
 }
