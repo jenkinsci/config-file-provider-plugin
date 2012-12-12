@@ -27,7 +27,7 @@ THE SOFTWARE.
       <j:set var="mavenSettingsConfigs" value="${descriptor.allMavenSettingsConfigs}" />
       <f:entry title="${%Provided Settings}">
         <select class="setting-input" name="settingsConfigId">
-          <f:option value="">- select ${it}:${it.class}:${it.settings}:${it.settings.class}:${instance} -</f:option>
+          <f:option value="">- select -</f:option>
           <j:forEach var="config" items="${mavenSettingsConfigs}">
             <f:option selected="${instance.settingsConfigId == config.id}" value="${config.id}">${config.name}</f:option>
           </j:forEach>
