@@ -24,13 +24,14 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
 import hudson.FilePath;
+import hudson.model.BuildListener;
+import hudson.model.AbstractBuild;
 import hudson.remoting.Callable;
 import hudson.remoting.VirtualChannel;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
+import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 
 public class ManagedFileUtil {
 
@@ -67,42 +70,47 @@ public class ManagedFileUtil {
      * @return a map of all the files copied, mapped to the path of the remote location, never <code>null</code>.
      * @throws IOException
      * @throws InterruptedException
+     * @throws
      */
-    public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, FilePath workSpace, final PrintStream logger)
-            throws IOException, InterruptedException {
+    public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
 
         final Map<ManagedFile, FilePath> file2Path = new HashMap<ManagedFile, FilePath>();
-        logger.println("provisoning config files...");
+        listener.getLogger().println("provisoning config files...");
 
         for (ManagedFile managedFile : managedFiles) {
             ConfigProvider provider = getProviderForConfigId(managedFile.fileId);
 
             if (provider == null) {
-                throw new IOException(
-                        "not able to resolve a provider responsible for the following file - maybe a config-file-provider plugin got deleted by an administrator: "
-                                + managedFile);
+                throw new IOException("not able to resolve a provider responsible for the following file - maybe a config-file-provider plugin got deleted by an administrator: " + managedFile);
             }
 
             Config configFile = provider.getConfigById(managedFile.fileId);
             if (configFile == null) {
-                throw new IOException("not able to provide the following file, can't be resolved by any provider - maybe it got deleted by an administrator: "
-                        + managedFile);
+                throw new IOException("not able to provide the following file, can't be resolved by any provider - maybe it got deleted by an administrator: " + managedFile);
             }
 
             boolean createTempFile = StringUtils.isBlank(managedFile.targetLocation);
 
             FilePath target = null;
             if (createTempFile) {
-                target = ManagedFileUtil.createTempFile(workSpace.getChannel());
+                target = ManagedFileUtil.createTempFile(build.getWorkspace().getChannel());
             } else {
-                String targetLocation = managedFile.targetLocation;
-                if (!targetLocation.contains(".")) {
-                    targetLocation = targetLocation + "/" + configFile.name.replace(" ", "_");
+                
+                String expandedTargetLocation = managedFile.targetLocation;
+                try {
+                    expandedTargetLocation = TokenMacro.expandAll(build, listener, managedFile.targetLocation);
+                } catch (MacroEvaluationException e) {
+                    listener.getLogger().println("[ERROR] failed to expand variables in target location '" + managedFile.targetLocation + "' : " + e.getMessage());
+                    expandedTargetLocation = managedFile.targetLocation;
                 }
-                target = new FilePath(workSpace, targetLocation);
+                
+                if (!expandedTargetLocation.contains(".")) {
+                    expandedTargetLocation = expandedTargetLocation + "/" + configFile.name.replace(" ", "_");
+                }
+                target = new FilePath(build.getWorkspace(), expandedTargetLocation);
             }
 
-            logger.println(Messages.console_output(configFile.name, target.toURI()));
+            listener.getLogger().println(Messages.console_output(configFile.name, target.toURI()));
             ByteArrayInputStream bs = new ByteArrayInputStream(configFile.content.getBytes());
             target.copyFrom(bs);
             file2Path.put(managedFile, target);

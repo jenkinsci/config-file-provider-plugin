@@ -32,6 +32,8 @@ import hudson.model.listeners.RunListener;
 import hudson.remoting.VirtualChannel;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Removes the temporarily created files at 'onComplete()' of each build, doing it at this state, ensures the files are available also for publishers.
@@ -40,6 +42,8 @@ import java.util.List;
  */
 @Extension
 public class CleanTempFilesRunListener extends RunListener<AbstractBuild<?, ?>> {
+    
+    private final static Logger LOGGER = Logger.getLogger(CleanTempFilesRunListener.class.getName());
 
     @Override
     public void onCompleted(AbstractBuild<?, ?> build, TaskListener listener) {
@@ -49,7 +53,7 @@ public class CleanTempFilesRunListener extends RunListener<AbstractBuild<?, ?>> 
         for (CleanTempFilesAction action : actions) {
             try {
                 for (String remotePath : action.getTempFiles()) {
-                    listener.getLogger().println("remotePath: "+remotePath);
+                    LOGGER.log(Level.FINE, "remotePath: "+remotePath);
                     try {
                         final Node builtOn = build.getBuiltOn();
                         if (builtOn != null) {

@@ -63,7 +63,7 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
             throw new IllegalStateException("the workspace does not yet exist, can't provision config files - maybe slave is offline?");
         }
 
-        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build.getWorkspace(), logger);
+        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, listener);
         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
         build.addAction(new CleanTempFilesAction(file2Path));
 
