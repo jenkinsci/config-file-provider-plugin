@@ -37,9 +37,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
@@ -64,11 +67,12 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
         }
 
         final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, listener);
+        // JENKINS-17555 this special env is required, as MavenModuleSetBuild only takes Environments from BuildWrapper into account, but not those from Actions registered by them.
+        final ManagedFilesEnvironment env = new ManagedFilesEnvironment(file2Path);
         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
         build.addAction(new CleanTempFilesAction(file2Path));
 
-        return new Environment() {
-        };
+        return env;
     }
 
     public List<ManagedFile> getManagedFiles() {
@@ -96,6 +100,44 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
             return allFiles;
         }
 
+    }
+
+    /**
+     * fix for JENKINS-17555
+     */
+    public class ManagedFilesEnvironment extends Environment {
+        private final Map<ManagedFile, FilePath> file2Path;
+
+        public ManagedFilesEnvironment(Map<ManagedFile, FilePath> file2Path) {
+            this.file2Path = file2Path == null ? Collections.<ManagedFile, FilePath> emptyMap() : file2Path;
+        }
+
+        @Override
+        public void buildEnvVars(Map<String, String> env) {
+            for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
+                ManagedFile mf = entry.getKey();
+                FilePath fp = entry.getValue();
+                if (!StringUtils.isBlank(mf.variable)) {
+                    env.put(mf.variable, fp.getRemote());
+                }
+            }
+        }
+
+        /**
+         * Provides access to the files which have to be removed after the build
+         * 
+         * @return a list of paths to the temp files (remotes)
+         */
+        List<String> getTempFiles() {
+            List<String> tempFiles = new ArrayList<String>();
+            for (Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
+                boolean noTargetGiven = StringUtils.isBlank(entry.getKey().targetLocation);
+                if (noTargetGiven) {
+                    tempFiles.add(entry.getValue().getRemote());
+                }
+            }
+            return tempFiles;
+        }
     }
 
 }
