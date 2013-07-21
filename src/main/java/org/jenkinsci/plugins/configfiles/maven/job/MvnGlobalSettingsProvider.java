@@ -9,6 +9,7 @@ import hudson.model.AbstractBuild;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import jenkins.model.Jenkins;
 import jenkins.mvn.GlobalSettingsProvider;
@@ -19,13 +20,13 @@ import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
+import org.jenkinsci.plugins.configfiles.maven.security.BaseMvnServerCredentials;
+import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * This provider delivers the global settings.xml to the job during job/project execution.
- * <br>
- * <b>Important: Do not rename this class!!</b>
- * For backward compatibility, this class is also created via reflection from the maven-plugin. 
+ * This provider delivers the global settings.xml to the job during job/project execution. <br>
+ * <b>Important: Do not rename this class!!</b> For backward compatibility, this class is also created via reflection from the maven-plugin.
  * 
  * @author Dominik Bartholdi (imod)
  */
@@ -64,9 +65,17 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                 listener.getLogger().println("ERROR: your Apache Maven build is setup to use a config with id " + settingsConfigId + " but can not find the config");
             } else {
                 listener.getLogger().println("using global settings config with name " + config.name);
-                if (config.content != null) {
+                if (StringUtils.isNotBlank(config.content)) {
                     try {
-                        final FilePath f = copyConfigContentToFilePath(config.content, build.getWorkspace());
+
+                        String fileContent = config.content;
+
+                        final Map<String, BaseMvnServerCredentials> credentials = CredentialsHelper.getCredentials(Jenkins.getInstance());
+                        if (!credentials.isEmpty()) {
+                            fileContent = CredentialsHelper.fillAuthentication(fileContent, credentials);
+                        }
+
+                        final FilePath f = copyConfigContentToFilePath(fileContent, build.getWorkspace());
                         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
                         // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
                         build.addAction(new CleanTempFilesAction(f.getRemote()));
