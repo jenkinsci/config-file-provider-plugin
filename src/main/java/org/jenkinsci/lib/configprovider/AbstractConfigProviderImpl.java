@@ -6,9 +6,12 @@ import hudson.model.listeners.SaveableListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,13 +32,15 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     private static final Logger LOGGER = Logger.getLogger(AbstractConfigProviderImpl.class.getName());
 
     protected Map<String, Config> configs = new HashMap<String, Config>();
-    
+
     public AbstractConfigProviderImpl() {
     }
 
     @Override
     public Collection<Config> getAllConfigs() {
-        return Collections.unmodifiableCollection(configs.values());
+        List<Config> c = new ArrayList<Config>(configs.values());
+        Collections.sort(c, new NameComparator());
+        return Collections.unmodifiableCollection(c);
     }
 
     @Override
@@ -105,5 +110,13 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
 
     protected String getXmlFileName() {
         return getId() + ".xml";
+    }
+
+    private static final class NameComparator implements Comparator<Config> {
+        public int compare(Config o1, Config o2) {
+            String a = o1.name != null ? o1.name : "";
+            String b = o2.name != null ? o2.name : "";
+            return a.compareTo(b);
+        }
     }
 }
