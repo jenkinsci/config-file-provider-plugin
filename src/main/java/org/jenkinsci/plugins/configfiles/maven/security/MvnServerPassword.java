@@ -17,7 +17,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * 
  * @author Dominik Bartholdi (imod)
  */
-public class MvnServerPassword extends BaseMvnServerCredentials {
+public class MvnServerPassword {//extends BaseMvnServerCredentials {
 
     /**
      * The password.
@@ -39,7 +39,7 @@ public class MvnServerPassword extends BaseMvnServerCredentials {
      */
     @DataBoundConstructor
     public MvnServerPassword(CredentialsScope scope, String id, String username, String password, String description) {
-        super(scope, id, username, description);
+//        super(scope, id, username, description);
         this.password = Secret.fromString(password);
     }
 
