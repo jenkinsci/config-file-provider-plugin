@@ -11,7 +11,7 @@ import com.cloudbees.plugins.credentials.BaseCredentials;
  * @see CredentialsHelper#getCredentials(hudson.model.ItemGroup)
  * @see CredentialsHelper#fillAuthentication(String, java.util.Map)
  */
-public class BaseMvnServerCredentials {//extends BaseCredentials {
+public class BaseMvnServerCredentials extends BaseCredentials {
 
     private static final long serialVersionUID = -6110233073651846011L;
 
@@ -29,7 +29,7 @@ public class BaseMvnServerCredentials {//extends BaseCredentials {
     protected final String username;
 
     public BaseMvnServerCredentials(CredentialsScope scope, String id, String username, String description) {
-//        super(scope);
+        super(scope);
         this.id = id;
         this.username = username;
         this.description = description;
