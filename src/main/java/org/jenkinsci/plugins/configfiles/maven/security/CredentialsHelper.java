@@ -45,11 +45,11 @@ public class CredentialsHelper {
      */
     public static Map<String, BaseMvnServerCredentials> getCredentials(ItemGroup<?> scope) {
         scope = scope == null ? Jenkins.getInstance() : scope;
-//        List<BaseMvnServerCredentials> all = CredentialsProvider.lookupCredentials(BaseMvnServerCredentials.class, scope);
+        List<BaseMvnServerCredentials> all = CredentialsProvider.lookupCredentials(BaseMvnServerCredentials.class, scope);
         Map<String, BaseMvnServerCredentials> creds = new HashMap<String, BaseMvnServerCredentials>();
-//        for (BaseMvnServerCredentials u : all) {
-//            creds.put(u.getId(), u);
-//        }
+        for (BaseMvnServerCredentials u : all) {
+            creds.put(u.getId(), u);
+        }
         return creds;
     }
 
@@ -67,28 +67,28 @@ public class CredentialsHelper {
                 final String serverId = xpath.evaluate("id", server);
                 if (StringUtils.isNotBlank(serverId)) {
                     final BaseMvnServerCredentials serverCredentials = credentials.get(serverId);
-//                    if (serverCredentials != null && serverCredentials instanceof MvnServerPassword) {
-//
-//                        // at this stage, we have both:
-//                        // - we know there is a serverconfig in the settings.xml
-//                        // - we have the configured credentials
-//                        // so we know how to configure it, therefore remove all the old content from the settings.xml
-//                        // this will allow an easy switch between username/password and privateKey/passphrase by the user (no matter what's already in the settigns.xml)
-//                        removeAllChilds(server);
-//
-//                        // add the relevant xml elements
-//                        final Element id = doc.createElement("id");
-//                        id.setTextContent(serverId);
-//                        MvnServerPassword pwd = (MvnServerPassword) serverCredentials;
-//                        final Element password = doc.createElement("password");
-//                        password.setTextContent(Secret.toString(pwd.getPassword()));
-//                        final Element username = doc.createElement("username");
-//                        username.setTextContent(pwd.getUsername());
-//
-//                        server.appendChild(id);
-//                        server.appendChild(username);
-//                        server.appendChild(password);
-//                    }
+                    if (serverCredentials != null && serverCredentials instanceof MvnServerPassword) {
+
+                        // at this stage, we have both:
+                        // - we know there is a serverconfig in the settings.xml
+                        // - we have the configured credentials
+                        // so we know how to configure it, therefore remove all the old content from the settings.xml
+                        // this will allow an easy switch between username/password and privateKey/passphrase by the user (no matter what's already in the settigns.xml)
+                        removeAllChilds(server);
+
+                        // add the relevant xml elements
+                        final Element id = doc.createElement("id");
+                        id.setTextContent(serverId);
+                        MvnServerPassword pwd = (MvnServerPassword) serverCredentials;
+                        final Element password = doc.createElement("password");
+                        password.setTextContent(Secret.toString(pwd.getPassword()));
+                        final Element username = doc.createElement("username");
+                        username.setTextContent(pwd.getUsername());
+
+                        server.appendChild(id);
+                        server.appendChild(username);
+                        server.appendChild(password);
+                    }
                 }
             }
             // save the result
