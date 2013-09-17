@@ -20,8 +20,6 @@ import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
-import org.jenkinsci.plugins.configfiles.maven.security.BaseMvnServerCredentials;
-import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -69,11 +67,6 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                     try {
 
                         String fileContent = config.content;
-
-                        final Map<String, BaseMvnServerCredentials> credentials = CredentialsHelper.getCredentials(Jenkins.getInstance());
-                        if (!credentials.isEmpty()) {
-                            fileContent = CredentialsHelper.fillAuthentication(fileContent, credentials);
-                        }
 
                         final FilePath f = copyConfigContentToFilePath(fileContent, build.getWorkspace());
                         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
