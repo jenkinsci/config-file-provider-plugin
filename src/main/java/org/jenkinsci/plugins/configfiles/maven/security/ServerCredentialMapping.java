@@ -53,11 +53,13 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
         } 
         
         private static List<StandardUsernameCredentials> allCredentials() {
-            final List<StandardUsernameCredentials> creds = CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, Jenkins.getInstance(), /* TODO per-build auth? */ACL.SYSTEM, /* TODO restrict */Collections.<DomainRequirement>emptyList());
-            System.out.println("Credentials**>"+creds.size());
-            for (StandardUsernameCredentials c : creds) {
-                System.out.println("-->"+c.getUsername());
-            }
+            final List<StandardUsernameCredentials> creds = CredentialsProvider.lookupCredentials(
+                    StandardUsernameCredentials.class, 
+                    Jenkins.getInstance(), 
+                    /* TODO per-build auth? user auths? */
+                    ACL.SYSTEM,  
+                    /* TODO restrict? we only want the ones making sense for maven settings.xml */
+                    Collections.<DomainRequirement>emptyList());
             return creds;
         }        
 
