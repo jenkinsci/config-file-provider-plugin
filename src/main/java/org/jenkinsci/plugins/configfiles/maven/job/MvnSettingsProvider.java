@@ -5,11 +5,12 @@ import hudson.ExtensionList;
 import hudson.FilePath;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
+import hudson.security.ACL;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
 import jenkins.model.Jenkins;
 import jenkins.mvn.SettingsProvider;
@@ -20,9 +21,12 @@ import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
-import org.jenkinsci.plugins.configfiles.maven.security.BaseMvnServerCredentials;
 import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
 import org.kohsuke.stapler.DataBoundConstructor;
+
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.domains.DomainRequirement;
+import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
 /**
  * This provider delivers the settings.xml to the job during job/project execution. <br>
@@ -70,7 +74,7 @@ public class MvnSettingsProvider extends SettingsProvider {
 
                         String fileContent = config.content;
 
-                        final Map<String, BaseMvnServerCredentials> credentials = CredentialsHelper.getCredentials(Jenkins.getInstance());
+                        final List<BaseStandardCredentials> credentials = CredentialsProvider.lookupCredentials(BaseStandardCredentials.class, Jenkins.getInstance(), ACL.SYSTEM, Collections.<DomainRequirement> emptyList());
                         if (!credentials.isEmpty()) {
                             fileContent = CredentialsHelper.fillAuthentication(fileContent, credentials);
                         }

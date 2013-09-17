@@ -24,17 +24,32 @@
 package org.jenkinsci.plugins.configfiles.maven;
 
 import hudson.Extension;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class MavenSettingsConfig extends Config {
     private static final long serialVersionUID = 1L;
 
-    public MavenSettingsConfig(String id, String name, String comment, String content) {
+    private List<ServerCredentialMapping> serverCredentialMappings;
+    
+    @DataBoundConstructor
+    public MavenSettingsConfig(String id, String name, String comment, String content, List<ServerCredentialMapping> serverCredentialMappings) {
         super(id, name, comment, content);
+        this.serverCredentialMappings = serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
+    }
+    
+    public List<ServerCredentialMapping> getServerCredentialMappings() {
+        return serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
     }
 
     @Extension(ordinal = 190)
@@ -45,7 +60,7 @@ public class MavenSettingsConfig extends Config {
         }
 
         @Override
-        public ContentType getContentType() {
+        public ContentType getContentType() { 
             return ContentType.DefinedType.XML;
         }
 
@@ -53,7 +68,13 @@ public class MavenSettingsConfig extends Config {
         public String getDisplayName() {
             return Messages.mvn_settings_provider_name();
         }
-
+        
+        @Override
+        public Config newConfig() {
+            String id = getProviderId() + System.currentTimeMillis();
+            return new MavenSettingsConfig(id, "MySettings", "user settings", loadTemplateContent(), Collections.<ServerCredentialMapping>emptyList());
+        }        
+        
         // ======================
         // start stuff for backward compatibility
         protected transient String ID_PREFIX;

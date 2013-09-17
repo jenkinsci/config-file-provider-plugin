@@ -1,7 +1,7 @@
 <!--
 The MIT License
 
-Copyright (c) 2012, Dominik Bartholdi
+Copyright (c) 2013, Dominik Bartholdi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,16 @@ THE SOFTWARE.
 
 
 
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
- ${%mvn_global_settings_provider_description} <a href="${rootURL}/credentials">credentials</a>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+    xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <div class="credentialssection">
+         <f:entry title="${%ServerId}" field="serverId">
+             <f:textbox />
+         </f:entry>
+         
+         <f:entry title="${%Credentials}" field="credentialsId" >
+             <f:select />
+         </f:entry>
+    </div>
 </j:jelly>
+

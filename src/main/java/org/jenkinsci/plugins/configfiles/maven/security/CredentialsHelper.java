@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
-import hudson.model.ItemGroup;
 import hudson.util.Secret;
 
 import java.io.StringReader;
@@ -18,16 +17,14 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import jenkins.model.Jenkins;
-
-import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
 public class CredentialsHelper {
 
@@ -37,60 +34,54 @@ public class CredentialsHelper {
     private CredentialsHelper() {
     }
 
-    /**
-     * Gets all the maven server credentials storred for the given context
-     * 
-     * @param scope
-     * @return
-     */
-    public static Map<String, BaseMvnServerCredentials> getCredentials(ItemGroup<?> scope) {
-        scope = scope == null ? Jenkins.getInstance() : scope;
-//        List<BaseMvnServerCredentials> all = CredentialsProvider.lookupCredentials(BaseMvnServerCredentials.class, scope);
-        Map<String, BaseMvnServerCredentials> creds = new HashMap<String, BaseMvnServerCredentials>();
-//        for (BaseMvnServerCredentials u : all) {
-//            creds.put(u.getId(), u);
-//        }
-        return creds;
-    }
-
-    public static String fillAuthentication(String settingsContent, Map<String, BaseMvnServerCredentials> credentials) throws Exception {
+    public static String fillAuthentication(String settingsContent, List<BaseStandardCredentials> credentialsList) throws Exception {
         String content = settingsContent;
-        if (!credentials.isEmpty()) {
+        if (!credentialsList.isEmpty()) {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(content)));
 
-            // locate the node(s)
-            XPath xpath = XPathFactory.newInstance().newXPath();
-            NodeList nodes = (NodeList) xpath.evaluate("/settings/servers/server", doc, XPathConstants.NODESET);
-
-            for (int idx = 0; idx < nodes.getLength(); idx++) {
-                final Node server = nodes.item(idx);
-                final String serverId = xpath.evaluate("id", server);
-                if (StringUtils.isNotBlank(serverId)) {
-                    final BaseMvnServerCredentials serverCredentials = credentials.get(serverId);
-//                    if (serverCredentials != null && serverCredentials instanceof MvnServerPassword) {
-//
-//                        // at this stage, we have both:
-//                        // - we know there is a serverconfig in the settings.xml
-//                        // - we have the configured credentials
-//                        // so we know how to configure it, therefore remove all the old content from the settings.xml
-//                        // this will allow an easy switch between username/password and privateKey/passphrase by the user (no matter what's already in the settigns.xml)
-//                        removeAllChilds(server);
-//
-//                        // add the relevant xml elements
-//                        final Element id = doc.createElement("id");
-//                        id.setTextContent(serverId);
-//                        MvnServerPassword pwd = (MvnServerPassword) serverCredentials;
-//                        final Element password = doc.createElement("password");
-//                        password.setTextContent(Secret.toString(pwd.getPassword()));
-//                        final Element username = doc.createElement("username");
-//                        username.setTextContent(pwd.getUsername());
-//
-//                        server.appendChild(id);
-//                        server.appendChild(username);
-//                        server.appendChild(password);
-//                    }
-                }
+            Map<String, BaseStandardCredentials> id2c = new HashMap<String, BaseStandardCredentials>();
+            for (BaseStandardCredentials c : credentialsList) {
+                id2c.put(c.getId(), c);
             }
+
+            // locate the server node(s)
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            Node serversNode = (Node) xpath.evaluate("/settings/servers/", doc, XPathConstants.NODE);
+            if (serversNode == null) {
+                // need to create a 'servers' node
+                Node settingsNode = (Node) xpath.evaluate("/settings/", doc, XPathConstants.NODE);
+                serversNode = doc.createElement("servers");
+                settingsNode.appendChild(serversNode);
+            } else {
+                // remove all server nodes, we will replace every single one and only add the ones provided
+                removeAllChilds(serversNode);
+            }
+
+            for (BaseStandardCredentials credentials : credentialsList) {
+
+                if (credentials instanceof StandardUsernamePasswordCredentials) {
+
+                    StandardUsernamePasswordCredentials userPwd = (StandardUsernamePasswordCredentials) credentials;
+
+                    final Element server = doc.createElement("server");
+
+                    // create and add the relevant xml elements
+                    final Element id = doc.createElement("id");
+                    id.setTextContent(userPwd.getId());
+                    final Element password = doc.createElement("password");
+                    password.setTextContent(Secret.toString(userPwd.getPassword()));
+                    final Element username = doc.createElement("username");
+                    username.setTextContent(userPwd.getUsername());
+
+                    server.appendChild(id);
+                    server.appendChild(username);
+                    server.appendChild(password);
+
+                    serversNode.appendChild(server);
+                }
+
+            }
+
             // save the result
             StringWriter writer = new StringWriter();
             Transformer xformer = TransformerFactory.newInstance().newTransformer();

@@ -23,18 +23,36 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class GlobalMavenSettingsConfig extends Config {
     private static final long serialVersionUID = 1L;
 
+    private List<ServerCredentialMapping> serverCredentialMappings;
+    
+    @DataBoundConstructor
+    public GlobalMavenSettingsConfig(String id, String name, String comment, String content, List<ServerCredentialMapping> serverCredentialMappings) {
+        super(id, name, comment, content);
+        this.serverCredentialMappings = serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
+    }
+    
     public GlobalMavenSettingsConfig(String id, String name, String comment, String content) {
         super(id, name, comment, content);
+    }
+    
+    public List<ServerCredentialMapping> getServerCredentialMappings() {
+        return serverCredentialMappings;
     }
 
     @Extension(ordinal = 200)
@@ -53,6 +71,12 @@ public class GlobalMavenSettingsConfig extends Config {
         public String getDisplayName() {
             return Messages.mvn_global_settings_provider_name();
         }
+        
+        @Override
+        public Config newConfig() {
+            String id = getProviderId() + System.currentTimeMillis();
+            return new GlobalMavenSettingsConfig(id, "MyGlobalSettings", "global settings", loadTemplateContent(), Collections.<ServerCredentialMapping>emptyList());
+        }               
 
         // ======================
         // start stuff for backward compatibility

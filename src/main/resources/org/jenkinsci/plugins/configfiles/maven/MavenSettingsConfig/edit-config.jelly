@@ -26,18 +26,37 @@ THE SOFTWARE.
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-			   		DOMI
-					<f:entry title="${%ID}" >
-						<f:textbox readonly="readonly" name="config.id" value="${config.id}" />
-					</f:entry>
-					<f:entry title="${%Name}">
-						<f:textbox name="config.name" value="${config.name}" />
-					</f:entry>
-					<f:entry title="${%Comment}">
-						<f:textbox name="config.comment" value="${config.comment}" />
-					</f:entry>
-					<f:entry title="${%Content}">
-						<f:textarea id="config.content" name="config.content" value="${config.content}" /> 
-					</f:entry>
-					
+
+<style type="text/css">
+div.credentialssection {
+  border-bottom: 1px solid black;
+}
+</style>
+			<j:set var="descriptor" value="${config.descriptor}"/>
+			<j:set var="instance" value="${config}"/>
+	   		<p>
+	   		 ${%description}
+	   		</p>
+	   		
+            <input type="hidden" name="config.id" value="${config.id}" />
+            
+            <f:entry title="${%Name}">
+                <f:textbox name="config.name" value="${config.name}" />
+            </f:entry>
+            <f:entry title="${%Comment}">
+                <f:textbox name="config.comment" value="${config.comment}" />
+            </f:entry>
+
+			<f:entry title="${%Server Credentials}" field="serverCredentialMappings">
+                  <f:repeatableProperty field="serverCredentialMappings" />
+		          <div align="right">
+		            <f:repeatableDeleteButton />
+		          </div>
+			</f:entry>
+                     
+            <f:entry title="${%Content}">
+                <f:textarea id="config.content" name="config.content" value="${config.content}" /> 
+            </f:entry>
 </j:jelly>
+
+

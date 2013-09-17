@@ -47,7 +47,7 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
         return ContentType.DefinedType.XML;
     }
 
-    private String loadTemplateContent() {
+    protected String loadTemplateContent() {
         try {
             InputStream is = this.getClass().getResourceAsStream("settings-tpl.xml");
 
