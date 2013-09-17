@@ -1,8 +1,10 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
 import hudson.maven.MavenModuleSet;
+import hudson.model.Item;
 import hudson.model.FreeStyleProject;
 import hudson.tasks.Maven;
+
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
@@ -45,7 +47,7 @@ public class MvnSettingsProviderTest {
         MvnGlobalSettingsProvider s2 = new MvnGlobalSettingsProvider(c2.id);
         Maven m = new Maven("install", null,null,null,null,false, s1, s2);
         p.getBuildersList().add(m);
-        jenkins.configRoundtrip(p);
+        jenkins.configRoundtrip((Item)p);
         m = p.getBuildersList().get(Maven.class);
 
         jenkins.assertEqualDataBoundBeans(m.getSettings(),s1);
@@ -72,7 +74,7 @@ public class MvnSettingsProviderTest {
         MvnGlobalSettingsProvider s2 = new MvnGlobalSettingsProvider(c2.id);
         p.setSettings(s1);
         p.setGlobalSettings(s2);
-        jenkins.configRoundtrip(p);
+        jenkins.configRoundtrip((Item)p);
 
         jenkins.assertEqualDataBoundBeans(p.getSettings(),s1);
         jenkins.assertEqualDataBoundBeans(p.getGlobalSettings(),s2);
