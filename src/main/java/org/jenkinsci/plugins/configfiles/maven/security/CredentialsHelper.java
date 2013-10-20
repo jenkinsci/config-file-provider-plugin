@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
+import hudson.model.Item;
+import hudson.security.ACL;
 import hudson.util.Secret;
 
 import java.io.StringReader;
@@ -7,6 +9,10 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -17,16 +23,22 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import jenkins.model.Jenkins;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
 public class CredentialsHelper {
+
+    private final static Logger LOGGER = Logger.getLogger(CredentialsHelper.class.getName());
 
     /**
      * hide constructor
@@ -34,22 +46,53 @@ public class CredentialsHelper {
     private CredentialsHelper() {
     }
 
-    public static String fillAuthentication(String settingsContent, List<BaseStandardCredentials> credentialsList) throws Exception {
+    /**
+     * Resolves the given serverCredential mappings and returns a map paring serverId to credential
+     * 
+     * @param item
+     *            authentication scope
+     * @param serverCredentialMappings
+     *            the mappings to be resolved
+     * @return map of serverId - credential
+     */
+    public static Map<String, BaseStandardCredentials> resolveCredentials(Item item, final List<ServerCredentialMapping> serverCredentialMappings) {
+        Map<String, BaseStandardCredentials> serverId2credential = new HashMap<String, BaseStandardCredentials>();
+        for (ServerCredentialMapping serverCredentialMapping : serverCredentialMappings) {
+            final String credentialsId = serverCredentialMapping.getCredentialsId();
+            final String serverId = serverCredentialMapping.getServerId();
+            final List<BaseStandardCredentials> foundCredentials = CredentialsProvider.lookupCredentials(BaseStandardCredentials.class, /** TODO? item **/
+            Jenkins.getInstance(), ACL.SYSTEM, new MavenServerIdRequirement(serverId));
+            final BaseStandardCredentials c = CredentialsMatchers.firstOrNull(foundCredentials, CredentialsMatchers.withId(credentialsId));
+            if (c != null) {
+                serverId2credential.put(serverId, c);
+            }
+        }
+        return serverId2credential;
+    }
+
+    /**
+     * 
+     * @param settingsContent
+     *            settings xml (must be valid settings XML)
+     * @param serverId2credential
+     *            the credentials to be inserted into the XML
+     * @return the new XML with the server credentials added
+     * @throws Exception
+     */
+    public static String fillAuthentication(String settingsContent, Map<String, BaseStandardCredentials> serverId2credential) throws Exception {
         String content = settingsContent;
-        if (!credentialsList.isEmpty()) {
+
+        if (!serverId2credential.isEmpty()) {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(content)));
 
-            Map<String, BaseStandardCredentials> id2c = new HashMap<String, BaseStandardCredentials>();
-            for (BaseStandardCredentials c : credentialsList) {
-                id2c.put(c.getId(), c);
-            }
+            final Set<Entry<String, BaseStandardCredentials>> credentialEntries = serverId2credential.entrySet();
 
             // locate the server node(s)
             XPath xpath = XPathFactory.newInstance().newXPath();
-            Node serversNode = (Node) xpath.evaluate("/settings/servers/", doc, XPathConstants.NODE);
+            Node serversNode = (Node) xpath.evaluate("/settings/servers", doc, XPathConstants.NODE);
             if (serversNode == null) {
                 // need to create a 'servers' node
-                Node settingsNode = (Node) xpath.evaluate("/settings/", doc, XPathConstants.NODE);
+                Node settingsNode = (Node) xpath.evaluate("/settings", doc, XPathConstants.NODE);
                 serversNode = doc.createElement("servers");
                 settingsNode.appendChild(serversNode);
             } else {
@@ -57,17 +100,19 @@ public class CredentialsHelper {
                 removeAllChilds(serversNode);
             }
 
-            for (BaseStandardCredentials credentials : credentialsList) {
+            for (Entry<String, BaseStandardCredentials> srvId2credential : credentialEntries) {
 
-                if (credentials instanceof StandardUsernamePasswordCredentials) {
+                final BaseStandardCredentials credential = srvId2credential.getValue();
+                if (credential instanceof StandardUsernamePasswordCredentials) {
 
-                    StandardUsernamePasswordCredentials userPwd = (StandardUsernamePasswordCredentials) credentials;
+                    StandardUsernamePasswordCredentials userPwd = (StandardUsernamePasswordCredentials) credential;
+                    System.out.println("add: " + srvId2credential.getKey() + " -> " + userPwd);
 
                     final Element server = doc.createElement("server");
 
                     // create and add the relevant xml elements
                     final Element id = doc.createElement("id");
-                    id.setTextContent(userPwd.getId());
+                    id.setTextContent(srvId2credential.getKey());
                     final Element password = doc.createElement("password");
                     password.setTextContent(Secret.toString(userPwd.getPassword()));
                     final Element username = doc.createElement("username");
@@ -78,6 +123,11 @@ public class CredentialsHelper {
                     server.appendChild(password);
 
                     serversNode.appendChild(server);
+                } else {
+
+                    Object[] params = new Object[] { srvId2credential.getKey(), credential.getClass() };
+                    LOGGER.log(Level.SEVERE, "credentials for {0} of type {1} not supported", params);
+
                 }
 
             }

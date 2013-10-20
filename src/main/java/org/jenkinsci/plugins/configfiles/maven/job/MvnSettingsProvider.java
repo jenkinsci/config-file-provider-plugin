@@ -5,27 +5,27 @@ import hudson.ExtensionList;
 import hudson.FilePath;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
-import hudson.security.ACL;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import jenkins.model.Jenkins;
 import jenkins.mvn.SettingsProvider;
 import jenkins.mvn.SettingsProviderDescriptor;
 
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.Util;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
+import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
+import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import com.cloudbees.plugins.credentials.CredentialsProvider;
-import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
 /**
@@ -62,8 +62,8 @@ public class MvnSettingsProvider extends SettingsProvider {
     public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
         if (StringUtils.isNotBlank(settingsConfigId)) {
 
-            ConfigProvider provider = getProviderForConfigId(settingsConfigId);
-            Config config = provider.getConfigById(settingsConfigId);
+            MavenSettingsConfigProvider provider = Util.getProviderForConfigIdOrNull(settingsConfigId);
+            MavenSettingsConfig config = provider.getConfigByIdTyped(settingsConfigId);
 
             if (config == null) {
                 listener.getLogger().println("ERROR: your Apache Maven build is setup to use a config with id " + settingsConfigId + " but can not find the config");
@@ -74,9 +74,11 @@ public class MvnSettingsProvider extends SettingsProvider {
 
                         String fileContent = config.content;
 
-                        final List<BaseStandardCredentials> credentials = CredentialsProvider.lookupCredentials(BaseStandardCredentials.class, Jenkins.getInstance(), ACL.SYSTEM, Collections.<DomainRequirement> emptyList());
-                        if (!credentials.isEmpty()) {
-                            fileContent = CredentialsHelper.fillAuthentication(fileContent, credentials);
+                        final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
+                        final Map<String, BaseStandardCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getProject(), serverCredentialMappings);
+
+                        if (!resolvedCredentials.isEmpty()) {
+                            fileContent = CredentialsHelper.fillAuthentication(fileContent, resolvedCredentials);
                         }
 
                         final FilePath f = copyConfigContentToFilePath(fileContent, build.getWorkspace());
@@ -85,23 +87,12 @@ public class MvnSettingsProvider extends SettingsProvider {
                         build.addAction(new CleanTempFilesAction(f.getRemote()));
                         return f;
                     } catch (Exception e) {
-                        throw new IllegalStateException("the settings.xml could not be supplied for the current build: " + e.getMessage());
+                        throw new IllegalStateException("the settings.xml could not be supplied for the current build: " + e.getMessage(), e);
                     }
                 }
             }
         }
 
-        return null;
-    }
-
-    private ConfigProvider getProviderForConfigId(String id) {
-        if (!StringUtils.isBlank(id)) {
-            for (ConfigProvider provider : ConfigProvider.all()) {
-                if (provider.isResponsibleFor(id)) {
-                    return provider;
-                }
-            }
-        }
         return null;
     }
 
