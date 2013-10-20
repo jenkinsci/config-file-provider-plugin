@@ -14,6 +14,7 @@ import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
@@ -48,20 +49,17 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     @Extension
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
 
-        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath AbstractProject context) {
-            return new StandardUsernameListBoxModel().withEmptySelection().withAll(allCredentials());
-        } 
-        
-        private static List<StandardUsernameCredentials> allCredentials() {
-            final List<StandardUsernameCredentials> creds = CredentialsProvider.lookupCredentials(
-                    StandardUsernameCredentials.class, 
-                    Jenkins.getInstance(), 
-                    /* TODO per-build auth? user auths? */
-                    ACL.SYSTEM,  
-                    /* TODO restrict? we only want the ones making sense for maven settings.xml */
-                    Collections.<DomainRequirement>emptyList());
+        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath AbstractProject context, @QueryParameter String serverId) {
+            final List<StandardUsernameCredentials> allCredentials = allCredentials(serverId);
+            return new StandardUsernameListBoxModel().withEmptySelection().withAll(allCredentials);
+        }
+
+        private static List<StandardUsernameCredentials> allCredentials(String serverId) {
+            final List<StandardUsernameCredentials> creds = CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, Jenkins.getInstance(),
+            /* TODO per-build auth? user auths? */
+            ACL.SYSTEM, Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId)));
             return creds;
-        }        
+        }
 
         @Override
         public String getDisplayName() {
