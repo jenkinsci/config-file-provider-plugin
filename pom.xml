@@ -9,7 +9,7 @@
 
 	<groupId>org.jenkins-ci.lib</groupId>
 	<artifactId>config-provider-model</artifactId>
-	<version>1.3.4</version>
+	<version>1.3.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>config-provider-model</name>
