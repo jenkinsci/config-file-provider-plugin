@@ -26,6 +26,7 @@ import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
 import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
 /**
@@ -75,7 +76,7 @@ public class MvnSettingsProvider extends SettingsProvider {
                         String fileContent = config.content;
 
                         final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
-                        final Map<String, BaseStandardCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getProject(), serverCredentialMappings);
+                        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getProject(), serverCredentialMappings);
 
                         if (!resolvedCredentials.isEmpty()) {
                             fileContent = CredentialsHelper.fillAuthentication(fileContent, resolvedCredentials);

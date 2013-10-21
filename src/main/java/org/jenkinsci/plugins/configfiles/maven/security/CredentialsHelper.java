@@ -33,6 +33,7 @@ import org.xml.sax.InputSource;
 
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
@@ -55,19 +56,24 @@ public class CredentialsHelper {
      *            the mappings to be resolved
      * @return map of serverId - credential
      */
-    public static Map<String, BaseStandardCredentials> resolveCredentials(Item item, final List<ServerCredentialMapping> serverCredentialMappings) {
-        Map<String, BaseStandardCredentials> serverId2credential = new HashMap<String, BaseStandardCredentials>();
+    public static Map<String, StandardUsernameCredentials> resolveCredentials(Item item, final List<ServerCredentialMapping> serverCredentialMappings) {
+        Map<String, StandardUsernameCredentials> serverId2credential = new HashMap<String, StandardUsernameCredentials>();
         for (ServerCredentialMapping serverCredentialMapping : serverCredentialMappings) {
             final String credentialsId = serverCredentialMapping.getCredentialsId();
             final String serverId = serverCredentialMapping.getServerId();
-            final List<BaseStandardCredentials> foundCredentials = CredentialsProvider.lookupCredentials(BaseStandardCredentials.class, /** TODO? item **/
-            Jenkins.getInstance(), ACL.SYSTEM, new MavenServerIdRequirement(serverId));
-            final BaseStandardCredentials c = CredentialsMatchers.firstOrNull(foundCredentials, CredentialsMatchers.withId(credentialsId));
+            final List<StandardUsernameCredentials> foundCredentials = findValidCredentials(serverId);
+            final StandardUsernameCredentials c = CredentialsMatchers.firstOrNull(foundCredentials, CredentialsMatchers.withId(credentialsId));
             if (c != null) {
                 serverId2credential.put(serverId, c);
             }
         }
         return serverId2credential;
+    }
+
+    public static List<StandardUsernameCredentials> findValidCredentials(final String serverIdPattern) {
+        final List<StandardUsernameCredentials> foundCredentials = CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, /** TODO? item **/
+        Jenkins.getInstance(), ACL.SYSTEM, new MavenServerIdRequirement(serverIdPattern));
+        return foundCredentials;
     }
 
     /**
@@ -79,13 +85,13 @@ public class CredentialsHelper {
      * @return the new XML with the server credentials added
      * @throws Exception
      */
-    public static String fillAuthentication(String settingsContent, Map<String, BaseStandardCredentials> serverId2credential) throws Exception {
+    public static String fillAuthentication(String settingsContent, Map<String, StandardUsernameCredentials> serverId2credential) throws Exception {
         String content = settingsContent;
 
         if (!serverId2credential.isEmpty()) {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(content)));
 
-            final Set<Entry<String, BaseStandardCredentials>> credentialEntries = serverId2credential.entrySet();
+            final Set<Entry<String, StandardUsernameCredentials>> credentialEntries = serverId2credential.entrySet();
 
             // locate the server node(s)
             XPath xpath = XPathFactory.newInstance().newXPath();
@@ -100,9 +106,9 @@ public class CredentialsHelper {
                 removeAllChilds(serversNode);
             }
 
-            for (Entry<String, BaseStandardCredentials> srvId2credential : credentialEntries) {
+            for (Entry<String, StandardUsernameCredentials> srvId2credential : credentialEntries) {
 
-                final BaseStandardCredentials credential = srvId2credential.getValue();
+                final StandardUsernameCredentials credential = srvId2credential.getValue();
                 if (credential instanceof StandardUsernamePasswordCredentials) {
 
                     StandardUsernamePasswordCredentials userPwd = (StandardUsernamePasswordCredentials) credential;

@@ -4,22 +4,16 @@ import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
-import hudson.security.ACL;
 import hudson.util.ListBoxModel;
 
-import java.util.Collections;
 import java.util.List;
-
-import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
-import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
-import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 
 public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCredentialMapping> {
 
@@ -50,14 +44,8 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath AbstractProject<?, ?> context, @QueryParameter String serverId) {
-            final List<StandardUsernameCredentials> allCredentials = allCredentials(serverId);
-            return new StandardUsernameListBoxModel().withEmptySelection().withAll(allCredentials);
-        }
-
-        private static List<StandardUsernameCredentials> allCredentials(String serverId) {
-            final List<StandardUsernameCredentials> creds = CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, /** TODO? item **/ Jenkins.getInstance(), ACL.SYSTEM,
-                    Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId)));
-            return creds;
+            final List<StandardUsernameCredentials> validCredentials = CredentialsHelper.findValidCredentials(serverId);
+            return new StandardUsernameListBoxModel().withEmptySelection().withAll(validCredentials);
         }
 
         @Override
