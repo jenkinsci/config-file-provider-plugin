@@ -77,6 +77,15 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     public abstract Config getConfigById(String configId);
 
     /**
+     * same as {@link #getConfigById(String)}, but wihout the need for cast
+     * 
+     * @param configId
+     *            the id
+     * @return the config with the given id
+     */
+    public abstract <T extends Config> T getConfigByIdTyped(String configId);
+
+    /**
      * Whether this provider is responsible for a Config with the given Id.
      * 
      * @param configId
