@@ -41,7 +41,7 @@ THE SOFTWARE.
 			            	<st:include page="edit-config.jelly" from="${instance}"/>
 			          </j:when>
 			          <j:otherwise>
-			            	<st:include page="edit-config.jelly" from="${config}"/>
+			            	<st:include page="edit-config.jelly" from="${config}" it="${config}"/>
 			          </j:otherwise>
 			        </j:choose>
 					<f:block>

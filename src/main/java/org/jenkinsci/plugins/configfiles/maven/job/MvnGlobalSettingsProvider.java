@@ -16,11 +16,16 @@ import jenkins.mvn.GlobalSettingsProvider;
 import jenkins.mvn.GlobalSettingsProviderDescriptor;
 
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.Util;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
+import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
+import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
 import org.kohsuke.stapler.DataBoundConstructor;
+
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
 /**
  * This provider delivers the global settings.xml to the job during job/project execution. <br>
@@ -56,8 +61,8 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
     public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
         if (StringUtils.isNotBlank(settingsConfigId)) {
 
-            ConfigProvider provider = getProviderForConfigId(settingsConfigId);
-            Config config = provider.getConfigById(settingsConfigId);
+            GlobalMavenSettingsConfigProvider provider = Util.getProviderForConfigIdOrNull(settingsConfigId);
+            GlobalMavenSettingsConfig config = provider.getConfigByIdTyped(settingsConfigId);
 
             if (config == null) {
                 listener.getLogger().println("ERROR: your Apache Maven build is setup to use a config with id " + settingsConfigId + " but can not find the config");
@@ -67,6 +72,12 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                     try {
 
                         String fileContent = config.content;
+
+                        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getProject(), config.getServerCredentialMappings());
+
+                        if (!resolvedCredentials.isEmpty()) {
+                            fileContent = CredentialsHelper.fillAuthentication(fileContent, resolvedCredentials);
+                        }
 
                         final FilePath f = copyConfigContentToFilePath(fileContent, build.getWorkspace());
                         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
@@ -80,17 +91,6 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
             }
         }
 
-        return null;
-    }
-
-    private ConfigProvider getProviderForConfigId(String id) {
-        if (!StringUtils.isBlank(id)) {
-            for (ConfigProvider provider : ConfigProvider.all()) {
-                if (provider.isResponsibleFor(id)) {
-                    return provider;
-                }
-            }
-        }
         return null;
     }
 

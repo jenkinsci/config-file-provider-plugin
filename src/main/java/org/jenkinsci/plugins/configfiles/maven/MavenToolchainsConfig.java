@@ -23,11 +23,10 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
+import hudson.Extension;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import hudson.Extension;
-import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
