@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.jenkinsci.plugins.configfiles.custom.CustomConfigProvider>
+  <ID__PREFIX>CustomConfigProvider.</ID__PREFIX>
+  <configs>
+    <entry>
+      <string>CustomConfigProvider.1331575793175</string>
+      <org.jenkinsci.lib.configprovider.model.Config>
+        <id>CustomConfigProvider.1331575793175</id>
+        <name>MyCustom1</name>
+        <comment>my custom</comment>
+        <content>some text
+and some more</content>
+      </org.jenkinsci.lib.configprovider.model.Config>
+    </entry>
+  </configs>
+</org.jenkinsci.plugins.configfiles.custom.CustomConfigProvider>

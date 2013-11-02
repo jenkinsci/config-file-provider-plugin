@@ -1,0 +1,72 @@
+<!-- The MIT License Copyright (c) 2011, Dominik Bartholdi Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
+	documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, 
+	distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: 
+	The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", 
+	WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
+
+
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<st:once>
+		<script type="text/javascript" src="${rootURL}/plugin/config-file-provider/js/fileprovider.js" />
+	</st:once>
+
+	<f:entry title="${%Managed Files}">
+		<f:repeatable var="managedFile" items="${instance.managedFiles}" name="managedFiles" noAddButton="true" minimum="1">
+			<table width="100%">
+
+				<f:entry title="File">
+					<select name="fileId" onChange="fp_initDetailLink('${rootURL}', this);">
+						<j:forEach var="aFile" items="${descriptor.configFiles}" varStatus="loop">
+							<j:choose>
+								<j:when test="${managedFile.fileId==aFile.id}">
+									<option value="${aFile.id}" selected="selected">${aFile.name} - ${aFile.comment}</option>
+								</j:when>
+								<j:otherwise>
+									<option value="${aFile.id}">${aFile.name} - ${aFile.comment}</option>
+								</j:otherwise>
+							</j:choose>
+						</j:forEach>
+					</select>
+				</f:entry>
+				
+				<tr>
+					<td></td>
+					<td></td>
+					<td>
+						<a target="_blank" name="showFileDetailLink" href="" style="display:none;" onclick="window.open(this.href,'window','width=900,height=640,resizable,scrollbars,toolbar,menubar') ;return false;">view selected file</a>
+					</td>
+				</tr>
+
+				<f:entry title="Target" field="targetLocation">
+					<f:textbox value="${managedFile.targetLocation}" />
+				</f:entry>
+
+				<f:entry title="Variable" field="variable">
+					<f:textbox value="${managedFile.variable}" />
+				</f:entry>
+
+
+				<f:entry>
+					<div align="right">
+						<input type="button" value="${%Add file}" class="repeatable-add show-if-last" />
+						<input type="button" value="${%Delete}" class="repeatable-delete show-if-not-only" style="margin-left: 1em;" />
+					</div>
+				</f:entry>
+			</table>
+		</f:repeatable>
+	</f:entry>
+	<st:once>
+		<script type="text/javascript">
+			Event.observe(window, 'load', function() { 
+				var all = new Array();
+	   			all = document.getElementsByName('fileId');
+				for(var i = 0; i &lt; all.length; i++) {
+					fp_initDetailLink('<j:out value="${rootURL}" />', all.item(i));
+				}
+			});
+		</script>
+	</st:once>
+
+</j:jelly>
