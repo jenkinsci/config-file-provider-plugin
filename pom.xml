@@ -1,49 +1,32 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.jenkins-ci</groupId>
-		<artifactId>jenkins</artifactId>
-		<version>1.31</version>
+		<groupId>org.jenkins-ci.plugins</groupId>
+		<artifactId>plugin</artifactId>
+		<version>1.491</version>
 	</parent>
 
-	<groupId>org.jenkins-ci.lib</groupId>
-	<artifactId>config-provider-model</artifactId>
-	<version>1.3.5-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<artifactId>config-file-provider</artifactId>
+	<version>2.7-SNAPSHOT</version>
 
-	<name>config-provider-model</name>
+	<packaging>hpi</packaging>
+
+	<url>https://wiki.jenkins-ci.org/display/JENKINS/Config+File+Provider+Plugin</url>
+
+	<scm>
+		<connection>scm:git:git://github.com/jenkinsci/config-file-provider-plugin.git</connection>
+		<developerConnection>scm:git:git@github.com:jenkinsci/config-file-provider-plugin.git</developerConnection>
+		<url>https://github.com/jenkinsci/config-file-provider-plugin</url>
+	</scm>
+
+	<name>Config File Provider Plugin</name>
+	<description>Ability to provide configuration files (e.g. settings.xml for maven, XML, groovy, custom files,...) loaded trough the UI which will be copy to the job workspace</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-
-	<scm>
-		<connection>scm:git:git://github.com/jenkinsci/config-provider-model.git</connection>
-		<developerConnection>scm:git:git@github.com:jenkinsci/config-provider-model.git</developerConnection>
-		<url>https://github.com/jenkinsci/config-provider-model</url>
-	</scm>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.jenkins-ci.main</groupId>
-			<artifactId>jenkins-core</artifactId>
-			<version>1.454</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.4</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
-
-	<licenses>
-		<license>
-			<name>MIT</name>
-		</license>
-	</licenses>
 
 	<developers>
 		<developer>
@@ -56,55 +39,24 @@
 		</developer>
 	</developers>
 
-	<build>
-
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-release-plugin</artifactId>
-					<version>2.1</version>
-					<configuration>
-						<goals>deploy</goals>
-						<useReleaseProfile>false</useReleaseProfile>
-						<arguments>-Pjenkins-release</arguments>
-					</configuration>
-				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-enforcer-plugin</artifactId>
-										<versionRange>[1.0,)</versionRange>
-										<goals>
-											<goal>display-info</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-			</plugin>
-		</plugins>
-	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>token-macro</artifactId>
+			<version>1.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>credentials</artifactId>
+			<version>1.9.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>ssh-credentials</artifactId>
+			<version>1.5.1</version>
+			<optional>true</optional>
+		</dependency>
+	</dependencies>
 
 	<repositories>
 		<repository>
@@ -131,43 +83,63 @@
 		</pluginRepository>
 	</pluginRepositories>
 
-
-	<profiles>
-
-		<profile>
-			<id>jenkins-release</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-source-plugin</artifactId>
-						<version>2.1.2</version>
-						<executions>
-							<execution>
-								<id>attach-sources</id>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>2.7</version>
-						<executions>
-							<execution>
-								<id>attach-javadocs</id>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-	</profiles>
+	<build>
+        <plugins>
+            <plugin>
+                <groupId>org.jenkins-ci.tools</groupId>
+                <artifactId>maven-hpi-plugin</artifactId>
+                <version>1.98</version>
+                <extensions>true</extensions>
+            </plugin>        
+        </plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.jvnet.localizer</groupId>
+					<artifactId>maven-localizer-plugin</artifactId>
+					<version>1.14</version>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-enforcer-plugin</artifactId>
+										<versionRange>[1.0,)</versionRange>
+										<goals>
+											<goal>display-info</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.codehaus.gmaven</groupId>
+										<artifactId>gmaven-plugin</artifactId>
+										<versionRange>[1.3,)</versionRange>
+										<goals>
+											<goal>generateTestStubs</goal>
+											<goal>testCompile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 
 </project>
