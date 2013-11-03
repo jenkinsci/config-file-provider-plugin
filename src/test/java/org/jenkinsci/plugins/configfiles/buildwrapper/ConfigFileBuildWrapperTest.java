@@ -7,6 +7,7 @@ import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.Cause.UserCause;
+import hudson.model.FreeStyleProject;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.StringParameterDefinition;
 import hudson.tasks.Builder;
@@ -16,8 +17,6 @@ import java.util.Collections;
 
 import javax.inject.Inject;
 
-import jenkins.model.Jenkins;
-
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
@@ -26,35 +25,38 @@ import org.jenkinsci.plugins.configfiles.xml.XmlConfig.XmlConfigProvider;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.JenkinsRule.WebClient;
 
-@Ignore
+import com.gargoylesoftware.htmlunit.html.DomNodeList;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.HtmlOption;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
 public class ConfigFileBuildWrapperTest {
 
     @Rule
-    public JenkinsRule j = new JenkinsRule();
+    public JenkinsRule          j = new JenkinsRule();
 
     @Inject
-    ConfigFilesManagement configManagement;
+    ConfigFilesManagement       configManagement;
 
     @Inject
     MavenSettingsConfigProvider mavenSettingProvider;
 
     @Inject
-    XmlConfigProvider xmlProvider;
-    
+    XmlConfigProvider           xmlProvider;
 
     @Test
     public void envVariableMustBeAvailableInMavenModuleSetBuild() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
         final ExtensionList<ConfigProvider> all = ConfigProvider.all();
-        final ExtensionList<ConfigProvider> extensionList = j.jenkins.getInstance().getExtensionList(ConfigProvider.class);        
-        
+        final ExtensionList<ConfigProvider> extensionList = j.jenkins.getInstance().getExtensionList(ConfigProvider.class);
+
         final MavenModuleSet p = j.createMavenProject("mvn");
 
         // p.getBuildWrappersList().add(new ConfigFileBuildWrapper(managedFiles))
@@ -99,5 +101,38 @@ public class ConfigFileBuildWrapperTest {
         Config c1 = provider.newConfig();
         provider.save(c1);
         return c1;
+    }
+
+    @Test
+    public void correctConfigMustBeActiveInDropdown() throws Exception {
+        j.jenkins.getInjector().injectMembers(this);
+
+        FreeStyleProject p = j.createFreeStyleProject("someJob");
+
+        final Config activeConfig = createSetting(xmlProvider);
+        final Config secondConfig = createSetting(xmlProvider);
+        final ManagedFile mSettings = new ManagedFile(activeConfig.id, "/tmp/new_settings.xml", "MY_SETTINGS");
+        ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mSettings));
+        p.getBuildWrappersList().add(bw);
+
+        final WebClient client = j.createWebClient();
+        final HtmlPage page = client.goTo("job/someJob/configure");
+
+        final DomNodeList<HtmlElement> option = page.getElementsByTagName("option");
+        boolean foundActive = false;
+        boolean foundSecond = false;
+        for (HtmlElement htmlElement : option) {
+            final HtmlOption htmlOption = (HtmlOption) htmlElement;
+            if (htmlOption.getValueAttribute().equals(activeConfig.id)) {
+                Assert.assertTrue("correct config is not selected", htmlOption.isSelected());
+                foundActive = true;
+            }
+            if (htmlOption.getValueAttribute().equals(secondConfig.id)) {
+                Assert.assertFalse("wrong config is selected", htmlOption.isSelected());
+                foundSecond = true;
+            }
+        }
+        Assert.assertTrue("configured active setting was not available as option", foundActive);
+        Assert.assertTrue("configured second setting was not available as option", foundSecond);
     }
 }
