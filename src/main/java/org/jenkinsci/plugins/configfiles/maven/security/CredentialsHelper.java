@@ -36,7 +36,6 @@ import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
-import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
 public class CredentialsHelper {
 
@@ -113,7 +112,7 @@ public class CredentialsHelper {
                 if (credential instanceof StandardUsernamePasswordCredentials) {
 
                     StandardUsernamePasswordCredentials userPwd = (StandardUsernamePasswordCredentials) credential;
-                    System.out.println("add: " + srvId2credential.getKey() + " -> " + userPwd);
+                    LOGGER.fine("add: " + srvId2credential.getKey() + " -> " + userPwd);
 
                     final Element server = doc.createElement("server");
 
@@ -133,7 +132,7 @@ public class CredentialsHelper {
                 } else {
 
                     Object[] params = new Object[] { srvId2credential.getKey(), credential.getClass() };
-                    LOGGER.log(Level.SEVERE, "credentials for {0} of type {1} not supported", params);
+                    LOGGER.log(Level.SEVERE, "credentials for {0} of type {1} not (yet) supported", params);
 
                 }
 
