@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
-import hudson.ExtensionList;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.BuildListener;
@@ -54,14 +53,11 @@ public class ConfigFileBuildWrapperTest {
     public void envVariableMustBeAvailableInMavenModuleSetBuild() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final ExtensionList<ConfigProvider> all = ConfigProvider.all();
-        final ExtensionList<ConfigProvider> extensionList = j.jenkins.getInstance().getExtensionList(ConfigProvider.class);
-
         final MavenModuleSet p = j.createMavenProject("mvn");
 
         // p.getBuildWrappersList().add(new ConfigFileBuildWrapper(managedFiles))
         p.setMaven(j.configureMaven3().getName());
-        p.setScm(new ExtractResourceSCM(getClass().getResource("/org/jenkinsci/plugins/configfiles/maven3-project.zip")));
+        p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
         p.setGoals("initialize"); // -s ${MVN_SETTING}
 
         final Config settings = createSetting(xmlProvider);
