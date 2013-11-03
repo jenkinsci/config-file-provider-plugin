@@ -25,7 +25,6 @@ import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
-import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 
 /**
  * This provider delivers the global settings.xml to the job during job/project execution. <br>
@@ -80,6 +79,8 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                         }
 
                         final FilePath f = copyConfigContentToFilePath(fileContent, build.getWorkspace());
+                        build.getEnvironments().add(new SimpleEnvironment("MVN_GLOBALSETTINGS", f.getRemote()));
+
                         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
                         // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
                         build.addAction(new CleanTempFilesAction(f.getRemote()));
