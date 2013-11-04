@@ -61,11 +61,19 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
         if (StringUtils.isNotBlank(settingsConfigId)) {
 
             GlobalMavenSettingsConfigProvider provider = Util.getProviderForConfigIdOrNull(settingsConfigId);
-            GlobalMavenSettingsConfig config = provider.getConfigByIdTyped(settingsConfigId);
+            Config c = provider.getConfigById(settingsConfigId);
 
-            if (config == null) {
+            if (c == null) {
                 listener.getLogger().println("ERROR: your Apache Maven build is setup to use a config with id " + settingsConfigId + " but can not find the config");
             } else {
+
+                GlobalMavenSettingsConfig config = null;
+                if (c instanceof GlobalMavenSettingsConfig) {
+                    config = (GlobalMavenSettingsConfig) c;
+                } else {
+                    config = new GlobalMavenSettingsConfig(c.id, c.name, c.comment, c.content, null);
+                }
+
                 listener.getLogger().println("using global settings config with name " + config.name);
                 if (StringUtils.isNotBlank(config.content)) {
                     try {

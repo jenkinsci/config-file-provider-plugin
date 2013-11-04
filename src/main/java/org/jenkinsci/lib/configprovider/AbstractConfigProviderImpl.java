@@ -49,11 +49,6 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     }
     
     @Override
-    public <T extends Config> T getConfigByIdTyped(String configId) {
-        return (T)configs.get(configId);
-    }
-
-    @Override
     public String getProviderId() {
         return getId();
     }

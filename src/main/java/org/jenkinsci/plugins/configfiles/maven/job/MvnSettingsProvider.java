@@ -63,17 +63,24 @@ public class MvnSettingsProvider extends SettingsProvider {
         if (StringUtils.isNotBlank(settingsConfigId)) {
 
             MavenSettingsConfigProvider provider = Util.getProviderForConfigIdOrNull(settingsConfigId);
-            MavenSettingsConfig config = provider.getConfigByIdTyped(settingsConfigId);
+            Config c = provider.getConfigById(settingsConfigId);
 
-            if (config == null) {
+            if (c == null) {
                 listener.getLogger().println("ERROR: your Apache Maven build is setup to use a config with id " + settingsConfigId + " but can not find the config");
             } else {
+
+                MavenSettingsConfig config = null;
+                if (c instanceof MavenSettingsConfig) {
+                    config = (MavenSettingsConfig) c;
+                } else {
+                    config = new MavenSettingsConfig(c.id, c.name, c.comment, c.content, null);
+                }
+
                 listener.getLogger().println("using settings config with name " + config.name);
                 if (StringUtils.isNotBlank(config.content)) {
                     try {
 
                         String fileContent = config.content;
-
 
                         final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
                         final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getProject(), serverCredentialMappings);
@@ -84,7 +91,7 @@ public class MvnSettingsProvider extends SettingsProvider {
 
                         final FilePath f = copyConfigContentToFilePath(fileContent, build.getWorkspace());
                         build.getEnvironments().add(new SimpleEnvironment("MVN_SETTINGS", f.getRemote()));
-                        
+
                         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
                         // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
                         build.addAction(new CleanTempFilesAction(f.getRemote()));

@@ -110,7 +110,7 @@ public class ConfigFilesManagement extends ManagementLink {
     }
 
     public HttpResponse doSaveConfig(StaplerRequest req) {
-
+        checkPermission(Hudson.ADMINISTER);
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
