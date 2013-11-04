@@ -9,7 +9,15 @@
 
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<style type="text/css">
+div.credentialssection {
+  border-bottom: 1px solid black;
+}
+</style>
 
+    <j:set var="descriptor" value="${config.descriptor}"/>
+    <j:set var="instance" value="${config}"/>
+    
 	<f:entry title="${%Name}">
 		<f:textbox readonly="readonly" name="config.name" value="${config.name}" />
 	</f:entry>

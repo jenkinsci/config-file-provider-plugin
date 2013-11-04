@@ -31,7 +31,6 @@ THE SOFTWARE.
 	
 			<f:form method="" action="">
 				<f:section title="${%Script details}" name="config">
-				    ${instance} - ${config}
 					<j:choose>
 						<j:when test="${config.class.name == 'org.jenkinsci.lib.configprovider.model.Config'}">
 							<st:include page="show-config.jelly" from="${instance}" />
