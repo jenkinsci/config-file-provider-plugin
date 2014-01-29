@@ -39,8 +39,13 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
+import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
+import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
+
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 
 public class ManagedFileUtil {
 
@@ -109,15 +114,38 @@ public class ManagedFileUtil {
                 }
                 target = new FilePath(build.getWorkspace(), expandedTargetLocation);
             }
+            
+            // Inserts Maven server credentials if config files are Maven settings
+            String fileContent = insertCredentialsInSettings(build, configFile);
+
 
             listener.getLogger().println(Messages.console_output(configFile.name, target.toURI()));
-            ByteArrayInputStream bs = new ByteArrayInputStream(configFile.content.getBytes());
+            ByteArrayInputStream bs = new ByteArrayInputStream(fileContent.getBytes());
             target.copyFrom(bs);
             file2Path.put(managedFile, target);
         }
 
         return file2Path;
     }
+
+    private static String insertCredentialsInSettings(AbstractBuild<?, ?> build, Config configFile) throws IOException {
+		String fileContent = configFile.content;
+		
+		if (configFile instanceof HasServerCredentialMappings) {
+			HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
+			final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getProject(), settings.getServerCredentialMappings());
+			
+			if (!resolvedCredentials.isEmpty()) {
+				try {
+					fileContent = CredentialsHelper.fillAuthentication(fileContent, resolvedCredentials);
+				} catch (Exception exception) {
+					throw new IOException("[ERROR] could not insert credentials into the settings file", exception);
+				}
+			}
+		}
+		
+		return fileContent;
+	}
 
     private static ConfigProvider getProviderForConfigId(String id) {
         if (!StringUtils.isBlank(id)) {
