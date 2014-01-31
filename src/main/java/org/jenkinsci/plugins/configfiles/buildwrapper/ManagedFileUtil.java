@@ -108,7 +108,6 @@ public class ManagedFileUtil {
                     expandedTargetLocation = managedFile.targetLocation;
                 }
                 
-                // Wolfram Research- October 28,2013
                 // Should treat given path as the actual filename unless it has a trailing slash (implying a
                 // directory) or path already exists in workspace as a directory.
                 target = new FilePath(build.getWorkspace(), expandedTargetLocation);
