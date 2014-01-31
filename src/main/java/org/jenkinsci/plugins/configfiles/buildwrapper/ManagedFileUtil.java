@@ -108,10 +108,16 @@ public class ManagedFileUtil {
                     expandedTargetLocation = managedFile.targetLocation;
                 }
                 
-                if (!expandedTargetLocation.contains(".")) {
-                    expandedTargetLocation = expandedTargetLocation + "/" + configFile.name.replace(" ", "_");
-                }
+                // Wolfram Research- October 28,2013
+                // Should treat given path as the actual filename unless it has a trailing slash (implying a
+                // directory) or path already exists in workspace as a directory.
                 target = new FilePath(build.getWorkspace(), expandedTargetLocation);
+                String immediateFileName = expandedTargetLocation.substring(
+                		expandedTargetLocation.lastIndexOf("/")+1);
+
+                if (immediateFileName.length() == 0 || (target.exists() && target.isDirectory())){
+                	target = new FilePath(target,configFile.name.replace(" ", "_"));
+                }
             }
             
             // Inserts Maven server credentials if config files are Maven settings
