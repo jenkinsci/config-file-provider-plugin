@@ -22,7 +22,7 @@
     </scm>
 
     <name>Config File Provider Plugin</name>
-    <description>Ability to provide configuration files (e.g. settings.xml for maven, XML, groovy, custom files,...) loaded trough the UI which will be copy to the job workspace</description>
+    <description>Ability to provide configuration files (e.g. settings.xml for maven, XML, groovy, custom files,...) loaded through the UI which will be copied to the job workspace</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

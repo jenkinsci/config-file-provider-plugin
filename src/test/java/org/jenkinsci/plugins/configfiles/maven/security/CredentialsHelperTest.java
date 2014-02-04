@@ -50,7 +50,7 @@ public class CredentialsHelperTest {
         XPath xpath = XPathFactory.newInstance().newXPath();
         NodeList nodes = (NodeList) xpath.evaluate("/settings/servers/server", doc, XPathConstants.NODESET);
         // the 'settings_test.xml' actually contains 4 server tags, but we remove all and only inject the ones managed by the plugin
-        Assert.assertEquals("there is not the same number of server tags anymore in the settgins.xml", 2, nodes.getLength());
+        Assert.assertEquals("there is not the same number of server tags anymore in the settings.xml", 2, nodes.getLength());
 
         Node server = (Node) xpath.evaluate("/settings/servers/server[id='my.server']", doc, XPathConstants.NODE);
         Assert.assertEquals("password is not at the correct location", PWD, xpath.evaluate("password", server));
