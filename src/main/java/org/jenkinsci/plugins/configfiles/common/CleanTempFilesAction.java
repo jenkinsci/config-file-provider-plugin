@@ -63,6 +63,12 @@ public class CleanTempFilesAction extends InvisibleAction implements Environment
         this.explicitTempFiles.add(tempfile);
     }
 
+    private Object readResolve() {
+        this.file2Path = Collections.<ManagedFile, FilePath> emptyMap();
+        this.explicitTempFiles = Collections.emptyList();
+        return this;
+    }
+
     /**
      * @Override
      */
