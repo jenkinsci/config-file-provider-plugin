@@ -126,6 +126,7 @@ public class ManagedFileUtil {
             listener.getLogger().println(Messages.console_output(configFile.name, target.toURI()));
             ByteArrayInputStream bs = new ByteArrayInputStream(fileContent.getBytes());
             target.copyFrom(bs);
+            target.chmod(0640);
             file2Path.put(managedFile, target);
         }
 
