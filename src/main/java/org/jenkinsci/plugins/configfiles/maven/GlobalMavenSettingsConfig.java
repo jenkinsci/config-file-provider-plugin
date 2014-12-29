@@ -23,11 +23,12 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
+import hudson.Extension;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import hudson.Extension;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.model.Config;

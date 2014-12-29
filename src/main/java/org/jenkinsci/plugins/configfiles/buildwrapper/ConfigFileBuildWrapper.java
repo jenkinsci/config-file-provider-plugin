@@ -66,7 +66,7 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
             throw new IllegalStateException("the workspace does not yet exist, can't provision config files - maybe slave is offline?");
         }
 
-        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, listener);
+        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, build.getWorkspace(), listener);
         // JENKINS-17555 this special env is required, as MavenModuleSetBuild only takes Environments from BuildWrapper into account, but not those from Actions registered by them.
         final ManagedFilesEnvironment env = new ManagedFilesEnvironment(file2Path);
         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
