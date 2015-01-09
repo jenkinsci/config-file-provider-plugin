@@ -24,8 +24,9 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
 import hudson.FilePath;
-import hudson.model.BuildListener;
+import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.remoting.Callable;
 import hudson.remoting.VirtualChannel;
 
@@ -43,6 +44,7 @@ import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
 import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
+import org.jenkinsci.remoting.RoleChecker;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 
@@ -59,6 +61,12 @@ public class ManagedFileUtil {
             }
 
             private static final long serialVersionUID = 1L;
+
+			@Override
+			public void checkRoles(RoleChecker arg0) throws SecurityException {
+				// TODO Auto-generated method stub
+				
+			}
         });
     }
 
@@ -76,7 +84,7 @@ public class ManagedFileUtil {
      * @throws InterruptedException
      * @throws
      */
-    public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
+    public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, Run<?, ?> build, FilePath ws, TaskListener listener) throws IOException, InterruptedException {
 
         final Map<ManagedFile, FilePath> file2Path = new HashMap<ManagedFile, FilePath>();
         listener.getLogger().println("provisoning config files...");
@@ -97,12 +105,13 @@ public class ManagedFileUtil {
 
             FilePath target = null;
             if (createTempFile) {
-                target = ManagedFileUtil.createTempFile(build.getWorkspace().getChannel());
+                target = ManagedFileUtil.createTempFile(ws.getChannel());
             } else {
                 
                 String expandedTargetLocation = managedFile.targetLocation;
                 try {
-                    expandedTargetLocation = TokenMacro.expandAll(build, listener, managedFile.targetLocation);
+                	// If this plugin is used in a workflow step, the type of 'build' is org.hudson.Run and it's not necessary to call TokenMacro.expandAll.
+                	expandedTargetLocation = build instanceof AbstractBuild ? TokenMacro.expandAll((AbstractBuild<?, ?>) build, listener, managedFile.targetLocation) : managedFile.targetLocation;
                 } catch (MacroEvaluationException e) {
                     listener.getLogger().println("[ERROR] failed to expand variables in target location '" + managedFile.targetLocation + "' : " + e.getMessage());
                     expandedTargetLocation = managedFile.targetLocation;
@@ -110,7 +119,7 @@ public class ManagedFileUtil {
                 
                 // Should treat given path as the actual filename unless it has a trailing slash (implying a
                 // directory) or path already exists in workspace as a directory.
-                target = new FilePath(build.getWorkspace(), expandedTargetLocation);
+                target = new FilePath(ws, expandedTargetLocation);
                 String immediateFileName = expandedTargetLocation.substring(
                 		expandedTargetLocation.lastIndexOf("/")+1);
 
@@ -133,12 +142,12 @@ public class ManagedFileUtil {
         return file2Path;
     }
 
-    private static String insertCredentialsInSettings(AbstractBuild<?, ?> build, Config configFile) throws IOException {
+    private static String insertCredentialsInSettings(Run<?, ?> build, Config configFile) throws IOException {
 		String fileContent = configFile.content;
 		
 		if (configFile instanceof HasServerCredentialMappings) {
 			HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
-			final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getProject(), settings.getServerCredentialMappings());
+			final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getParent(), settings.getServerCredentialMappings());
 			
 			if (!resolvedCredentials.isEmpty()) {
 				try {
