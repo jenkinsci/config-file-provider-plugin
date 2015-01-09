@@ -24,11 +24,10 @@
 package org.jenkinsci.lib.configprovider.model;
 
 import hudson.model.Describable;
-
-import java.io.Serializable;
-
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.kohsuke.stapler.DataBoundConstructor;
+
+import java.io.Serializable;
 
 /**
  * Represents a particular configuration file and its content.

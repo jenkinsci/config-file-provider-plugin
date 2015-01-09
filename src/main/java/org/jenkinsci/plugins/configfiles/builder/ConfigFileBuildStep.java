@@ -28,7 +28,6 @@ import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFileUtil;
 import org.jenkinsci.plugins.configfiles.buildwrapper.Messages;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
 
 /**
  * @author Dominik Bartholdi (imod)
@@ -47,7 +46,6 @@ public class ConfigFileBuildStep extends Builder implements SimpleBuildStep {
         return managedFiles;
     }    
 	
-	@DataBoundSetter
 	public void setManagedFiles(List<ManagedFile> managedFiles) {
         this.managedFiles = managedFiles;
     }

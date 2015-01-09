@@ -23,10 +23,9 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
-import hudson.util.IOUtils;
-
 import java.io.InputStream;
 
+import hudson.util.IOUtils;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;

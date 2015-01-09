@@ -1,16 +1,17 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
-import static org.junit.Assert.assertNotSame;
+import java.util.Collections;
+
 import hudson.maven.MavenModuleSet;
 import hudson.model.Item;
 import hudson.model.FreeStyleProject;
 import hudson.tasks.Maven;
 
-import javax.inject.Inject;
-
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
+import org.jenkinsci.plugins.configfiles.buildwrapper.ConfigFileBuildWrapper;
+import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
 import org.junit.Assert;
@@ -20,8 +21,15 @@ import org.jvnet.hudson.test.Bug;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
 
+import com.gargoylesoftware.htmlunit.html.DomNodeList;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.HtmlOption;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
+
+import javax.inject.Inject;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Kohsuke Kawaguchi
