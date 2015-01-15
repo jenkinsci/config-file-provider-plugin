@@ -103,7 +103,7 @@ public class ManagedFileUtil {
                 
                 String expandedTargetLocation = managedFile.targetLocation;
                 try {
-                	expandedTargetLocation = build instanceof AbstractBuild ? TokenMacro.expandAll((AbstractBuild<?, ?>) build, listener, managedFile.targetLocation) : managedFile.targetLocation;
+                    expandedTargetLocation = build instanceof AbstractBuild ? TokenMacro.expandAll((AbstractBuild<?, ?>) build, listener, managedFile.targetLocation) : managedFile.targetLocation;
                 } catch (MacroEvaluationException e) {
                     listener.getLogger().println("[ERROR] failed to expand variables in target location '" + managedFile.targetLocation + "' : " + e.getMessage());
                     expandedTargetLocation = managedFile.targetLocation;
