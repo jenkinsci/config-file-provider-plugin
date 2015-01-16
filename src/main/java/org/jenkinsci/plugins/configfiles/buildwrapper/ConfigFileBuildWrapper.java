@@ -56,13 +56,12 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
 
     @Override public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
         final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, workspace, listener);
-        context.env = new EnvVars();
         List<String> tempFiles = new ArrayList<String>();
         for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
             ManagedFile mf = entry.getKey();
             FilePath fp = entry.getValue();
             if (!StringUtils.isBlank(mf.variable)) {
-                context.env.put(mf.variable, fp.getRemote());
+                context.env(mf.variable, fp.getRemote());
             }
             boolean noTargetGiven = StringUtils.isBlank(entry.getKey().targetLocation);
             if (noTargetGiven) {
@@ -70,7 +69,7 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
             }
         }
         if (!tempFiles.isEmpty()) {
-            context.disposer = new TempFileCleaner(tempFiles);
+            context.setDisposer(new TempFileCleaner(tempFiles));
         }
     }
 
