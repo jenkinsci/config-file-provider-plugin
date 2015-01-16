@@ -69,7 +69,9 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
                 tempFiles.add(entry.getValue().getRemote());
             }
         }
-        context.disposer = new TempFileCleaner(tempFiles);
+        if (!tempFiles.isEmpty()) {
+            context.disposer = new TempFileCleaner(tempFiles);
+        }
     }
 
     public List<ManagedFile> getManagedFiles() {
