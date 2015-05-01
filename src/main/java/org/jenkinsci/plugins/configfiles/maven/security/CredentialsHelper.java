@@ -85,7 +85,7 @@ public class CredentialsHelper {
      * @return the new XML with the server credentials added
      * @throws Exception
      */
-    public static String fillAuthentication(String settingsContent, Map<String, StandardUsernameCredentials> serverId2credential) throws Exception {
+    public static String fillAuthentication(String settingsContent, final Boolean isReplaceAll, Map<String, StandardUsernameCredentials> serverId2credential) throws Exception {
         String content = settingsContent;
 
         if (!serverId2credential.isEmpty()) {
@@ -103,7 +103,7 @@ public class CredentialsHelper {
                 settingsNode.appendChild(serversNode);
             } else {
                 // remove all server nodes, we will replace every single one and only add the ones provided
-                removeAllChilds(serversNode);
+                removeAllChilds(serversNode, serverId2credential.keySet(), isReplaceAll);
             }
 
             for (Entry<String, StandardUsernameCredentials> srvId2credential : credentialEntries) {
@@ -150,17 +150,32 @@ public class CredentialsHelper {
     /**
      * Removes all childs
      * 
-     * @param serverNode
+     * @param serversNode
      *            the node to remove all childs from
      */
-    private static void removeAllChilds(final Node serverNode) {
-        final NodeList childNodes = serverNode.getChildNodes();
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            final Node child = childNodes.item(i);
-            serverNode.removeChild(child);
-            --i;
+    private static void removeAllChilds(final Node serversNode, final Set<String> credentialKeys, final Boolean replaceAll) {
+        final NodeList serverNodes = serversNode.getChildNodes();
+        for (int i = 0; i < serverNodes.getLength(); i++) {
+            final Node server = serverNodes.item(i);
+            String serverId = getServerId(server);
+            if (credentialKeys.contains(serverId) || Boolean.TRUE.equals(replaceAll)) {
+                serversNode.removeChild(server);
+                --i;
+            }
         }
+    }
 
+    private static String getServerId(Node server) {
+        NodeList nodes = server.getChildNodes();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            String name = node.getNodeName();
+            String content = node.getTextContent();
+            if ("id" == name.toLowerCase()) {
+                return content;
+            }
+        }
+        return null;
     }
 
 }

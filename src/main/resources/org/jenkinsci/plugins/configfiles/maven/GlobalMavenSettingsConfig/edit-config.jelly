@@ -46,6 +46,10 @@ div.credentialssection {
                 <f:textbox name="config.comment" value="${config.comment}" />
             </f:entry>
 
+            <f:entry title="${%Replace All}" field="isReplaceAll">
+                <f:checkbox default="true" value="${config.isReplaceAll}"/>
+            </f:entry>
+
 			<f:entry title="${%Server Credentials}" field="serverCredentialMappings">
                   <f:repeatableProperty field="serverCredentialMappings" />
 		          <div align="right">

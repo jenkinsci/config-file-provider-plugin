@@ -41,11 +41,19 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
     private static final long serialVersionUID = 1L;
 
     private List<ServerCredentialMapping> serverCredentialMappings;
-    
+
+    /**
+     * Should server elements not contained in the credentials list be merged, or cleaned.
+     * Cleaned is the traditional behaviour and means the server entry won't appear in the resulting xml file.
+     */
+    public Boolean isReplaceAll = isReplaceAllDefault;
+    public static final Boolean isReplaceAllDefault = Boolean.TRUE;
+
     @DataBoundConstructor
-    public GlobalMavenSettingsConfig(String id, String name, String comment, String content, List<ServerCredentialMapping> serverCredentialMappings) {
+    public GlobalMavenSettingsConfig(String id, String name, String comment, String content, Boolean isReplaceAll, List<ServerCredentialMapping> serverCredentialMappings) {
         super(id, name, comment, content);
         this.serverCredentialMappings = serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
+        this.isReplaceAll = (null == isReplaceAll) ? isReplaceAllDefault : isReplaceAll;
     }
     
     public GlobalMavenSettingsConfig(String id, String name, String comment, String content) {
@@ -54,6 +62,10 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
     
     public List<ServerCredentialMapping> getServerCredentialMappings() {
         return serverCredentialMappings;
+    }
+
+    public Boolean getIsReplaceAll() {
+        return isReplaceAll;
     }
 
     @Extension(ordinal = 200)
@@ -76,7 +88,7 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
         @Override
         public Config newConfig() {
             String id = getProviderId() + System.currentTimeMillis();
-            return new GlobalMavenSettingsConfig(id, "MyGlobalSettings", "global settings", loadTemplateContent(), Collections.<ServerCredentialMapping>emptyList());
+            return new GlobalMavenSettingsConfig(id, "MyGlobalSettings", "global settings", loadTemplateContent(), GlobalMavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
         }               
 
         // ======================

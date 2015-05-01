@@ -40,7 +40,7 @@ public class CredentialsHelperTest {
         serverId2Credentials.put("encoded_pwd", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "*pwd", "some desc2", "dan", PWD_2));
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.xml"));
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, serverId2Credentials);
+        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, false, serverId2Credentials);
 
         Assert.assertTrue("replaced settings.xml must contain new password", replacedContent.contains(PWD));
 
@@ -68,7 +68,7 @@ public class CredentialsHelperTest {
         Map<String, StandardUsernameCredentials> serverId2Credentials = new HashMap<String, StandardUsernameCredentials>();
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.xml"));
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, serverId2Credentials);
+        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, false, serverId2Credentials);
 
         Assert.assertEquals("no changes should have been made to the settings", settingsContent, replacedContent);
 
