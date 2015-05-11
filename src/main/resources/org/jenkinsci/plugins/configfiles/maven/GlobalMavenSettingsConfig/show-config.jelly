@@ -24,6 +24,9 @@ div.credentialssection {
 	<f:entry title="${%Comment}">
 		<f:textbox readonly="readonly" name="config.comment" value="${config.comment}" />
 	</f:entry>
+    <f:entry title="${%Replace All}" description="Replace all servers, even ones not found in provided credentials">
+        <f:checkbox name="config.replaceAll" value="${config.isReplaceAll}"/>
+    </f:entry>
     <f:entry title="${%Server Credentials}" field="serverCredentialMappings">
         <f:repeatableProperty field="serverCredentialMappings" noAddButton="true" />
     </f:entry>	

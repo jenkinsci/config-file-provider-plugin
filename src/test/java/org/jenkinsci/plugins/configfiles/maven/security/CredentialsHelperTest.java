@@ -11,6 +11,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.IOUtils;
+import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,14 +34,14 @@ public class CredentialsHelperTest {
     public JenkinsRule  jenkins = new JenkinsRule();
 
     @Test
-    public void testIfServerAuthIsReplacedWithinSettginsXml() throws Exception {
+    public void testIfServerAuthIsReplacedWithinSettingsXmlWhenReplaceTrue() throws Exception {
 
         Map<String, StandardUsernameCredentials> serverId2Credentials = new HashMap<String, StandardUsernameCredentials>();
         serverId2Credentials.put("my.server", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my*", "some desc", "peter", PWD));
         serverId2Credentials.put("encoded_pwd", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "*pwd", "some desc2", "dan", PWD_2));
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.xml"));
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, serverId2Credentials);
+        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.TRUE, serverId2Credentials);
 
         Assert.assertTrue("replaced settings.xml must contain new password", replacedContent.contains(PWD));
 
@@ -63,12 +64,46 @@ public class CredentialsHelperTest {
     }
 
     @Test
-    public void testSettignsXmlIsNotChangedWithoutCredentials() throws Exception {
+    public void testIfServerAuthIsReplacedWithinSettingsXmlWhenReplaceFalse() throws Exception {
+
+        Map<String, StandardUsernameCredentials> serverId2Credentials = new HashMap<String, StandardUsernameCredentials>();
+        serverId2Credentials.put("my.server", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my*", "some desc", "peter", PWD));
+        serverId2Credentials.put("encoded_pwd", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "*pwd", "some desc2", "dan", PWD_2));
+
+        final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.xml"));
+        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, serverId2Credentials);
+
+        Assert.assertTrue("replaced settings.xml must contain new password", replacedContent.contains(PWD));
+
+        // ensure it is still a valid XML document
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(replacedContent)));
+        // locate the node(s)
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        NodeList nodes = (NodeList) xpath.evaluate("/settings/servers/server", doc, XPathConstants.NODESET);
+        // the 'settings_test.xml' actually contains 4 server tags, but we remove all and only inject the ones managed by the plugin
+        Assert.assertEquals("there is not the same number of server tags anymore in the settings.xml", 4, nodes.getLength());
+
+    }
+
+    @Test
+    public void testSettingsXmlIsNotChangedWithoutCredentialsWhenReplaceTrue() throws Exception {
 
         Map<String, StandardUsernameCredentials> serverId2Credentials = new HashMap<String, StandardUsernameCredentials>();
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.xml"));
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, serverId2Credentials);
+        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.TRUE, serverId2Credentials);
+
+        Assert.assertEquals("no changes should have been made to the settings", settingsContent, replacedContent);
+
+    }
+
+    @Test
+    public void testSettingsXmlIsNotChangedWithoutCredentialsWhenReplaceFalse() throws Exception {
+
+        Map<String, StandardUsernameCredentials> serverId2Credentials = new HashMap<String, StandardUsernameCredentials>();
+
+        final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.xml"));
+        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, serverId2Credentials);
 
         Assert.assertEquals("no changes should have been made to the settings", settingsContent, replacedContent);
 

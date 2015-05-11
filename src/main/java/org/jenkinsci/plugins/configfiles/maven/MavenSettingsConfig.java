@@ -42,15 +42,27 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
     private static final long serialVersionUID = 1L;
 
     private List<ServerCredentialMapping> serverCredentialMappings;
-    
+
+    /**
+     * Should server elements not contained in the credentials list be merged, or cleaned.
+     * Cleaned is the traditional behaviour and means the server entry won't appear in the resulting xml file.
+     */
+    public Boolean isReplaceAll = isReplaceAllDefault;
+    public static final Boolean isReplaceAllDefault = Boolean.TRUE;
+
     @DataBoundConstructor
-    public MavenSettingsConfig(String id, String name, String comment, String content, List<ServerCredentialMapping> serverCredentialMappings) {
+    public MavenSettingsConfig(String id, String name, String comment, String content, Boolean isReplaceAll, List<ServerCredentialMapping> serverCredentialMappings) {
         super(id, name, comment, content);
         this.serverCredentialMappings = serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
+        this.isReplaceAll = (null == isReplaceAll) ? isReplaceAllDefault : isReplaceAll;
     }
     
     public List<ServerCredentialMapping> getServerCredentialMappings() {
         return serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
+    }
+
+    public Boolean getIsReplaceAll() {
+        return isReplaceAll;
     }
 
     @Extension(ordinal = 190)
@@ -73,7 +85,7 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
         @Override
         public Config newConfig() {
             String id = getProviderId() + System.currentTimeMillis();
-            return new MavenSettingsConfig(id, "MySettings", "user settings", loadTemplateContent(), Collections.<ServerCredentialMapping>emptyList());
+            return new MavenSettingsConfig(id, "MySettings", "user settings", loadTemplateContent(), MavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
         }        
         
         // ======================

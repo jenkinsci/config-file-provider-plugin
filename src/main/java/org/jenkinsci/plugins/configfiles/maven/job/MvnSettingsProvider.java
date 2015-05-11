@@ -78,10 +78,11 @@ public class MvnSettingsProvider extends SettingsProvider {
                 if (c instanceof MavenSettingsConfig) {
                     config = (MavenSettingsConfig) c;
                 } else {
-                    config = new MavenSettingsConfig(c.id, c.name, c.comment, c.content, null);
+                    config = new MavenSettingsConfig(c.id, c.name, c.comment, c.content, MavenSettingsConfig.isReplaceAllDefault, null);
                 }
 
                 listener.getLogger().println("using settings config with name " + config.name);
+                listener.getLogger().println("Replacing all maven server entries not found in credentials list is " + config.getIsReplaceAll());
                 if (StringUtils.isNotBlank(config.content)) {
                     try {
 
@@ -89,9 +90,10 @@ public class MvnSettingsProvider extends SettingsProvider {
 
                         final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
                         final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getProject(), serverCredentialMappings);
+                        final Boolean isReplaceAll = config.getIsReplaceAll();
 
                         if (!resolvedCredentials.isEmpty()) {
-                            fileContent = CredentialsHelper.fillAuthentication(fileContent, resolvedCredentials);
+                            fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials);
                         }
 
                         final FilePath f = copyConfigContentToFilePath(fileContent, build.getWorkspace());
