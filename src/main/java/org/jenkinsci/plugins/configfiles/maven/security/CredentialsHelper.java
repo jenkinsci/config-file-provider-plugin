@@ -158,7 +158,7 @@ public class CredentialsHelper {
         for (int i = 0; i < serverNodes.getLength(); i++) {
             final Node server = serverNodes.item(i);
             String serverId = getServerId(server);
-            if (Boolean.TRUE.equals(replaceAll) || (credentialKeys.contains(serverId) && Boolean.FALSE.equals(replaceAll))) {
+            if (Boolean.TRUE.equals(replaceAll) || (credentialKeys.contains(serverId))) {
                 serversNode.removeChild(server);
                 --i;
             }
