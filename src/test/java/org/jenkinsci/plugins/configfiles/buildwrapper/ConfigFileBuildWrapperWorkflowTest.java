@@ -29,6 +29,7 @@ import jenkins.tasks.SimpleBuildWrapper;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
+import org.jenkinsci.plugins.workflow.JenkinsRuleExt;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -92,17 +93,13 @@ public class ConfigFileBuildWrapperWorkflowTest {
             }
         });
         story.addStep(new Statement() {
-            @SuppressWarnings("SleepWhileInLoop")
             @Override public void evaluate() throws Throwable {
                 SemaphoreStep.success("withTempFilesAfterRestart/1", null);
                 WorkflowJob p = story.j.jenkins.getItemByFullName("p", WorkflowJob.class);
                 assertNotNull(p);
                 WorkflowRun b = p.getBuildByNumber(1);
                 assertNotNull(b);
-                while (b.isBuilding()) { // TODO JENKINS-26399 need utility in JenkinsRule
-                    Thread.sleep(100);
-                }
-                story.j.assertBuildStatusSuccess(b);
+                story.j.assertBuildStatusSuccess(JenkinsRuleExt.waitForCompletion(b));
                 story.j.assertLogContains("some content", b);
                 story.j.assertLogContains("Deleting 1 temporary files", b);
             }
