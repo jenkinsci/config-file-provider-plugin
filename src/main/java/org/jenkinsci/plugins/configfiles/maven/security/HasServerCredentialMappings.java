@@ -9,5 +9,6 @@ import java.util.List;
 public interface HasServerCredentialMappings {
 
 	public abstract List<ServerCredentialMapping> getServerCredentialMappings();
+	public abstract Boolean getIsReplaceAll();
 
 }

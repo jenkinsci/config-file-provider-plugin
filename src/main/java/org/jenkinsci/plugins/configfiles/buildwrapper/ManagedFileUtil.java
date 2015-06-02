@@ -140,10 +140,11 @@ public class ManagedFileUtil {
 		if (configFile instanceof HasServerCredentialMappings) {
 			HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
 			final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getParent(), settings.getServerCredentialMappings());
-			
+			final Boolean isReplaceAll = settings.getIsReplaceAll();
+
 			if (!resolvedCredentials.isEmpty()) {
 				try {
-					fileContent = CredentialsHelper.fillAuthentication(fileContent, resolvedCredentials);
+					fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials);
 				} catch (Exception exception) {
 					throw new IOException("[ERROR] could not insert credentials into the settings file", exception);
 				}

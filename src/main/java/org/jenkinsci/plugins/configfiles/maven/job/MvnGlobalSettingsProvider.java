@@ -77,19 +77,21 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                 if (c instanceof GlobalMavenSettingsConfig) {
                     config = (GlobalMavenSettingsConfig) c;
                 } else {
-                    config = new GlobalMavenSettingsConfig(c.id, c.name, c.comment, c.content, null);
+                    config = new GlobalMavenSettingsConfig(c.id, c.name, c.comment, c.content,  GlobalMavenSettingsConfig.isReplaceAllDefault, null);
                 }
 
                 listener.getLogger().println("using global settings config with name " + config.name);
+                listener.getLogger().println("Replacing all maven server entries not found in credentials list is " + config.getIsReplaceAll());
                 if (StringUtils.isNotBlank(config.content)) {
                     try {
 
                         String fileContent = config.content;
 
                         final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getProject(), config.getServerCredentialMappings());
+                        final Boolean isReplaceAll = config.getIsReplaceAll();
 
                         if (!resolvedCredentials.isEmpty()) {
-                            fileContent = CredentialsHelper.fillAuthentication(fileContent, resolvedCredentials);
+                            fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials);
                         }
 
                         final FilePath f = copyConfigContentToFilePath(fileContent, build.getWorkspace());
