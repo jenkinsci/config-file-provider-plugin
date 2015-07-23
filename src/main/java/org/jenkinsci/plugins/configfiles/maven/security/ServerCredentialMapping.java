@@ -1,11 +1,5 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
-import hudson.Extension;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.AbstractProject;
-import hudson.model.Descriptor;
-import hudson.util.ListBoxModel;
-
 import java.util.List;
 
 import org.kohsuke.stapler.AncestorInPath;
@@ -14,6 +8,13 @@ import org.kohsuke.stapler.QueryParameter;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
+
+import hudson.Extension;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.AbstractProject;
+import hudson.model.Descriptor;
+import hudson.model.Item;
+import hudson.util.ListBoxModel;
 
 public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCredentialMapping> {
 
@@ -44,6 +45,9 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath AbstractProject<?, ?> context, @QueryParameter String serverId) {
+            if (context == null || !context.hasPermission(Item.CONFIGURE)) {
+                return new ListBoxModel();
+            }
             final List<StandardUsernameCredentials> validCredentials = CredentialsHelper.findValidCredentials(serverId);
             return new StandardUsernameListBoxModel().withEmptySelection().withAll(validCredentials);
         }
