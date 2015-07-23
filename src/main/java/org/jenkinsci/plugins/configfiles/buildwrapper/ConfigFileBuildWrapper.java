@@ -23,32 +23,29 @@
  */
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.BuildListener;
-import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.tasks.BuildWrapper;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import jenkins.tasks.SimpleBuildWrapper;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class ConfigFileBuildWrapper extends BuildWrapper {
+public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
 
     private List<ManagedFile> managedFiles = new ArrayList<ManagedFile>();
 
@@ -57,22 +54,23 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
         this.managedFiles = managedFiles;
     }
 
-    @Override
-    public Environment setUp(@SuppressWarnings("rawtypes") AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
-
-        final PrintStream logger = listener.getLogger();
-
-        if (build.getWorkspace() == null) {
-            throw new IllegalStateException("the workspace does not yet exist, can't provision config files - maybe slave is offline?");
+    @Override public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
+        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, workspace, listener);
+        List<String> tempFiles = new ArrayList<String>();
+        for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
+            ManagedFile mf = entry.getKey();
+            FilePath fp = entry.getValue();
+            if (!StringUtils.isBlank(mf.variable)) {
+                context.env(mf.variable, fp.getRemote());
+            }
+            boolean noTargetGiven = StringUtils.isBlank(entry.getKey().targetLocation);
+            if (noTargetGiven) {
+                tempFiles.add(entry.getValue().getRemote());
+            }
         }
-
-        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, listener);
-        // JENKINS-17555 this special env is required, as MavenModuleSetBuild only takes Environments from BuildWrapper into account, but not those from Actions registered by them.
-        final ManagedFilesEnvironment env = new ManagedFilesEnvironment(file2Path);
-        // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
-        build.addAction(new CleanTempFilesAction(file2Path));
-
-        return env;
+        if (!tempFiles.isEmpty()) {
+            context.setDisposer(new TempFileCleaner(tempFiles));
+        }
     }
 
     public List<ManagedFile> getManagedFiles() {
@@ -102,42 +100,23 @@ public class ConfigFileBuildWrapper extends BuildWrapper {
 
     }
 
-    /**
-     * fix for JENKINS-17555
-     */
-    public class ManagedFilesEnvironment extends Environment {
-        private final Map<ManagedFile, FilePath> file2Path;
+    private static class TempFileCleaner extends Disposer {
 
-        public ManagedFilesEnvironment(Map<ManagedFile, FilePath> file2Path) {
-            this.file2Path = file2Path == null ? Collections.<ManagedFile, FilePath> emptyMap() : file2Path;
+        private static final long serialVersionUID = 1;
+
+        private final List<String> tempFiles;
+
+        TempFileCleaner(List<String> tempFiles) {
+            this.tempFiles = tempFiles;
         }
 
-        @Override
-        public void buildEnvVars(Map<String, String> env) {
-            for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
-                ManagedFile mf = entry.getKey();
-                FilePath fp = entry.getValue();
-                if (!StringUtils.isBlank(mf.variable)) {
-                    env.put(mf.variable, fp.getRemote());
-                }
+        @Override public void tearDown(Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+            listener.getLogger().println("Deleting " + tempFiles.size() + " temporary files");
+            for (String tempFile : tempFiles) {
+                new FilePath(workspace, tempFile).delete();
             }
         }
 
-        /**
-         * Provides access to the files which have to be removed after the build
-         * 
-         * @return a list of paths to the temp files (remotes)
-         */
-        List<String> getTempFiles() {
-            List<String> tempFiles = new ArrayList<String>();
-            for (Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
-                boolean noTargetGiven = StringUtils.isBlank(entry.getKey().targetLocation);
-                if (noTargetGiven) {
-                    tempFiles.add(entry.getValue().getRemote());
-                }
-            }
-            return tempFiles;
-        }
     }
 
 }
