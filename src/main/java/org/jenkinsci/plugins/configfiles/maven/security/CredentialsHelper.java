@@ -7,6 +7,7 @@ import hudson.util.Secret;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import javax.xml.xpath.XPathFactory;
 
 import jenkins.model.Jenkins;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -71,6 +73,9 @@ public class CredentialsHelper {
     }
 
     public static List<StandardUsernameCredentials> findValidCredentials(final String serverIdPattern) {
+        if(StringUtils.isBlank(serverIdPattern)) {
+            return Collections.emptyList();
+        }
         final List<StandardUsernameCredentials> foundCredentials = CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, /** TODO? item **/
         Jenkins.getInstance(), ACL.SYSTEM, new MavenServerIdRequirement(serverIdPattern));
         return foundCredentials;
