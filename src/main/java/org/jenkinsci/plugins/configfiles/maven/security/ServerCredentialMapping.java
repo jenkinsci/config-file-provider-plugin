@@ -15,6 +15,7 @@ import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.util.ListBoxModel;
+import jenkins.model.Jenkins;
 
 public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCredentialMapping> {
 
@@ -45,11 +46,12 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath AbstractProject<?, ?> context, @QueryParameter String serverId) {
-            if (context == null || !context.hasPermission(Item.CONFIGURE)) {
-                return new ListBoxModel();
+            if ( (context == null && Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER))
+                    || (context != null && context.hasPermission(Item.CONFIGURE)) ) {
+                final List<StandardUsernameCredentials> validCredentials = CredentialsHelper.findValidCredentials(serverId);
+                return new StandardUsernameListBoxModel().withEmptySelection().withAll(validCredentials);
             }
-            final List<StandardUsernameCredentials> validCredentials = CredentialsHelper.findValidCredentials(serverId);
-            return new StandardUsernameListBoxModel().withEmptySelection().withAll(validCredentials);
+            return new ListBoxModel();
         }
 
         @Override
