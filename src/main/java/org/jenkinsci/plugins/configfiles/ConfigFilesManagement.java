@@ -23,11 +23,6 @@
  */
 package org.jenkinsci.plugins.configfiles;
 
-import hudson.Extension;
-import hudson.model.ManagementLink;
-import hudson.model.Hudson;
-import hudson.security.Permission;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,8 +30,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.ServletException;
-
-import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
@@ -48,6 +41,12 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import hudson.Extension;
+import hudson.model.Hudson;
+import hudson.model.ManagementLink;
+import hudson.security.Permission;
+import net.sf.json.JSONObject;
+
 /**
  * Provides a new link in the "Manage Jenkins" view and builds the UI to manage the configfiles.
  * 
@@ -56,6 +55,8 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 @Extension
 public class ConfigFilesManagement extends ManagementLink {
+
+    private static final String ICON_PATH = "/plugin/config-file-provider/images/cfg_logo.png";
 
     public ConfigFilesManagement() {
     }
@@ -77,7 +78,17 @@ public class ConfigFilesManagement extends ManagementLink {
      */
     @Override
     public String getIconFileName() {
-        return "/plugin/config-file-provider/images/cfg_logo.png";
+        return ICON_PATH;
+    }
+
+    /**
+     * used by index.jelly to resolve the correct path to the icon (see JENKINS-24441)
+     */
+    public String getIconUrl(String rootUrl) {
+        if (rootUrl.endsWith("/")) {
+            return rootUrl + ICON_PATH.substring(1);
+        }
+        return rootUrl + ICON_PATH;
     }
 
     /**
