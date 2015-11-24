@@ -31,6 +31,7 @@ import java.util.List;
 
 import jenkins.model.Jenkins;
 
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
@@ -83,8 +84,8 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
         }
         
         @Override
-        public Config newConfig() {
-            String id = getProviderId() + System.currentTimeMillis();
+        public Config newConfig(String idSuffix) {
+            String id =  this.getProviderId() + "." + StringUtils.defaultIfBlank(idSuffix, String.valueOf(System.currentTimeMillis()));
             return new MavenSettingsConfig(id, "MySettings", "user settings", loadTemplateContent(), MavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
         }        
         

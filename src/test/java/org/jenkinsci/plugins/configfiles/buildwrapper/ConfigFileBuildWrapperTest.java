@@ -94,7 +94,7 @@ public class ConfigFileBuildWrapperTest {
     }
 
     private Config createSetting(ConfigProvider provider) {
-        Config c1 = provider.newConfig();
+        Config c1 = provider.newConfig(null);
         provider.save(c1);
         return c1;
     }

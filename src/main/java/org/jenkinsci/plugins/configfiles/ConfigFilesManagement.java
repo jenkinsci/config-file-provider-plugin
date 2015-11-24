@@ -188,14 +188,14 @@ public class ConfigFilesManagement extends ManagementLink {
      * @throws IOException
      * @throws ServletException
      */
-    public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId) throws IOException, ServletException {
+    public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("configIdSuffix") String configIdSuffix, @QueryParameter("providerId") String providerId) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
 
         for (ConfigProvider provider : ConfigProvider.all()) {
             if (provider.getProviderId().equals(providerId)) {
                 req.setAttribute("contentType", provider.getContentType());
                 req.setAttribute("provider", provider);
-                Config config = provider.newConfig();
+                Config config = provider.newConfig(configIdSuffix);
                 req.setAttribute("config", config);
                 break;
             }

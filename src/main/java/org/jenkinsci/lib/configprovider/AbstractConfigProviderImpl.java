@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import jenkins.model.Jenkins;
 
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
 
 /**
@@ -59,8 +60,8 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     }
 
     @Override
-    public Config newConfig() {
-        String id = this.getProviderId() + "." + System.currentTimeMillis();
+    public Config newConfig(String idSuffix) {
+        String id =  this.getProviderId() + "." + StringUtils.defaultIfBlank(idSuffix, String.valueOf(System.currentTimeMillis()));
         return new Config(id, null, null, null);
     }
 

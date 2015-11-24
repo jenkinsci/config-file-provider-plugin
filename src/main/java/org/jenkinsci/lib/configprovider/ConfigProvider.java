@@ -109,11 +109,35 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     public abstract String getProviderId();
 
     /**
-     * Returns a new {@link Config} object with a unique id, starting with the id of this provider - separated by '.'. e.g. "MyCustomProvider.123456". This object is also used initialize the user
-     * interface.
+     * <p>
+     *     Returns a new {@link Config} object with a unique id.
+     * </p>
+     *
+     * The unique identifier is composed of:
+     * <ul>
+     *     <li>id of this provider ({@link ConfigProvider#getProviderId()})</li>
+     *     <li>"{@code .}" separator</li>
+     *     <li>
+     *         Given {@code idSuffix} or, if the {@code idSuffix} is {@code null} or empty, a random number based on
+     *         {@link System#currentTimeMillis()}
+     *     </li>
+     * </ul>
+     *
+     * <p>
+     *     This object is also used initialize the user interface.
+     * </p>
+     *
+     * <p>
+     *     Sample generated identifiers "{@code org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.my-id-suffix}"
+     *     or "{@code org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.1234567890}"
+     * </p>
+     *
+     *
+     * @param idSuffix
+     *           nullable suffix of the id of the created config file
      * 
      * @return the new config object, ready for editing.
      */
-    public abstract Config newConfig();
+    public abstract Config newConfig(String idSuffix);
 
 }

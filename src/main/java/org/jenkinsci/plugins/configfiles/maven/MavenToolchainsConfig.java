@@ -28,6 +28,7 @@ import hudson.Extension;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -69,8 +70,8 @@ public class MavenToolchainsConfig extends Config {
          * @see org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl#newConfig()
          */
         @Override
-        public Config newConfig() {
-            String id = this.getProviderId() + System.currentTimeMillis();
+        public Config newConfig(String idSuffix) {
+            String id =  this.getProviderId() + "." + StringUtils.defaultIfBlank(idSuffix, String.valueOf(System.currentTimeMillis()));
             return new Config(id, "MyToolchains", "", loadTemplateContent());
          }
 
