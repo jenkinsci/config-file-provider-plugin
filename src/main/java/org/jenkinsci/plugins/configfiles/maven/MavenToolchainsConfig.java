@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 
 import java.io.InputStream;
@@ -70,7 +71,7 @@ public class MavenToolchainsConfig extends Config {
          * @see org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl#newConfig()
          */
         @Override
-        public Config newConfig(String idSuffix) {
+        public Config newConfig(@NonNull String idSuffix) {
             String id =  this.getProviderId() + "." + StringUtils.defaultIfBlank(idSuffix, String.valueOf(System.currentTimeMillis()));
             return new Config(id, "MyToolchains", "", loadTemplateContent());
          }

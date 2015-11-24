@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.custom;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
@@ -57,7 +58,7 @@ public class CustomConfig extends Config {
         }
 
         @Override
-        public Config newConfig(String idSuffix) {
+        public Config newConfig(@NonNull String idSuffix) {
             String id =  this.getProviderId() + "." + StringUtils.defaultIfBlank(idSuffix, String.valueOf(System.currentTimeMillis()));
             return new Config(id, "MyCustom", "", "");
         }

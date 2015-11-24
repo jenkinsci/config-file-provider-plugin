@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.json;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 
 import org.apache.commons.lang.StringUtils;
@@ -93,7 +94,7 @@ public class JsonConfig extends Config {
         }
 
         @Override
-        public Config newConfig(String idSuffix) {
+        public Config newConfig(@NonNull String idSuffix) {
             String id =  this.getProviderId() + "." + StringUtils.defaultIfBlank(idSuffix, String.valueOf(System.currentTimeMillis()));
             return new Config(id, "JsonConfig", "", "{}");
         }

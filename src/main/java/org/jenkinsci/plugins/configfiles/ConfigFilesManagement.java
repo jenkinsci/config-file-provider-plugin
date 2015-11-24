@@ -183,6 +183,8 @@ public class ConfigFilesManagement extends ManagementLink {
      *            request
      * @param rsp
      *            response
+     * @param configIdSuffix
+     *            the suffix of the id of the created configuration object
      * @param providerId
      *            the id of the provider to create a new config instance with
      * @throws IOException

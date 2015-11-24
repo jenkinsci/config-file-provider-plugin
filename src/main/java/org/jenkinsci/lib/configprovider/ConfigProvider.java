@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.lib.configprovider;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Descriptor;
@@ -109,6 +110,16 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     public abstract String getProviderId();
 
     /**
+     * Returns a new {@link Config} object with a unique id, starting with the id of this provider - separated by '.'. e.g. "MyCustomProvider.123456". This object is also used initialize the user
+     * interface.
+     *
+     * @return the new config object, ready for editing.
+     * @deprecated use {@link #newConfig(String)}
+     */
+    @Deprecated
+    public abstract Config newConfig();
+
+    /**
      * <p>
      *     Returns a new {@link Config} object with a unique id.
      * </p>
@@ -118,7 +129,7 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      *     <li>id of this provider ({@link ConfigProvider#getProviderId()})</li>
      *     <li>"{@code .}" separator</li>
      *     <li>
-     *         Given {@code idSuffix} or, if the {@code idSuffix} is {@code null} or empty, a random number based on
+     *         Given {@code idSuffix} or, if the {@code idSuffix} is empty, a random number based on
      *         {@link System#currentTimeMillis()}
      *     </li>
      * </ul>
@@ -134,10 +145,10 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      *
      *
      * @param idSuffix
-     *           nullable suffix of the id of the created config file
+     *           suffix of the id of the created config file
      * 
      * @return the new config object, ready for editing.
      */
-    public abstract Config newConfig(String idSuffix);
+    public abstract Config newConfig(@NonNull String idSuffix);
 
 }

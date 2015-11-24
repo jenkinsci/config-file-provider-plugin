@@ -1,5 +1,6 @@
 package org.jenkinsci.lib.configprovider;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.BulkChange;
 import hudson.XmlFile;
 import hudson.model.listeners.SaveableListener;
@@ -59,8 +60,14 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
         return configId != null && configId.startsWith(getProviderId());
     }
 
+    @Deprecated
     @Override
-    public Config newConfig(String idSuffix) {
+    public Config newConfig() {
+        return newConfig(String.valueOf(System.currentTimeMillis()));
+    }
+
+    @Override
+    public Config newConfig(@NonNull String idSuffix) {
         String id =  this.getProviderId() + "." + StringUtils.defaultIfBlank(idSuffix, String.valueOf(System.currentTimeMillis()));
         return new Config(id, null, null, null);
     }

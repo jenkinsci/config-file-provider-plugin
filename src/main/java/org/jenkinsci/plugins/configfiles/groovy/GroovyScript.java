@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.groovy;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
@@ -58,7 +59,7 @@ public class GroovyScript extends Config {
         }
 
         @Override
-        public Config newConfig(String idSuffix) {
+        public Config newConfig(@NonNull String idSuffix) {
             String id =  this.getProviderId() + "." + StringUtils.defaultIfBlank(idSuffix, String.valueOf(System.currentTimeMillis()));
             return new Config(id, "GroovyConfig", "", "println('hello world')");
         }
