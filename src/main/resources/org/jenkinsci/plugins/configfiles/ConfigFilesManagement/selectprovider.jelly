@@ -35,9 +35,6 @@ THE SOFTWARE.
 			</h1>
 			<j:out value="${%selectprovider}" />
 			<f:form method="post" action="addConfig">
-				<f:entry title="${%ID suffix}" description="${%configIdSuffixDescription}">
-					<f:textbox name="configIdSuffix"/>
-				</f:entry>
 				<f:entry>
 					<table width="100%">
 						<j:forEach var="provider" items="${providers}" varStatus="loop">
@@ -59,6 +56,9 @@ THE SOFTWARE.
 							</tr>
 						</j:forEach>
 					</table>
+				</f:entry>
+				<f:entry title="${%ID suffix}" description="${%configIdSuffixDescription}">
+					<f:textbox name="configIdSuffix"/>
 				</f:entry>
 				<f:block>
 					<f:submit value="${%Submit}" />
