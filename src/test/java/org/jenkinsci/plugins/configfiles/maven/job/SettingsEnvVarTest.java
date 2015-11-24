@@ -79,14 +79,14 @@ public class SettingsEnvVarTest {
 
     private MavenSettingsConfig createSettings(MavenSettingsConfigProvider provider) throws Exception {
 
-        MavenSettingsConfig c1 = (MavenSettingsConfig) provider.newConfig(null);
+        MavenSettingsConfig c1 = (MavenSettingsConfig) provider.newConfig(String.valueOf(System.currentTimeMillis()));
         provider.save(c1);
         return c1;
     }
 
     private GlobalMavenSettingsConfig createGlobalSettings(GlobalMavenSettingsConfigProvider provider) throws Exception {
 
-        GlobalMavenSettingsConfig c1 = (GlobalMavenSettingsConfig) provider.newConfig(null);
+        GlobalMavenSettingsConfig c1 = (GlobalMavenSettingsConfig) provider.newConfig(String.valueOf(System.currentTimeMillis()));
         provider.save(c1);
         return c1;
     }

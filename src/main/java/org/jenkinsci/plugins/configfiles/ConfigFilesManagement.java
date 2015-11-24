@@ -31,7 +31,9 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import hudson.Extension;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -41,7 +43,6 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import hudson.Extension;
 import hudson.model.Hudson;
 import hudson.model.ManagementLink;
 import hudson.security.Permission;
@@ -197,7 +198,12 @@ public class ConfigFilesManagement extends ManagementLink {
             if (provider.getProviderId().equals(providerId)) {
                 req.setAttribute("contentType", provider.getContentType());
                 req.setAttribute("provider", provider);
-                Config config = provider.newConfig(configIdSuffix);
+                Config config;
+                if (hudson.Util.isOverridden(AbstractConfigProviderImpl.class, provider.getClass(), "newConfig", String.class)) {
+                    config = provider.newConfig(configIdSuffix);
+                } else {
+                    config = provider.newConfig();
+                }
                 req.setAttribute("config", config);
                 break;
             }

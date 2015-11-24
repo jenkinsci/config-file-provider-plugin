@@ -63,7 +63,8 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     @Deprecated
     @Override
     public Config newConfig() {
-        return newConfig(String.valueOf(System.currentTimeMillis()));
+        String id = this.getProviderId() + "." + System.currentTimeMillis();
+        return new Config(id, null, null, null);
     }
 
     @Override
