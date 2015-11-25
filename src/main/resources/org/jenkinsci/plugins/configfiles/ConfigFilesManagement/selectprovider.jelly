@@ -57,6 +57,9 @@ THE SOFTWARE.
 						</j:forEach>
 					</table>
 				</f:entry>
+				<f:entry title="${%ID suffix}" description="${%configIdSuffixDescription}">
+					<f:textbox name="configIdSuffix"/>
+				</f:entry>
 				<f:block>
 					<f:submit value="${%Submit}" />
 				</f:block>

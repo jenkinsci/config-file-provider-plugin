@@ -25,7 +25,9 @@ package org.jenkinsci.plugins.configfiles.maven;
 
 import java.io.InputStream;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -37,8 +39,8 @@ import org.jenkinsci.lib.configprovider.model.ContentType;
 public abstract class AbstractMavenSettingsProvider extends AbstractConfigProviderImpl {
 
     @Override
-    public Config newConfig() {
-        String id = this.getProviderId() + System.currentTimeMillis();
+    public Config newConfig(@NonNull String idSuffix) {
+        String id =  this.getProviderId() + "." + StringUtils.defaultIfBlank(idSuffix, String.valueOf(System.currentTimeMillis()));
         return new Config(id, "MySettings", "", loadTemplateContent());
     }
 

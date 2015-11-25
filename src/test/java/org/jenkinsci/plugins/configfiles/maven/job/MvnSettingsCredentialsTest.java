@@ -122,7 +122,7 @@ public class MvnSettingsCredentialsTest {
         List<ServerCredentialMapping> mappings = new ArrayList<ServerCredentialMapping>();
         mappings.add(mapping);
 
-        MavenSettingsConfig c1 = (MavenSettingsConfig) provider.newConfig();
+        MavenSettingsConfig c1 = (MavenSettingsConfig) provider.newConfig(String.valueOf(System.currentTimeMillis()));
         MavenSettingsConfig c2 = new MavenSettingsConfig(c1.id + "dummy", c1.name, c1.comment, c1.content, MavenSettingsConfig.isReplaceAllDefault, mappings);
         provider.save(c2);
         return c2;
@@ -137,7 +137,7 @@ public class MvnSettingsCredentialsTest {
         List<ServerCredentialMapping> mappings = new ArrayList<ServerCredentialMapping>();
         mappings.add(mapping);
 
-        GlobalMavenSettingsConfig c1 = (GlobalMavenSettingsConfig) provider.newConfig();
+        GlobalMavenSettingsConfig c1 = (GlobalMavenSettingsConfig) provider.newConfig(String.valueOf(System.currentTimeMillis()));
         GlobalMavenSettingsConfig c2 = new GlobalMavenSettingsConfig(c1.id + "dummy2", c1.name, c1.comment, c1.content,  GlobalMavenSettingsConfig.isReplaceAllDefault, mappings);
         provider.save(c2);
         return c2;

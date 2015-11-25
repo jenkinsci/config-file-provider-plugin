@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
+import com.gargoylesoftware.htmlunit.html.*;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.BuildListener;
@@ -13,9 +14,11 @@ import hudson.tasks.Builder;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 
+import org.hamcrest.Matchers;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
@@ -29,11 +32,6 @@ import org.junit.Test;
 import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
-
-import com.gargoylesoftware.htmlunit.html.DomNodeList;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.html.HtmlOption;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class ConfigFileBuildWrapperTest {
 
@@ -60,7 +58,7 @@ public class ConfigFileBuildWrapperTest {
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
         p.setGoals("initialize"); // -s ${MVN_SETTING}
 
-        final Config settings = createSetting(xmlProvider);
+        final Config settings = createSetting(xmlProvider, "env-var-test-1");
         final ManagedFile mSettings = new ManagedFile(settings.id, "/tmp/new_settings.xml", "MY_SETTINGS");
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mSettings));
         p.getBuildWrappersList().add(bw);
@@ -93,8 +91,8 @@ public class ConfigFileBuildWrapperTest {
         }
     }
 
-    private Config createSetting(ConfigProvider provider) {
-        Config c1 = provider.newConfig();
+    private Config createSetting(ConfigProvider provider, String idSuffix) {
+        Config c1 = provider.newConfig(idSuffix);
         provider.save(c1);
         return c1;
     }
@@ -105,8 +103,9 @@ public class ConfigFileBuildWrapperTest {
 
         FreeStyleProject p = j.createFreeStyleProject("someJob");
 
-        final Config activeConfig = createSetting(xmlProvider);
-        final Config secondConfig = createSetting(xmlProvider);
+        final Config activeConfig = createSetting(xmlProvider, "active-config-1");
+        final Config secondConfig = createSetting(xmlProvider, "inactive-config-2");
+        final Config thirdConfig = createSetting(xmlProvider, null);
         final ManagedFile mSettings = new ManagedFile(activeConfig.id, "/tmp/new_settings.xml", "MY_SETTINGS");
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mSettings));
         p.getBuildWrappersList().add(bw);
@@ -114,20 +113,25 @@ public class ConfigFileBuildWrapperTest {
         final WebClient client = j.createWebClient();
         final HtmlPage page = client.goTo("job/someJob/configure");
 
-        final DomNodeList<HtmlElement> option = page.getElementsByTagName("option");
+        final List<HtmlElement> selectElts = page.getElementsByName("fileId");
+        Assert.assertThat("Only one config file drop down list is displayed", selectElts.size(), Matchers.equalTo(1));
+        HtmlSelect select = (HtmlSelect) selectElts.get(0);
         boolean foundActive = false;
         boolean foundSecond = false;
-        for (HtmlElement htmlElement : option) {
-            final HtmlOption htmlOption = (HtmlOption) htmlElement;
+
+        System.err.println("BEGIN Evaluate options against activeConfig: " + activeConfig + ", secondConfig: " + secondConfig);
+        for (HtmlOption htmlOption : select.getOptions()) {
+            System.err.println("Evaluate option value=" + htmlOption.getValueAttribute() + ", text=" + htmlOption.getText() + ", selected=" + htmlOption.isSelected());
             if (htmlOption.getValueAttribute().equals(activeConfig.id)) {
-                Assert.assertTrue("correct config is not selected", htmlOption.isSelected());
+                Assert.assertTrue("correct config ('" + htmlOption.getValueAttribute() + "') is not selected", htmlOption.isSelected());
                 foundActive = true;
             }
             if (htmlOption.getValueAttribute().equals(secondConfig.id)) {
-                Assert.assertFalse("wrong config is selected", htmlOption.isSelected());
+                Assert.assertFalse("wrong config ('" + htmlOption.getValueAttribute() + "') is selected", htmlOption.isSelected());
                 foundSecond = true;
             }
         }
+        System.err.println("END Evaluate options");
         Assert.assertTrue("configured active setting was not available as option", foundActive);
         Assert.assertTrue("configured second setting was not available as option", foundSecond);
     }

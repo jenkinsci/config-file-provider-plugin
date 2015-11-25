@@ -70,7 +70,7 @@ public class MvnSettingsProviderTest {
     }
 
     private Config createSetting(ConfigProvider provider) {
-        Config c1 = provider.newConfig();
+        Config c1 = provider.newConfig(String.valueOf(System.currentTimeMillis()));
         provider.save(c1);
         return c1;
     }

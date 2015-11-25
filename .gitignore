@@ -2,3 +2,5 @@ work
 target
 *.iml
 /work2
+
+/.idea/
