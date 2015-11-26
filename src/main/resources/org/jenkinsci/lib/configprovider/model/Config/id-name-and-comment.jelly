@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 The MIT License
 
-Copyright (c) 2013, Dominik Bartholdi
+Copyright 2015 Jesse Glick.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,15 +23,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-
-
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
-	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-
-					<j:set var="descriptor" value="${config.descriptor}"/>
-					<st:include page="id-name-and-comment"  class="${descriptor.clazz}"/>
-					<f:entry title="${%Content}">
-						<f:textarea id="config.content" name="config.content" value="${config.content}" /> 
-					</f:entry>
-					
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:entry title="${%ID}" >
+        <f:textbox readonly="readonly" name="config.id" value="${config.id}" />
+    </f:entry>
+    <f:entry title="${%Name}">
+        <f:textbox name="config.name" value="${config.name}" />
+    </f:entry>
+    <f:entry title="${%Comment}">
+        <f:textbox name="config.comment" value="${config.comment}" />
+    </f:entry>
 </j:jelly>
