@@ -23,16 +23,17 @@
  */
 package org.jenkinsci.lib.configprovider;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Descriptor;
-
-import java.util.Collection;
-
 import jenkins.model.Jenkins;
-
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
+
+import java.util.Collection;
 
 /**
  * A ConfigProvider represents a configuration file (such as Maven's settings.xml) where the user can choose its actual content among several {@linkplain Config concrete contents} that are
@@ -51,6 +52,25 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      */
     public static ExtensionList<ConfigProvider> all() {
         return Jenkins.getInstance().getExtensionList(ConfigProvider.class);
+    }
+
+    /**
+     * Lookup a {@link ConfigProvider} by its id.
+     *
+     * @param providerId id of the desired {@link ConfigProvider}
+     * @return the {@link ConfigProvider} or {@code null} if not found
+     */
+    @CheckForNull
+    public static ConfigProvider getByIdOrNull(@Nullable String providerId) {
+        if (providerId == null || providerId.isEmpty())
+            return null;
+
+        for (ConfigProvider provider : ConfigProvider.all()) {
+            if (providerId.equals(provider.getProviderId())) {
+                return provider;
+            }
+        }
+        return null;
     }
 
     /**
@@ -77,13 +97,25 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     public abstract Config getConfigById(String configId);
 
     /**
+     * Returns {@code true} if the given {@code configId} exists
+     *
+     * @param configId
+     *            the id
+     * @return the config with the given id
+     * @since 2.10.0
+     */
+    public boolean configExists(String configId) {
+        throw new AbstractMethodError(this.getClass() + " should implement configExists(String configId)");
+    }
+
+    /**
      * Whether this provider is responsible for a Config with the given Id.
      * 
      * @param configId
      *            the id to check
      * @return <code>true</code> if the provider takes responsibility
      */
-    public abstract boolean isResponsibleFor(String configId);
+    public abstract boolean isResponsibleFor(@NonNull String configId);
 
     /**
      * save the content of the given config.
@@ -113,7 +145,23 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      * interface.
      * 
      * @return the new config object, ready for editing.
+     * @deprecated use {@link #newConfig(String)}
      */
+    @Deprecated
     public abstract Config newConfig();
+
+    /**
+     * Returns a new {@link Config} object.
+     *
+     * @param id desired id
+     * @return the created configuration
+     * @since 2.10.0
+     */
+    @NonNull
+    public Config newConfig(@NonNull String id) {
+        // concrete implementation throwing an AbstractMethodError to be backward with old ConfigProvider who only implement newConfig()
+        throw new AbstractMethodError(getClass() + " MUST implement 'newConfig(String)'");
+    }
+
 
 }

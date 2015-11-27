@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
 
     @DataBoundConstructor
     public MavenSettingsConfig(String id, String name, String comment, String content, Boolean isReplaceAll, List<ServerCredentialMapping> serverCredentialMappings) {
-        super(id, name, comment, content);
+        super(id, name, comment, content, MavenSettingsConfigProvider.class.getName());
         this.serverCredentialMappings = serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
         this.isReplaceAll = (null == isReplaceAll) ? isReplaceAllDefault : isReplaceAll;
     }
@@ -86,14 +87,20 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
         public Config newConfig() {
             String id = getProviderId() + System.currentTimeMillis();
             return new MavenSettingsConfig(id, "MySettings", "user settings", loadTemplateContent(), MavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
-        }        
-        
+        }
+
+        @NonNull
+        @Override
+        public Config newConfig(@NonNull String id) {
+            return new MavenSettingsConfig(id, "MySettings", "user settings", loadTemplateContent(), MavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
+        }
+
         // ======================
         // start stuff for backward compatibility
         protected transient String ID_PREFIX;
 
         @Override
-        public boolean isResponsibleFor(String configId) {
+        public boolean isResponsibleFor(@NonNull String configId) {
             return super.isResponsibleFor(configId) || configId.startsWith("DefaultMavenSettingsProvider.");
         }
 

@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
@@ -51,13 +53,13 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
 
     @DataBoundConstructor
     public GlobalMavenSettingsConfig(String id, String name, String comment, String content, Boolean isReplaceAll, List<ServerCredentialMapping> serverCredentialMappings) {
-        super(id, name, comment, content);
+        super(id, name, comment, content, GlobalMavenSettingsConfigProvider.class.getName());
         this.serverCredentialMappings = serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
         this.isReplaceAll = (null == isReplaceAll) ? isReplaceAllDefault : isReplaceAll;
     }
     
     public GlobalMavenSettingsConfig(String id, String name, String comment, String content) {
-        super(id, name, comment, content);
+        super(id, name, comment, content, GlobalMavenSettingsConfigProvider.class.getName());
     }
     
     public List<ServerCredentialMapping> getServerCredentialMappings() {
@@ -89,14 +91,20 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
         public Config newConfig() {
             String id = getProviderId() + System.currentTimeMillis();
             return new GlobalMavenSettingsConfig(id, "MyGlobalSettings", "global settings", loadTemplateContent(), GlobalMavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
-        }               
+        }
+
+        @NonNull
+        @Override
+        public Config newConfig(@NonNull String id) {
+            return new GlobalMavenSettingsConfig(id, "MyGlobalSettings", "global settings", loadTemplateContent(), GlobalMavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
+        }
 
         // ======================
         // start stuff for backward compatibility
         protected transient String ID_PREFIX;
 
         @Override
-        public boolean isResponsibleFor(String configId) {
+        public boolean isResponsibleFor(@NonNull String configId) {
             return super.isResponsibleFor(configId) || configId.startsWith("DefaultGlobalMavenSettingsProvider.");
         }
 

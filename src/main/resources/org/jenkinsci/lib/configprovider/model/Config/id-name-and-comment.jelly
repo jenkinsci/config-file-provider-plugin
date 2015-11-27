@@ -28,6 +28,9 @@ THE SOFTWARE.
     <f:entry title="${%ID}" >
         <f:textbox readonly="readonly" name="config.id" value="${config.id}" />
     </f:entry>
+    <f:invisibleEntry>
+        <f:textbox readonly="readonly" name="config.providerId" value="${config.providerId}"/>
+    </f:invisibleEntry>
     <f:entry title="${%Name}">
         <f:textbox name="config.name" value="${config.name}" />
     </f:entry>

@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.custom;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
@@ -61,12 +62,18 @@ public class CustomConfig extends Config {
             return new Config(id, "MyCustom", "", "");
         }
 
+        @NonNull
+        @Override
+        public Config newConfig(@NonNull String id) {
+            return new Config(id, "MyCustom", "", "", getProviderId());
+        }
+
         // ======================
         // start stuff for backward compatibility
         protected transient String ID_PREFIX;
 
         @Override
-        public boolean isResponsibleFor(String configId) {
+        public boolean isResponsibleFor(@NonNull String configId) {
             return super.isResponsibleFor(configId) || configId.startsWith("CustomConfigProvider.");
         }
 

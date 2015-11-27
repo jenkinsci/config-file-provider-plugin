@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.groovy;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
@@ -62,12 +63,18 @@ public class GroovyScript extends Config {
             return new Config(id, "GroovyConfig", "", "println('hello world')");
         }
 
+        @NonNull
+        @Override
+        public Config newConfig(@NonNull String id) {
+            return new Config(id, "GroovyConfig", "", "println('hello world')", getProviderId());
+        }
+
         // ======================
         // stuff for backward compatibility
         protected transient String ID_PREFIX;
 
         @Override
-        public boolean isResponsibleFor(String configId) {
+        public boolean isResponsibleFor(@NonNull String configId) {
             return super.isResponsibleFor(configId) || configId.startsWith("GroovyConfigProvider.");
         }
 

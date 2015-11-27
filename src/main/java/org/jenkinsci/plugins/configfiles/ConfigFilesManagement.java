@@ -28,10 +28,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 
-import org.apache.commons.lang.StringUtils;
+import hudson.Util;
+import hudson.util.FormValidation;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -120,17 +122,18 @@ public class ConfigFilesManagement extends ManagementLink {
         return Collections.unmodifiableCollection(all);
     }
 
+    /**
+     * Insert or update
+     * @param req
+     * @return
+     */
     public HttpResponse doSaveConfig(StaplerRequest req) {
         checkPermission(Hudson.ADMINISTER);
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
 
-            for (ConfigProvider provider : ConfigProvider.all()) {
-                if (provider.isResponsibleFor(config.id)) {
-                    provider.save(config);
-                }
-            }
+            config.getProvider().save(config);
 
         } catch (ServletException e) {
             e.printStackTrace();
@@ -140,13 +143,11 @@ public class ConfigFilesManagement extends ManagementLink {
 
     public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
 
-        ConfigProvider provider = getProviderForConfigId(confgiId);
-        Config config = provider.getConfigById(confgiId);
-        if (config != null) {
-            req.setAttribute("contentType", provider.getContentType());
-            req.setAttribute("config", config);
-            req.getView(this, "show.jelly").forward(req, rsp);
-        }
+        Config config = Config.getById(confgiId);
+        req.setAttribute("contentType", config.getProvider().getContentType());
+        req.setAttribute("config", config);
+        req.getView(this, "show.jelly").forward(req, rsp);
+
     }
 
     /**
@@ -164,16 +165,11 @@ public class ConfigFilesManagement extends ManagementLink {
     public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
 
-        ConfigProvider provider = getProviderForConfigId(confgiId);
-        Config config = provider.getConfigById(confgiId);
-        if (config != null) {
-            req.setAttribute("contentType", provider.getContentType());
-            req.setAttribute("config", config);
-            req.setAttribute("provider", provider);
-            req.getView(this, "edit.jelly").forward(req, rsp);
-        } else {
-            req.getView(this, "index").forward(req, rsp);
-        }
+        Config config = Config.getById(confgiId);
+        req.setAttribute("contentType", config.getProvider().getContentType());
+        req.setAttribute("config", config);
+        req.setAttribute("provider", config.getProvider());
+        req.getView(this, "edit.jelly").forward(req, rsp);
     }
 
     /**
@@ -188,18 +184,32 @@ public class ConfigFilesManagement extends ManagementLink {
      * @throws IOException
      * @throws ServletException
      */
-    public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId) throws IOException, ServletException {
+    public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
 
-        for (ConfigProvider provider : ConfigProvider.all()) {
-            if (provider.getProviderId().equals(providerId)) {
-                req.setAttribute("contentType", provider.getContentType());
-                req.setAttribute("provider", provider);
-                Config config = provider.newConfig();
-                req.setAttribute("config", config);
-                break;
-            }
+        if (providerId == null || providerId.isEmpty()) {
+            // TODO add a warning message: you gorgot to select a provider
+            checkPermission(Hudson.ADMINISTER);
+            req.setAttribute("providers", ConfigProvider.all());
+            req.setAttribute("configId", configId);
+            req.getView(this, "selectprovider.jelly").forward(req, rsp);
+            return;
         }
+
+        ConfigProvider provider = ConfigProvider.getByIdOrNull(providerId);
+        if (provider == null)
+            throw new IllegalArgumentException("No provider found for id '" + providerId + "'");
+        req.setAttribute("contentType", provider.getContentType());
+        req.setAttribute("provider", provider);
+        Config config;
+        if (Util.isOverridden(ConfigProvider.class, provider.getClass(), "newConfig", String.class)) {
+            config = provider.newConfig(configId);
+        } else {
+            config = provider.newConfig();
+        }
+
+        config.setProviderId(provider.getProviderId());
+        req.setAttribute("config", config);
 
         req.getView(this, "edit.jelly").forward(req, rsp);
     }
@@ -207,6 +217,7 @@ public class ConfigFilesManagement extends ManagementLink {
     public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
         req.setAttribute("providers", ConfigProvider.all());
+        req.setAttribute("configId", UUID.randomUUID().toString());
         req.getView(this, "selectprovider.jelly").forward(req, rsp);
     }
 
@@ -228,22 +239,21 @@ public class ConfigFilesManagement extends ManagementLink {
      */
     public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
         checkPermission(Hudson.ADMINISTER);
-        for (ConfigProvider provider : ConfigProvider.all()) {
-            if (provider.isResponsibleFor(configId)) {
-                provider.remove(configId);
-            }
-        }
+        Config config = Config.getById(configId);
+        config.remove();
+
         return new HttpRedirect("index");
     }
 
-    private ConfigProvider getProviderForConfigId(String id) {
-        if (!StringUtils.isBlank(id)) {
-            for (ConfigProvider provider : ConfigProvider.all()) {
-                if (provider.isResponsibleFor(id)) {
-                    return provider;
-                }
-            }
+    public FormValidation doCheckConfigId(@QueryParameter("configId") String configId) {
+        if (configId == null || configId.isEmpty())
+            return FormValidation.ok();
+
+        Config config = Config.getByIdOrNull(configId);
+        if (config == null) {
+            return FormValidation.ok();
+        } else {
+            return FormValidation.warning(Messages.ConfigFilesManagement_configIdAlreadyUsed(config.name, config.id));
         }
-        return null;
     }
 }
