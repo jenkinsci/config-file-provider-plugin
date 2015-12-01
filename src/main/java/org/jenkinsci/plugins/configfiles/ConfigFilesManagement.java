@@ -32,8 +32,13 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import hudson.Extension;
 import hudson.Util;
+import hudson.model.Hudson;
+import hudson.model.ManagementLink;
+import hudson.security.Permission;
 import hudson.util.FormValidation;
+import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -42,12 +47,6 @@ import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-
-import hudson.Extension;
-import hudson.model.Hudson;
-import hudson.model.ManagementLink;
-import hudson.security.Permission;
-import net.sf.json.JSONObject;
 
 /**
  * Provides a new link in the "Manage Jenkins" view and builds the UI to manage the configfiles.
@@ -187,8 +186,15 @@ public class ConfigFilesManagement extends ManagementLink {
     public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
 
+        FormValidation error = null;
         if (providerId == null || providerId.isEmpty()) {
-            // TODO add a warning message: you gorgot to select a provider
+            error = FormValidation.errorWithMarkup(Messages._ConfigFilesManagement_selectTypeOfFileToCreate().toString(req.getLocale()));
+        }
+        if (configId == null || configId.isEmpty()) {
+            error = FormValidation.errorWithMarkup(Messages._ConfigFilesManagement_configIdCannotBeEmpty().toString(req.getLocale()));
+        }
+        if (error != null) {
+            req.setAttribute("error", error);
             checkPermission(Hudson.ADMINISTER);
             req.setAttribute("providers", ConfigProvider.all());
             req.setAttribute("configId", configId);
@@ -247,7 +253,7 @@ public class ConfigFilesManagement extends ManagementLink {
 
     public FormValidation doCheckConfigId(@QueryParameter("configId") String configId) {
         if (configId == null || configId.isEmpty())
-            return FormValidation.ok();
+            return FormValidation.warning(Messages.ConfigFilesManagement_configIdCannotBeEmpty());
 
         Config config = Config.getByIdOrNull(configId);
         if (config == null) {
