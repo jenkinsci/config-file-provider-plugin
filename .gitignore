@@ -1,4 +1,17 @@
-work
-target
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
+.idea/
 *.iml
-/work2
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+log/
+target/
+work/

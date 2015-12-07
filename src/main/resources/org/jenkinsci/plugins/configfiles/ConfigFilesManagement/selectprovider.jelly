@@ -34,7 +34,10 @@ THE SOFTWARE.
 				<j:out value="${%filetype}" />
 			</h1>
 			<j:out value="${%selectprovider}" />
-			<f:form method="post" action="addConfig">
+			<f:form name="addConfig" method="post" action="addConfig">
+				<j:if test="${error != null}">
+					${error.renderHtml()}
+				</j:if>
 				<f:entry>
 					<table width="100%">
 						<j:forEach var="provider" items="${providers}" varStatus="loop">
@@ -56,6 +59,9 @@ THE SOFTWARE.
 							</tr>
 						</j:forEach>
 					</table>
+				</f:entry>
+				<f:entry title="${%ID}" description="${%ID of the config file}">
+					<f:textbox name="configId" value="${configId}" checkUrl="'checkConfigId?configId='+escape(this.value)"/>
 				</f:entry>
 				<f:block>
 					<f:submit value="${%Submit}" />

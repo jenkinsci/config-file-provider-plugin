@@ -1,5 +1,7 @@
 package org.jenkinsci.lib.configprovider;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.BulkChange;
 import hudson.XmlFile;
 import hudson.model.listeners.SaveableListener;
@@ -47,6 +49,11 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     public Config getConfigById(String configId) {
         return configs.get(configId);
     }
+
+    @Override
+    public boolean configExists(String configId) {
+        return configs.containsKey(configId);
+    }
     
     @Override
     public String getProviderId() {
@@ -54,8 +61,17 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     }
 
     @Override
-    public boolean isResponsibleFor(String configId) {
-        return configId != null && configId.startsWith(getProviderId());
+    public boolean isResponsibleFor(@NonNull String configId) {
+        if (this.configs.containsKey(configId)) {
+            return true;
+        }
+
+        // backward compatibility - older than 2.10
+        if (configId.startsWith(getProviderId())) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override

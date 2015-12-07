@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.json;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
@@ -97,6 +98,11 @@ public class JsonConfig extends Config {
             return new Config(id, "JsonConfig", "", "{}");
         }
 
+        @NonNull
+        @Override
+        public Config newConfig(@NonNull String id) {
+            return new Config(id, "JsonConfig", "", "{}", getProviderId());
+        }
     }
 
 }

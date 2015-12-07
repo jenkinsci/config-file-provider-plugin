@@ -18,7 +18,6 @@ import jenkins.mvn.SettingsProviderDescriptor;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.plugins.configfiles.Util;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
@@ -62,19 +61,13 @@ public class MvnSettingsProvider extends SettingsProvider {
     public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
         if (StringUtils.isNotBlank(settingsConfigId)) {
 
-            MavenSettingsConfigProvider provider = Util.getProviderForConfigIdOrNull(settingsConfigId);
-            Config c = null;
-            if(provider != null) {
-            	c = provider.getConfigById(settingsConfigId);
-            } else {
-            	listener.getLogger().println("ERROR: no provider found for settings: " + settingsConfigId);
-            }
+            Config c = Config.getByIdOrNull(settingsConfigId);
 
             if (c == null) {
                 listener.getLogger().println("ERROR: your Apache Maven build is setup to use a config with id " + settingsConfigId + " but can not find the config");
             } else {
 
-                MavenSettingsConfig config = null;
+                MavenSettingsConfig config;
                 if (c instanceof MavenSettingsConfig) {
                     config = (MavenSettingsConfig) c;
                 } else {

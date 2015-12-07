@@ -23,12 +23,14 @@
  */
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
+import hudson.AbortException;
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.remoting.VirtualChannel;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -68,14 +70,14 @@ public class ManagedFileUtil {
      * 
      * @param managedFiles
      *            the files to be provisioned
-     * @param workSpace
+     * @param workspace
      *            target workspace
-     * @param logger
-     *            the logger
+     * @param listener
+     *            the listener
      * @return a map of all the files copied, mapped to the path of the remote location, never <code>null</code>.
      * @throws IOException
      * @throws InterruptedException
-     * @throws
+     * @throws AbortException config file has not been found
      */
     public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, Run<?,?> build, FilePath workspace, TaskListener listener) throws IOException, InterruptedException {
 
@@ -83,20 +85,15 @@ public class ManagedFileUtil {
         listener.getLogger().println("provisoning config files...");
 
         for (ManagedFile managedFile : managedFiles) {
-            ConfigProvider provider = getProviderForConfigId(managedFile.fileId);
 
-            if (provider == null) {
-                throw new IOException("not able to resolve a provider responsible for the following file - maybe a config-file-provider plugin got deleted by an administrator: " + managedFile);
-            }
-
-            Config configFile = provider.getConfigById(managedFile.fileId);
+            Config configFile = Config.getByIdOrNull(managedFile.fileId);
             if (configFile == null) {
-                throw new IOException("not able to provide the following file, can't be resolved by any provider - maybe it got deleted by an administrator: " + managedFile);
+                throw new AbortException("not able to provide the following file, can't be resolved by any provider - maybe it got deleted by an administrator: " + managedFile);
             }
 
             boolean createTempFile = StringUtils.isBlank(managedFile.targetLocation);
 
-            FilePath target = null;
+            FilePath target;
             if (createTempFile) {
                 target = ManagedFileUtil.createTempFile(workspace.getChannel());
             } else {
@@ -153,15 +150,4 @@ public class ManagedFileUtil {
 		
 		return fileContent;
 	}
-
-    private static ConfigProvider getProviderForConfigId(String id) {
-        if (!StringUtils.isBlank(id)) {
-            for (ConfigProvider provider : ConfigProvider.all()) {
-                if (provider.isResponsibleFor(id)) {
-                    return provider;
-                }
-            }
-        }
-        return null;
-    }
 }

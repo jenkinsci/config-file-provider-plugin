@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 
 import java.io.InputStream;
@@ -73,6 +74,12 @@ public class MavenToolchainsConfig extends Config {
             String id = this.getProviderId() + System.currentTimeMillis();
             return new Config(id, "MyToolchains", "", loadTemplateContent());
          }
+
+        @NonNull
+        @Override
+        public Config newConfig(@NonNull String id) {
+            return new Config(id, "MyToolchains", "", loadTemplateContent(), getProviderId());
+        }
 
         private String loadTemplateContent() {
             String tpl;
