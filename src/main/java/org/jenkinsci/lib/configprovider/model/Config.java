@@ -51,8 +51,9 @@ public class Config implements Serializable, Describable<Config> {
      */
 	@CheckForNull
 	public static Config getByIdOrNull(@Nullable String configId) {
-		if (configId == null)
+		if (configId == null) {
 			return null;
+		}
 		for (ConfigProvider provider : ConfigProvider.all()) {
 			if (Util.isOverridden(ConfigProvider.class, provider.getClass(), "configExists", String.class)) {
 				if (provider.configExists(configId)) {
@@ -86,11 +87,13 @@ public class Config implements Serializable, Describable<Config> {
 	 */
 	@NonNull
 	public static Config getById(@NonNull String configId) {
-		if (configId == null)
+		if (configId == null) {
 			throw new IllegalArgumentException("configId can NOT be null");
+		}
 		Config result = getByIdOrNull(configId);
-		if (result == null)
+		if (result == null) {
 			throw new RuntimeException("No config found for id '" + configId + "'");
+		}
 		return result;
 	}
 
@@ -133,10 +136,12 @@ public class Config implements Serializable, Describable<Config> {
 	}
 
 	public Config(@NonNull String id, String name, String comment, String content, @NonNull String providerId) {
-		if (id == null)
+		if (id == null) {
 			throw new IllegalArgumentException("id can NOT be null");
-		if (providerId == null)
+		}
+		if (providerId == null) {
 			throw new IllegalArgumentException("providerId can NOT be null");
+		}
 		this.id = id;
 		this.name = name;
 		this.comment = comment;
@@ -152,8 +157,9 @@ public class Config implements Serializable, Describable<Config> {
     public ConfigProvider getDescriptor() {
 		ConfigProvider result = ConfigProvider.getByIdOrNull(this.providerId);
 
-		if (result != null)
+		if (result != null) {
 			return result;
+		}
 
 		// backward compatibility: config.providerId may be null (older than 2.10)
 		for (ConfigProvider provider : ConfigProvider.all()) {

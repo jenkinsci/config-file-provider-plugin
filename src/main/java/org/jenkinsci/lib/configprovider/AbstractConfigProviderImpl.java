@@ -62,12 +62,14 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
 
     @Override
     public boolean isResponsibleFor(@NonNull String configId) {
-        if (this.configs.containsKey(configId))
+        if (this.configs.containsKey(configId)) {
             return true;
+        }
 
         // backward compatibility - older than 2.10
-        if (configId.startsWith(getProviderId()))
+        if (configId.startsWith(getProviderId())) {
             return true;
+        }
 
         return false;
     }

@@ -203,8 +203,9 @@ public class ConfigFilesManagement extends ManagementLink {
         }
 
         ConfigProvider provider = ConfigProvider.getByIdOrNull(providerId);
-        if (provider == null)
+        if (provider == null) {
             throw new IllegalArgumentException("No provider found for id '" + providerId + "'");
+        }
         req.setAttribute("contentType", provider.getContentType());
         req.setAttribute("provider", provider);
         Config config;
@@ -252,8 +253,9 @@ public class ConfigFilesManagement extends ManagementLink {
     }
 
     public FormValidation doCheckConfigId(@QueryParameter("configId") String configId) {
-        if (configId == null || configId.isEmpty())
+        if (configId == null || configId.isEmpty()) {
             return FormValidation.warning(Messages.ConfigFilesManagement_configIdCannotBeEmpty());
+        }
 
         Config config = Config.getByIdOrNull(configId);
         if (config == null) {
