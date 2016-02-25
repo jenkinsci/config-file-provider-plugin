@@ -82,7 +82,9 @@ public class ManagedFileUtil {
 
             FilePath target;
             if (createTempFile) {
-                target = tempDir(workspace).createTempFile("config", "tmp");
+                FilePath tempDir = tempDir(workspace);
+                tempDir.mkdirs();
+                target = tempDir.createTempFile("config", "tmp");
             } else {
                 
                 String expandedTargetLocation = managedFile.targetLocation;
