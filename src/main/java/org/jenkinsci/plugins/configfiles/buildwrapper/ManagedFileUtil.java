@@ -26,18 +26,14 @@ package org.jenkinsci.plugins.configfiles.buildwrapper;
 import hudson.AbortException;
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
-import hudson.remoting.VirtualChannel;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
 import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
@@ -47,22 +43,13 @@ import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import jenkins.security.MasterToSlaveCallable;
+import hudson.slaves.WorkspaceList;
 
 public class ManagedFileUtil {
 
-    /**
-     * Seems to be like {@link FilePath#createTempFile}, but passing the 2-arg form to File to use {@code ${java.io.tmpdir}}.
-     */
-    public static FilePath createTempFile(VirtualChannel channel) throws IOException, InterruptedException {
-        return channel.call(new MasterToSlaveCallable<FilePath, IOException>() {
-            public FilePath call() throws IOException {
-                final File tmpTarget = File.createTempFile("config", "tmp");
-                return new FilePath(tmpTarget);
-            }
-
-            private static final long serialVersionUID = 1L;
-        });
+    // TODO move to WorkspaceList
+    private static FilePath tempDir(FilePath ws) {
+        return ws.sibling(ws.getName() + System.getProperty(WorkspaceList.class.getName(), "@") + "tmp");
     }
 
     /**
@@ -95,7 +82,7 @@ public class ManagedFileUtil {
 
             FilePath target;
             if (createTempFile) {
-                target = ManagedFileUtil.createTempFile(workspace.getChannel());
+                target = tempDir(workspace).createTempFile("config", "tmp");
             } else {
                 
                 String expandedTargetLocation = managedFile.targetLocation;
