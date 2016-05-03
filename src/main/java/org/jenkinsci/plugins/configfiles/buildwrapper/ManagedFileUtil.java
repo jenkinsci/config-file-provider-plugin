@@ -23,10 +23,6 @@
  */
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
-import hudson.AbortException;
-import hudson.FilePath;
-import hudson.model.AbstractBuild;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,12 +37,17 @@ import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+
+import hudson.AbortException;
+import hudson.EnvVars;
+import hudson.FilePath;
+import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.slaves.WorkspaceList;
 
 public class ManagedFileUtil {
-
+	
     // TODO use 1.652 use WorkspaceList.tempDir
     private static FilePath tempDir(FilePath ws) {
         return ws.sibling(ws.getName() + System.getProperty(WorkspaceList.class.getName(), "@") + "tmp");
@@ -108,6 +109,7 @@ public class ManagedFileUtil {
             
             // Inserts Maven server credentials if config files are Maven settings
             String fileContent = insertCredentialsInSettings(build, configFile);
+            fileContent = replaceJobProperties(build, fileContent, listener);
 
 
             listener.getLogger().println(Messages.console_output(configFile.name, target.toURI()));
@@ -120,7 +122,16 @@ public class ManagedFileUtil {
         return file2Path;
     }
 
-    private static String insertCredentialsInSettings(Run<?,?> build, Config configFile) throws IOException {
+    private static String replaceJobProperties(Run<?, ?> build, String fileContent, TaskListener listener) throws InterruptedException, IOException {
+    	EnvVars env = build.getEnvironment(listener);
+    	for ( String key: env.keySet())  {
+    		fileContent = fileContent.replace("$"+key, env.get(key));
+    		listener.getLogger().println("Available env: " + key + "=" + env.get(key));
+    	}
+    	return fileContent;
+	}
+
+	private static String insertCredentialsInSettings(Run<?,?> build, Config configFile) throws IOException {
 		String fileContent = configFile.content;
 		
 		if (configFile instanceof HasServerCredentialMappings) {
