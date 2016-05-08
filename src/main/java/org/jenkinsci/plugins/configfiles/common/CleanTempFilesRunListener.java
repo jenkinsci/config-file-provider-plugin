@@ -53,7 +53,7 @@ public class CleanTempFilesRunListener extends RunListener<AbstractBuild<?, ?>> 
         for (CleanTempFilesAction action : actions) {
             try {
                 for (String remotePath : action.getTempFiles()) {
-                    LOGGER.log(Level.FINE, "remotePath: "+remotePath);
+                    LOGGER.log(Level.FINE, "Delete {0}", new Object[]{remotePath});
                     try {
                         final Node builtOn = build.getBuiltOn();
                         if (builtOn != null) {
