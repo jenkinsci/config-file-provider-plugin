@@ -90,7 +90,7 @@ public class CredentialsHelper {
     /**
      * 
      * @param mavenSettingsContent
-     *            Maven settings xml (must be valid settings XML)
+     *            Maven settings.xml (must be valid XML)
      * @param mavenServerId2jenkinsCredential
      *            the credentials to be inserted into the XML (key: Maven serverId, value: Jenkins credentials)
      * @param isReplaceAllServerDefinitions overwrite all the {@code <server>} declarations. If {@code false}, only the
@@ -98,8 +98,8 @@ public class CredentialsHelper {
      * @param workDir
      *            folder in which credentials files are created if needed (private key files...)
      * @param tempFiles
-     *            temp files created by this method, these files should be deleted by the caller
-     * @return the new XML with the server credentials added
+     *            temp files created by this method, these files MUST be deleted by the caller
+     * @return the updated version of the {@code mavenSettingsContent} with the server credentials added
      * @throws Exception
      */
     public static String fillAuthentication(String mavenSettingsContent, final Boolean isReplaceAllServerDefinitions,
