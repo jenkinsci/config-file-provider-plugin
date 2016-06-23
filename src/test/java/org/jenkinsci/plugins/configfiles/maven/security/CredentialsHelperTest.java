@@ -2,7 +2,9 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,7 +43,9 @@ public class CredentialsHelperTest {
         serverId2Credentials.put("encoded_pwd", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "*pwd", "some desc2", "dan", PWD_2));
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.xml"));
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.TRUE, serverId2Credentials);
+
+        List<String> tempFiles = new ArrayList<String>();
+        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.TRUE, serverId2Credentials, jenkins.jenkins.createPath("tmp"), tempFiles);
 
         Assert.assertTrue("replaced settings.xml must contain new password", replacedContent.contains(PWD));
 
@@ -71,7 +75,8 @@ public class CredentialsHelperTest {
         serverId2Credentials.put("encoded_pwd", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "*pwd", "some desc2", "dan", PWD_2));
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.xml"));
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, serverId2Credentials);
+        List<String> tempFiles = new ArrayList<String>();
+        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, serverId2Credentials, jenkins.jenkins.createPath("tmp"), tempFiles);
 
         Assert.assertTrue("replaced settings.xml must contain new password", replacedContent.contains(PWD));
 
@@ -91,7 +96,8 @@ public class CredentialsHelperTest {
         Map<String, StandardUsernameCredentials> serverId2Credentials = new HashMap<String, StandardUsernameCredentials>();
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.xml"));
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.TRUE, serverId2Credentials);
+        List<String> tempFiles = new ArrayList<String>();
+        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.TRUE, serverId2Credentials, jenkins.jenkins.createPath("tmp"), tempFiles);
 
         Assert.assertEquals("no changes should have been made to the settings", settingsContent, replacedContent);
 
@@ -103,7 +109,8 @@ public class CredentialsHelperTest {
         Map<String, StandardUsernameCredentials> serverId2Credentials = new HashMap<String, StandardUsernameCredentials>();
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.xml"));
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, serverId2Credentials);
+        List<String> tempFiles = new ArrayList<String>();
+        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, serverId2Credentials, jenkins.jenkins.createPath("tmp"), tempFiles);
 
         Assert.assertEquals("no changes should have been made to the settings", settingsContent, replacedContent);
 

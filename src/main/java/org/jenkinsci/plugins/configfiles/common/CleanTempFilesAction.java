@@ -41,7 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
 
 /**
- * Temporal action to transport information about t files to be deleted to the CleanTempFilesRunListener.
+ * Temporal action to transport information about t files to be deleted to the {@link CleanTempFilesRunListener}.
  * 
  * @author Dominik Bartholdi (imod)
  * @see org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener

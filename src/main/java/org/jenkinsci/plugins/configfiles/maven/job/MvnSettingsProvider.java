@@ -6,11 +6,13 @@ import hudson.FilePath;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jenkins.model.Jenkins;
 import jenkins.mvn.SettingsProvider;
@@ -18,6 +20,7 @@ import jenkins.mvn.SettingsProviderDescriptor;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFileUtil;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
@@ -34,6 +37,8 @@ import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
  * @author Dominik Bartholdi (imod)
  */
 public class MvnSettingsProvider extends SettingsProvider {
+
+    private final static Logger LOGGER = Logger.getLogger(MvnSettingsProvider.class.getName());
 
     private String settingsConfigId;
 
@@ -77,6 +82,8 @@ public class MvnSettingsProvider extends SettingsProvider {
                 listener.getLogger().println("using settings config with name " + config.name);
                 listener.getLogger().println("Replacing all maven server entries not found in credentials list is " + config.getIsReplaceAll());
                 if (StringUtils.isNotBlank(config.content)) {
+                    FilePath workDir = ManagedFileUtil.tempDir(build.getWorkspace());
+
                     try {
 
                         String fileContent = config.content;
@@ -86,10 +93,15 @@ public class MvnSettingsProvider extends SettingsProvider {
                         final Boolean isReplaceAll = config.getIsReplaceAll();
 
                         if (!resolvedCredentials.isEmpty()) {
-                            fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials);
+                            List<String> tempFiles = new ArrayList<String>();
+                            fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+                            for (String tempFile:tempFiles) {
+                                build.addAction(new CleanTempFilesAction(tempFile));
+                            }
                         }
 
-                        final FilePath f = copyConfigContentToFilePath(fileContent, build.getWorkspace());
+                        final FilePath f = build.getWorkspace().createTextTempFile("settings", ".xml", fileContent, false);
+                        LOGGER.log(Level.FINE, "Create {0}", new Object[]{f});
                         build.getEnvironments().add(new SimpleEnvironment("MVN_SETTINGS", f.getRemote()));
 
                         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
@@ -104,10 +116,6 @@ public class MvnSettingsProvider extends SettingsProvider {
         }
 
         return null;
-    }
-
-    public static FilePath copyConfigContentToFilePath(String content, FilePath workspace) throws IOException, InterruptedException {
-        return workspace.createTextTempFile("settings", ".xml", content, false);
     }
 
     @Extension(ordinal = 10)

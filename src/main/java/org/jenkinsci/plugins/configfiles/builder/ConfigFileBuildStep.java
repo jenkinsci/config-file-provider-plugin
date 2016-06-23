@@ -7,19 +7,11 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
@@ -27,6 +19,13 @@ import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFileUtil;
 import org.jenkinsci.plugins.configfiles.buildwrapper.Messages;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.kohsuke.stapler.DataBoundConstructor;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Dominik Bartholdi (imod)
@@ -54,7 +53,13 @@ public class ConfigFileBuildStep extends Builder implements Serializable {
             throw new IllegalStateException("the workspace does not yet exist, can't provision config files - maybe slave is offline?");
         }
 
-        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, build.getWorkspace(), listener);
+        List<String> tempFiles = new ArrayList<String>();
+
+        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, build.getWorkspace(), listener, tempFiles);
+
+        for (String tempFile:tempFiles) {
+            build.addAction(new CleanTempFilesAction(tempFile));
+        }
         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
         build.addAction(new CleanTempFilesAction(file2Path));
 

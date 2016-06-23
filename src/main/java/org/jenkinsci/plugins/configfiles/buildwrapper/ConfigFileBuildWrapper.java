@@ -38,6 +38,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import jenkins.tasks.SimpleBuildWrapper;
 
 import org.apache.commons.lang.StringUtils;
@@ -55,8 +58,8 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
     }
 
     @Override public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
-        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, workspace, listener);
         List<String> tempFiles = new ArrayList<String>();
+        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, workspace, listener, tempFiles);
         for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
             ManagedFile mf = entry.getKey();
             FilePath fp = entry.getValue();
@@ -101,6 +104,7 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
     }
 
     private static class TempFileCleaner extends Disposer {
+        private final static Logger LOGGER = Logger.getLogger(TempFileCleaner.class.getName());
 
         private static final long serialVersionUID = 1;
 
@@ -113,6 +117,7 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
         @Override public void tearDown(Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
             listener.getLogger().println("Deleting " + tempFiles.size() + " temporary files");
             for (String tempFile : tempFiles) {
+                LOGGER.log(Level.FINE, "Delete: {0}", new Object[]{tempFile});
                 new FilePath(workspace, tempFile).delete();
             }
         }
