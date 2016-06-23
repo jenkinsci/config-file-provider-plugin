@@ -2,6 +2,7 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
 import com.cloudbees.jenkins.plugins.sshcredentials.SSHUserPrivateKey;
+import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import hudson.FilePath;
 import hudson.model.Item;
 import hudson.model.Run;
@@ -11,6 +12,7 @@ import hudson.util.Secret;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -78,13 +80,14 @@ public class CredentialsHelper {
     }
 
     public static List<StandardUsernameCredentials> findValidCredentials(final String serverIdPattern) {
-        // TODO Cyrille Le Clerc 2016/05/08: why do we return an empty list of server id is empty?
+        List<DomainRequirement> domainRequirements = new ArrayList<DomainRequirement>();
         if(StringUtils.isBlank(serverIdPattern)) {
-            return Collections.emptyList();
+            // no maven server ID pattern defined, don't filter the credentials
+        } else {
+            domainRequirements.add(new MavenServerIdRequirement(serverIdPattern));
         }
-        final List<StandardUsernameCredentials> foundCredentials = CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, /** TODO? item **/
-        Jenkins.getInstance(), ACL.SYSTEM, new MavenServerIdRequirement(serverIdPattern));
-        return foundCredentials;
+        return CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class,
+                Jenkins.getInstance(), ACL.SYSTEM, domainRequirements);
     }
 
     /**
