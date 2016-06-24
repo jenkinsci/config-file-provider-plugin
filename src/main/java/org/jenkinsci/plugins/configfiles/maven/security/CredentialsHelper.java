@@ -66,7 +66,7 @@ public class CredentialsHelper {
             
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (StringUtils.isNotBlank(serverId)) {
-                Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId));
+                domainRequirements = Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId));
             }
 
             final StandardUsernameCredentials c = CredentialsProvider.findCredentialById(credentialsId, StandardUsernameCredentials.class, build, domainRequirements);

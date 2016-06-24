@@ -60,7 +60,7 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
 
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (StringUtils.isNotBlank(serverId)) {
-                Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId));
+                domainRequirements = Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId));
             }
 
             // @formatter:off
