@@ -53,10 +53,10 @@ public class ManagedFileUtil {
 
     /**
      * TODO use 1.652 use WorkspaceList.tempDir
+     * 
      * @param ws
-     *           workspace of the {@link hudson.model.Build}. See {@link Build#getWorkspace()}
-     * @return
-     *           temporary directory, may not have been created so far
+     *            workspace of the {@link hudson.model.Build}. See {@link Build#getWorkspace()}
+     * @return temporary directory, may not have been created so far
      */
     public static FilePath tempDir(FilePath ws) {
         return ws.sibling(ws.getName() + System.getProperty(WorkspaceList.class.getName(), "@") + "tmp");
@@ -76,9 +76,10 @@ public class ManagedFileUtil {
      * @return a map of all the files copied, mapped to the path of the remote location, never <code>null</code>.
      * @throws IOException
      * @throws InterruptedException
-     * @throws AbortException config file has not been found
+     * @throws AbortException
+     *             config file has not been found
      */
-    public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, Run<?,?> build, FilePath workspace, TaskListener listener, List<String> tempFiles) throws IOException, InterruptedException {
+    public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, Run<?, ?> build, FilePath workspace, TaskListener listener, List<String> tempFiles) throws IOException, InterruptedException {
 
         final Map<ManagedFile, FilePath> file2Path = new HashMap<ManagedFile, FilePath>();
         listener.getLogger().println("provisoning config files...");
@@ -99,7 +100,7 @@ public class ManagedFileUtil {
             if (createTempFile) {
                 target = workDir.createTempFile("config", "tmp");
             } else {
-                
+
                 String expandedTargetLocation = managedFile.targetLocation;
                 try {
                     expandedTargetLocation = build instanceof AbstractBuild ? TokenMacro.expandAll((AbstractBuild<?, ?>) build, listener, managedFile.targetLocation) : managedFile.targetLocation;
@@ -107,22 +108,29 @@ public class ManagedFileUtil {
                     listener.getLogger().println("[ERROR] failed to expand variables in target location '" + managedFile.targetLocation + "' : " + e.getMessage());
                     expandedTargetLocation = managedFile.targetLocation;
                 }
-                
+
                 // Should treat given path as the actual filename unless it has a trailing slash (implying a
                 // directory) or path already exists in workspace as a directory.
                 target = new FilePath(workspace, expandedTargetLocation);
-                String immediateFileName = expandedTargetLocation.substring(
-                		expandedTargetLocation.lastIndexOf("/")+1);
+                String immediateFileName = expandedTargetLocation.substring(expandedTargetLocation.lastIndexOf("/") + 1);
 
-                if (immediateFileName.length() == 0 || (target.exists() && target.isDirectory())){
-                	target = new FilePath(target,configFile.name.replace(" ", "_"));
+                if (immediateFileName.length() == 0 || (target.exists() && target.isDirectory())) {
+                    target = new FilePath(target, configFile.name.replace(" ", "_"));
                 }
             }
-            
+
             // Inserts Maven server credentials if config files are Maven settings
             String fileContent = insertCredentialsInSettings(build, configFile, workDir, tempFiles);
 
-            LOGGER.log(Level.FINE, "Create file {0} for configuration {1} mapped as {2}", new Object[]{target.getRemote(), configFile, managedFile});
+            if (managedFile.getReplaceTokens()) {
+                try {
+                    fileContent = build instanceof AbstractBuild ? TokenMacro.expandAll((AbstractBuild<?, ?>) build, listener, fileContent) : fileContent;
+                } catch (MacroEvaluationException e) {
+                    listener.getLogger().println("[ERROR] failed to expand variables in content of " + configFile.name + " - " + e.getMessage());
+                }
+            }
+
+            LOGGER.log(Level.FINE, "Create file {0} for configuration {1} mapped as {2}", new Object[] { target.getRemote(), configFile, managedFile });
             listener.getLogger().println(Messages.console_output(configFile.name, target.toURI()));
             ByteArrayInputStream bs = new ByteArrayInputStream(fileContent.getBytes("UTF-8"));
             target.copyFrom(bs);

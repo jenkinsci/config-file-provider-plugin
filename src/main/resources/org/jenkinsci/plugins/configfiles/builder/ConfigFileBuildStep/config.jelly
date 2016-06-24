@@ -46,6 +46,10 @@
 				<f:entry title="Variable" field="variable">
 					<f:textbox value="${managedFile.variable}" />
 				</f:entry>
+                
+                <f:entry title="${%Replace Tokens}" field="replaceTokens">
+                    <f:checkbox checked="${managedFile.replaceTokens}"/>
+                </f:entry>                        
 
 
 				<f:entry>
