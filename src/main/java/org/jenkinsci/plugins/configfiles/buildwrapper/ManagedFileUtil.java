@@ -125,7 +125,7 @@ public class ManagedFileUtil {
 		
 		if (configFile instanceof HasServerCredentialMappings) {
 			HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
-			final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getParent(), settings.getServerCredentialMappings());
+			final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings());
 			final Boolean isReplaceAll = settings.getIsReplaceAll();
 
 			if (!resolvedCredentials.isEmpty()) {

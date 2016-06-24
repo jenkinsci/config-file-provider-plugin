@@ -3,22 +3,22 @@ package org.jenkinsci.plugins.configfiles.maven.security;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
-import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.AbstractProject;
 import hudson.model.Computer;
 import hudson.model.Descriptor;
-import hudson.model.Item;
 import hudson.model.ItemGroup;
+import hudson.model.Queue;
+import hudson.model.queue.Tasks;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.util.ListBoxModel;
@@ -58,12 +58,17 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
                 return new StandardUsernameListBoxModel().includeCurrentValue(serverId);
             }
 
+            List<DomainRequirement> domainRequirements = Collections.emptyList();
+            if (StringUtils.isNotBlank(serverId)) {
+                Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId));
+            }
+
             // @formatter:off
             return new StandardUsernameListBoxModel().includeAs(
-                        ACL.SYSTEM, 
+                        context instanceof Queue.Task ? Tasks.getDefaultAuthenticationOf((Queue.Task)context) : ACL.SYSTEM, 
                         context, 
                         StandardUsernameCredentials.class, 
-                        Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId))
+                        domainRequirements
                     )
                     .includeCurrentValue(serverId);
             // @formatter:on
