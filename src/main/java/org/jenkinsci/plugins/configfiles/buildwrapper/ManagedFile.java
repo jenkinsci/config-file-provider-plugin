@@ -31,19 +31,37 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class ManagedFile {
 
-	public final String fileId;
-	public final String targetLocation;
-	public final String variable;
+    public final String   fileId;
+    public final String   targetLocation;
+    public final String   variable;
+    /**
+     * whether tokens in the content of the file must be replaced by the TokenMacro plugin
+     * 
+     * @since 2.10.2
+     */
+    private final Boolean replaceTokens;
 
-	@DataBoundConstructor
-	public ManagedFile(String fileId, String targetLocation, String variable) {
-		this.fileId = fileId;
-		this.targetLocation = targetLocation;
-		this.variable = variable;
-	}
+    @DataBoundConstructor
+    public ManagedFile(String fileId, String targetLocation, String variable, Boolean replaceTokens) {
+        this.fileId = fileId;
+        this.targetLocation = targetLocation;
+        this.variable = variable;
+        this.replaceTokens = replaceTokens;
+    }
 
-	@Override
-	public String toString() {
-		return "[ManagedFile: id=" + fileId + ", targetLocation=" + targetLocation + ", variable=" + variable + "]";
-	}
+    public ManagedFile(String fileId, String targetLocation, String variable) {
+        this.fileId = fileId;
+        this.targetLocation = targetLocation;
+        this.variable = variable;
+        this.replaceTokens = false;
+    }
+
+    @Override
+    public String toString() {
+        return "[ManagedFile: id=" + fileId + ", targetLocation=" + targetLocation + ", variable=" + variable + "]";
+    }
+
+    public Boolean getReplaceTokens() {
+        return replaceTokens != null ? replaceTokens : false;
+    }
 }
