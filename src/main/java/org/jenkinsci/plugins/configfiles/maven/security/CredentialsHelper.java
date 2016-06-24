@@ -1,18 +1,8 @@
 
 package org.jenkinsci.plugins.configfiles.maven.security;
 
-import com.cloudbees.jenkins.plugins.sshcredentials.SSHUserPrivateKey;
-import com.cloudbees.plugins.credentials.domains.DomainRequirement;
-import hudson.FilePath;
-import hudson.model.Item;
-import hudson.model.Run;
-import hudson.security.ACL;
-import hudson.util.Secret;
-
-import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,20 +21,22 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import jenkins.model.Jenkins;
-
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.jenkins.plugins.sshcredentials.SSHUserPrivateKey;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import com.cloudbees.plugins.credentials.domains.DomainRequirement;
+
+import hudson.FilePath;
+import hudson.model.Run;
+import hudson.util.Secret;
 
 public class CredentialsHelper {
 
@@ -65,29 +57,24 @@ public class CredentialsHelper {
      *            the mappings to be resolved
      * @return map of serverId - credential
      */
-    public static Map<String, StandardUsernameCredentials> resolveCredentials(Item item, final List<ServerCredentialMapping> serverCredentialMappings) {
+    public static Map<String, StandardUsernameCredentials> resolveCredentials(Run<?,?> build, final List<ServerCredentialMapping> serverCredentialMappings) {
         Map<String, StandardUsernameCredentials> serverId2credential = new HashMap<String, StandardUsernameCredentials>();
         for (ServerCredentialMapping serverCredentialMapping : serverCredentialMappings) {
             final String credentialsId = serverCredentialMapping.getCredentialsId();
             final String serverId = serverCredentialMapping.getServerId();
-            final List<StandardUsernameCredentials> foundCredentials = findValidCredentials(serverId);
-            final StandardUsernameCredentials c = CredentialsMatchers.firstOrNull(foundCredentials, CredentialsMatchers.withId(credentialsId));
+            
+            List<DomainRequirement> domainRequirements = Collections.emptyList();
+            if (StringUtils.isNotBlank(serverId)) {
+                domainRequirements = Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId));
+            }
+
+            final StandardUsernameCredentials c = CredentialsProvider.findCredentialById(credentialsId, StandardUsernameCredentials.class, build, domainRequirements);
+
             if (c != null) {
                 serverId2credential.put(serverId, c);
             }
         }
         return serverId2credential;
-    }
-
-    public static List<StandardUsernameCredentials> findValidCredentials(final String serverIdPattern) {
-        List<DomainRequirement> domainRequirements = new ArrayList<DomainRequirement>();
-        if(StringUtils.isBlank(serverIdPattern)) {
-            // no maven server ID pattern defined, don't filter the credentials
-        } else {
-            domainRequirements.add(new MavenServerIdRequirement(serverIdPattern));
-        }
-        return CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class,
-                Jenkins.getInstance(), ACL.SYSTEM, domainRequirements);
     }
 
     /**

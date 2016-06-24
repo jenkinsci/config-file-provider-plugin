@@ -1,19 +1,26 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
+import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.AbstractProject;
+import hudson.model.Computer;
 import hudson.model.Descriptor;
-import hudson.model.Item;
+import hudson.model.ItemGroup;
+import hudson.model.Queue;
+import hudson.model.queue.Tasks;
+import hudson.security.ACL;
+import hudson.security.AccessControlled;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 
@@ -45,19 +52,32 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     @Extension
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
 
-        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath AbstractProject<?, ?> context, @QueryParameter String serverId) {
-            if ( (context == null && Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER))
-                    || (context != null && context.hasPermission(Item.CONFIGURE)) ) {
-                final List<StandardUsernameCredentials> validCredentials = CredentialsHelper.findValidCredentials(serverId);
-                return new StandardUsernameListBoxModel().withEmptySelection().withAll(validCredentials);
+        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @QueryParameter String serverId) {
+            AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.getInstance());
+            if (_context == null || !_context.hasPermission(Computer.CONFIGURE)) {
+                return new StandardUsernameListBoxModel().includeCurrentValue(serverId);
             }
-            return new ListBoxModel();
+
+            List<DomainRequirement> domainRequirements = Collections.emptyList();
+            if (StringUtils.isNotBlank(serverId)) {
+                domainRequirements = Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId));
+            }
+
+            // @formatter:off
+            return new StandardUsernameListBoxModel().includeAs(
+                        context instanceof Queue.Task ? Tasks.getDefaultAuthenticationOf((Queue.Task)context) : ACL.SYSTEM, 
+                        context, 
+                        StandardUsernameCredentials.class, 
+                        domainRequirements
+                    )
+                    .includeCurrentValue(serverId);
+            // @formatter:on
         }
 
         @Override
         public String getDisplayName() {
             return "";
         }
-
     }
+
 }

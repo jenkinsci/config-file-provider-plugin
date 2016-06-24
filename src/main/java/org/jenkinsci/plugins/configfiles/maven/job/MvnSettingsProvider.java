@@ -89,7 +89,7 @@ public class MvnSettingsProvider extends SettingsProvider {
                         String fileContent = config.content;
 
                         final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
-                        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build.getProject(), serverCredentialMappings);
+                        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, serverCredentialMappings);
                         final Boolean isReplaceAll = config.getIsReplaceAll();
 
                         if (!resolvedCredentials.isEmpty()) {
