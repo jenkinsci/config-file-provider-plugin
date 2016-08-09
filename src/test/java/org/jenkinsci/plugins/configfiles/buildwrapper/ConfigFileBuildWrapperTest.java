@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import javax.inject.Inject;
 
+import com.gargoylesoftware.htmlunit.html.*;
 import org.apache.commons.io.IOUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -22,11 +23,6 @@ import org.junit.Test;
 import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
-
-import com.gargoylesoftware.htmlunit.html.DomNodeList;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.html.HtmlOption;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
@@ -183,10 +179,10 @@ public class ConfigFileBuildWrapperTest {
         final WebClient client = j.createWebClient();
         final HtmlPage page = client.goTo("job/someJob/configure");
 
-        final DomNodeList<HtmlElement> option = page.getElementsByTagName("option");
+        final DomNodeList<DomElement> option = page.getElementsByTagName("option");
         boolean foundActive = false;
         boolean foundSecond = false;
-        for (HtmlElement htmlElement : option) {
+        for (DomElement htmlElement : option) {
             final HtmlOption htmlOption = (HtmlOption) htmlElement;
             if (htmlOption.getValueAttribute().equals(activeConfig.id)) {
                 Assert.assertTrue("correct config is not selected", htmlOption.isSelected());

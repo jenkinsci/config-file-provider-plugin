@@ -29,7 +29,6 @@ import jenkins.tasks.SimpleBuildWrapper;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
-import org.jenkinsci.plugins.workflow.JenkinsRuleExt;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -40,6 +39,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Rule;
 import org.junit.runners.model.Statement;
+import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.RestartableJenkinsRule;
 
 public class ConfigFileBuildWrapperWorkflowTest {
@@ -99,7 +99,7 @@ public class ConfigFileBuildWrapperWorkflowTest {
                 assertNotNull(p);
                 WorkflowRun b = p.getBuildByNumber(1);
                 assertNotNull(b);
-                story.j.assertBuildStatusSuccess(JenkinsRuleExt.waitForCompletion(b));
+                story.j.assertBuildStatusSuccess(story.j.waitForCompletion(b));
                 story.j.assertLogContains("some content", b);
                 story.j.assertLogContains("Deleting 1 temporary files", b);
             }

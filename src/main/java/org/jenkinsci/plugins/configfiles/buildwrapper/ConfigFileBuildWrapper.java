@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 import jenkins.tasks.SimpleBuildWrapper;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -80,6 +81,7 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
         return managedFiles;
     }
 
+//    @Symbol("configFile")
     @Extension(ordinal = 50)
     public static final class DescriptorImpl extends BuildWrapperDescriptor {
         @Override
