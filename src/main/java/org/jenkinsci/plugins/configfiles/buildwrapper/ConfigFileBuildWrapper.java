@@ -58,7 +58,8 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
         this.managedFiles = managedFiles;
     }
 
-    @Override public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
+    @Override
+    public void setUp(Context context, Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
         List<String> tempFiles = new ArrayList<String>();
         final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, workspace, listener, tempFiles);
         for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
@@ -81,7 +82,7 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
         return managedFiles;
     }
 
-//    @Symbol("configFile")
+    @Symbol("configFile")
     @Extension(ordinal = 50)
     public static final class DescriptorImpl extends BuildWrapperDescriptor {
         @Override
@@ -116,7 +117,8 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
             this.tempFiles = tempFiles;
         }
 
-        @Override public void tearDown(Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+        @Override
+        public void tearDown(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
             listener.getLogger().println("Deleting " + tempFiles.size() + " temporary files");
             for (String tempFile : tempFiles) {
                 LOGGER.log(Level.FINE, "Delete: {0}", new Object[]{tempFile});

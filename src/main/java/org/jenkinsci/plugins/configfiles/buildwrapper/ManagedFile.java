@@ -23,20 +23,25 @@
  */
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
+import hudson.Extension;
+import hudson.ExtensionPoint;
+import hudson.model.Describable;
+import hudson.model.Descriptor;
+import jenkins.model.Jenkins;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * @author domi
- * 
  */
-public class ManagedFile {
+public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
 
-    public final String   fileId;
-    public final String   targetLocation;
-    public final String   variable;
+    public final String fileId;
+    public final String targetLocation;
+    public final String variable;
     /**
      * whether tokens in the content of the file must be replaced by the TokenMacro plugin
-     * 
+     *
      * @since 2.10.2
      */
     private final Boolean replaceTokens;
@@ -64,4 +69,20 @@ public class ManagedFile {
     public Boolean getReplaceTokens() {
         return replaceTokens != null ? replaceTokens : false;
     }
+
+    @Override
+    public Descriptor<ManagedFile> getDescriptor() {
+        return (DescriptorImpl) Jenkins.getInstance().getDescriptorOrDie(getClass());
+    }
+
+
+    @Symbol("managedFile")
+    @Extension
+    public static class DescriptorImpl extends Descriptor<ManagedFile> {
+        @Override
+        public String getDisplayName() {
+            return "Managed File";
+        }
+    }
 }
+

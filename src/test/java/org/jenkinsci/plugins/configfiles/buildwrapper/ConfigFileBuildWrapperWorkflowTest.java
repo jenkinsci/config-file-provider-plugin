@@ -77,6 +77,21 @@ public class ConfigFileBuildWrapperWorkflowTest {
         });
     }
 
+    @Test public void symbolWithTargetLocation() throws Exception {
+        story.addStep(new Statement() {
+            @Override public void evaluate() throws Throwable {
+                WorkflowJob p = story.j.jenkins.createProject(WorkflowJob.class, "p");
+                p.setDefinition(new CpsFlowDefinition(""
+                        + "node {\n"
+                        + "  configFile(managedFiles: [managedFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {sh 'cat myfile.txt'}\n"
+                        + "}", true));
+                WorkflowRun b = story.j.assertBuildStatusSuccess(p.scheduleBuild2(0));
+                story.j.assertLogContains("some content", b);
+                story.j.assertLogNotContains("temporary files", b);
+            }
+        });
+    }
+
     @Test public void withTempFilesAfterRestart() throws Exception {
         story.addStep(new Statement() {
             @Override public void evaluate() throws Throwable {
