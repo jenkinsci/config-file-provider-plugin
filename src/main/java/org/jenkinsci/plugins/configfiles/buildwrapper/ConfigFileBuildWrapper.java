@@ -82,7 +82,7 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
         return managedFiles;
     }
 
-    @Symbol("configFile")
+    @Symbol("configFileProvider")
     @Extension(ordinal = 50)
     public static final class DescriptorImpl extends BuildWrapperDescriptor {
         @Override
@@ -94,16 +94,6 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
         public boolean isApplicable(AbstractProject<?, ?> item) {
             return true;
         }
-
-        public Collection<Config> getConfigFiles() {
-            ExtensionList<ConfigProvider> providers = ConfigProvider.all();
-            List<Config> allFiles = new ArrayList<Config>();
-            for (ConfigProvider provider : providers) {
-                allFiles.addAll(provider.getAllConfigs());
-            }
-            return allFiles;
-        }
-
     }
 
     private static class TempFileCleaner extends Disposer {

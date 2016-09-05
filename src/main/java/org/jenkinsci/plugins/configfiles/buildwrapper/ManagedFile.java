@@ -24,12 +24,20 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
 import hudson.Extension;
+import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
+import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
+import org.jenkinsci.lib.configprovider.model.Config;
 import org.kohsuke.stapler.DataBoundConstructor;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author domi
@@ -76,12 +84,30 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
     }
 
 
-    @Symbol("managedFile")
+    @Symbol("configFile")
     @Extension
     public static class DescriptorImpl extends Descriptor<ManagedFile> {
         @Override
         public String getDisplayName() {
-            return "Managed File";
+            return null;
+        }
+
+        public ListBoxModel doFillFileIdItems() {
+            ListBoxModel items = new ListBoxModel();
+            items.add("please select", "");
+            for (Config config : getConfigFiles()) {
+                items.add(config.name, config.id);
+            }
+            return items;
+        }
+
+        public Collection<Config> getConfigFiles() {
+            ExtensionList<ConfigProvider> providers = ConfigProvider.all();
+            List<Config> allFiles = new ArrayList<Config>();
+            for (ConfigProvider provider : providers) {
+                allFiles.addAll(provider.getAllConfigs());
+            }
+            return allFiles;
         }
     }
 }

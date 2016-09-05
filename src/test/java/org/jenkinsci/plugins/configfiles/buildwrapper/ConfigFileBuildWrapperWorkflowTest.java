@@ -60,7 +60,7 @@ public class ConfigFileBuildWrapperWorkflowTest {
         });
     }
 
-    @Test public void withTargetLocation() throws Exception {
+    @Test public void withTargetLocation_Pipeline() throws Exception {
         story.addStep(new Statement() {
             @Override public void evaluate() throws Throwable {
                 WorkflowJob p = story.j.jenkins.createProject(WorkflowJob.class, "p");
@@ -77,13 +77,28 @@ public class ConfigFileBuildWrapperWorkflowTest {
         });
     }
 
+    @Test public void symbolWithTargetLocation_Pipeline_short() throws Exception {
+        story.addStep(new Statement() {
+            @Override public void evaluate() throws Throwable {
+                WorkflowJob p = story.j.jenkins.createProject(WorkflowJob.class, "p");
+                p.setDefinition(new CpsFlowDefinition(""
+                        + "node {\n"
+                        + "  configFileProvider([configFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {sh 'cat myfile.txt'}\n"
+                        + "}", true));
+                WorkflowRun b = story.j.assertBuildStatusSuccess(p.scheduleBuild2(0));
+                story.j.assertLogContains("some content", b);
+                story.j.assertLogNotContains("temporary files", b);
+            }
+        });
+    }
+
     @Test public void symbolWithTargetLocation() throws Exception {
         story.addStep(new Statement() {
             @Override public void evaluate() throws Throwable {
                 WorkflowJob p = story.j.jenkins.createProject(WorkflowJob.class, "p");
                 p.setDefinition(new CpsFlowDefinition(""
                         + "node {\n"
-                        + "  configFile(managedFiles: [managedFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {sh 'cat myfile.txt'}\n"
+                        + "  configFileProvider(managedFiles: [configFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {sh 'cat myfile.txt'}\n"
                         + "}", true));
                 WorkflowRun b = story.j.assertBuildStatusSuccess(p.scheduleBuild2(0));
                 story.j.assertLogContains("some content", b);
