@@ -26,6 +26,7 @@ package org.jenkinsci.plugins.configfiles.buildwrapper;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
+import hudson.Util;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.util.ListBoxModel;
@@ -34,6 +35,7 @@ import org.jenkinsci.Symbol;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,28 +47,52 @@ import java.util.List;
 public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
 
     public final String fileId;
-    public final String targetLocation;
-    public final String variable;
+    public String targetLocation;
+    public String variable;
     /**
      * whether tokens in the content of the file must be replaced by the TokenMacro plugin
      *
      * @since 2.10.2
      */
-    private final Boolean replaceTokens;
+    private Boolean replaceTokens;
 
+    /**
+     * @param fileId the id of the file to be provided
+     *
+     * @since 2.12
+     */
     @DataBoundConstructor
+    public ManagedFile(String fileId) {
+        this.fileId = fileId;
+    }
+
     public ManagedFile(String fileId, String targetLocation, String variable, Boolean replaceTokens) {
         this.fileId = fileId;
-        this.targetLocation = targetLocation;
-        this.variable = variable;
+        this.targetLocation = Util.fixEmpty(targetLocation);
+        this.variable = Util.fixEmpty(variable);
         this.replaceTokens = replaceTokens;
     }
 
     public ManagedFile(String fileId, String targetLocation, String variable) {
         this.fileId = fileId;
-        this.targetLocation = targetLocation;
-        this.variable = variable;
+        this.targetLocation = Util.fixEmpty(targetLocation);
+        this.variable = Util.fixEmpty(variable);
         this.replaceTokens = false;
+    }
+
+    @DataBoundSetter
+    public void setTargetLocation(String targetLocation) {
+        this.targetLocation = Util.fixEmpty(targetLocation);
+    }
+
+    @DataBoundSetter
+    public void setVariable(String variable) {
+        this.variable = Util.fixEmpty(variable);
+    }
+
+    @DataBoundSetter
+    public void setReplaceTokens(Boolean replaceTokens) {
+        this.replaceTokens = replaceTokens;
     }
 
     @Override
