@@ -24,11 +24,16 @@
 
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import jenkins.tasks.SimpleBuildWrapper;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
+import org.jenkinsci.plugins.structs.describable.DescribableModel;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -39,12 +44,14 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Rule;
 import org.junit.runners.model.Statement;
+import org.jvnet.hudson.test.BuildWatcher;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.RestartableJenkinsRule;
 
 public class ConfigFileBuildWrapperWorkflowTest {
 
     @Rule public RestartableJenkinsRule story = new RestartableJenkinsRule();
+    @Rule public BuildWatcher buildWatcher = new BuildWatcher();
 
     @Test public void configRoundTrip() {
         story.addStep(new Statement() {
@@ -56,6 +63,16 @@ public class ConfigFileBuildWrapperWorkflowTest {
                 assertTrue(String.valueOf(delegate), delegate instanceof ConfigFileBuildWrapper);
                 ConfigFileBuildWrapper w = (ConfigFileBuildWrapper) delegate;
                 assertEquals("[[ManagedFile: id=" + id + ", targetLocation=myfile.txt, variable=MYFILE]]", w.getManagedFiles().toString());
+
+                // test pipeline snipet generator
+                List<ManagedFile> managedFiles = new ArrayList<ManagedFile>();
+                managedFiles.add(new ManagedFile("myid"));
+                w = new ConfigFileBuildWrapper(managedFiles);
+
+                DescribableModel<ConfigFileBuildWrapper> model = new DescribableModel<ConfigFileBuildWrapper>(ConfigFileBuildWrapper.class);
+                Map<String, Object> args = model.uninstantiate(w);
+                assertEquals(1, ((List)args.get("managedFiles")).size());
+                story.j.assertEqualDataBoundBeans(w,model.instantiate(args));
             }
         });
     }
