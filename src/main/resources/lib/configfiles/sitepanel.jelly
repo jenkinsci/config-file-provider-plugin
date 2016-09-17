@@ -27,13 +27,13 @@ THE SOFTWARE.
 -->
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
-  <l:header />
-  <l:side-panel>
-    <l:tasks>
-      <l:task icon="images/24x24/setting.gif" href="${rootURL}/manage" title="${%Manage Jenkins}" />
-      <l:task icon="images/24x24/next.gif" href="${rootURL}/configfiles" title="${%Config Files}" />
-      <l:task icon="images/24x24/new-package.gif" href="selectProvider" title="${%Add a new Config}" />
-    </l:tasks>
-    <t:executors computers="${h.singletonList(it)}" />
-  </l:side-panel>
+
+    <l:header />
+    <l:side-panel>
+        <l:tasks>
+            <l:task icon="images/24x24/setting.gif" href="${rootURL}/manage" title="${%Manage Jenkins}" />
+            <l:task icon="images/24x24/next.gif" href="configfiles" title="${%Config Files}" />
+            <l:task icon="images/24x24/new-package.gif" href="selectProvider" title="${%Add a new Config}" />
+        </l:tasks>
+    </l:side-panel>
 </j:jelly>

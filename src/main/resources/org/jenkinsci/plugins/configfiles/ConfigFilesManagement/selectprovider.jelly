@@ -24,9 +24,11 @@ THE SOFTWARE.
 
 
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
 	<l:layout norefresh="true">
-		<st:include page="sidepanel.jelly" />
+
+		<cf:sitepanel />
+
 		<l:main-panel>
 			<h1>
 				<img width="48" height="48" src="${imagesURL}/16x16/document_edit.gif" />
@@ -34,39 +36,9 @@ THE SOFTWARE.
 				<j:out value="${%filetype}" />
 			</h1>
 			<j:out value="${%selectprovider}" />
-			<f:form name="addConfig" method="post" action="addConfig">
-				<j:if test="${error != null}">
-					${error.renderHtml()}
-				</j:if>
-				<f:entry>
-					<table width="100%">
-						<j:forEach var="provider" items="${providers}" varStatus="loop">
-							<tr>
-								<td colspan="2">
-									<f:radio name="providerId" value="${provider.id}" />
-									<b>
-										<label class="attach-previous">${provider.displayName}</label>
-									</b>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<j:out value=" " />
-								</td>
-								<td>
-									<st:include page="newInstanceDetail.jelly" from="${provider}" />
-								</td>
-							</tr>
-						</j:forEach>
-					</table>
-				</f:entry>
-				<f:entry title="${%ID}" description="${%ID of the config file}">
-					<f:textbox name="configId" value="${configId}" checkUrl="'checkConfigId?configId='+escape(this.value)"/>
-				</f:entry>
-				<f:block>
-					<f:submit value="${%Submit}" />
-				</f:block>
-			</f:form>
+
+			<cf:selectprovider providers="${providers}"/>
+
 		</l:main-panel>
 	</l:layout>
 </j:jelly>
