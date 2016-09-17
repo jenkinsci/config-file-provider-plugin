@@ -12,7 +12,9 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
+import jenkins.model.GlobalConfiguration;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
@@ -24,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.ToolInstallations;
 
 public class SettingsEnvVarTest {
     @Rule
@@ -39,9 +42,9 @@ public class SettingsEnvVarTest {
     public void serverCredentialsMustBeInSettingsXmlAtRuntime() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final MavenModuleSet p = j.createMavenProject("mvn");
+        final MavenModuleSet p = j.createProject(MavenModuleSet.class);
 
-        p.setMaven(j.configureMaven3().getName());
+        p.setMaven(ToolInstallations.configureMaven3().getName());
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
         p.setGoals("initialize");
 
@@ -80,14 +83,16 @@ public class SettingsEnvVarTest {
     private MavenSettingsConfig createSettings(MavenSettingsConfigProvider provider) throws Exception {
 
         MavenSettingsConfig c1 = (MavenSettingsConfig) provider.newConfig();
-        provider.save(c1);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c1);
         return c1;
     }
 
     private GlobalMavenSettingsConfig createGlobalSettings(GlobalMavenSettingsConfigProvider provider) throws Exception {
 
         GlobalMavenSettingsConfig c1 = (GlobalMavenSettingsConfig) provider.newConfig();
-        provider.save(c1);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c1);
         return c1;
     }
 }

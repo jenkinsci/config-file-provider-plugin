@@ -3,6 +3,8 @@ package org.jenkinsci.plugins.configfiles.maven.job;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.FilePath;
+import hudson.model.Item;
+import hudson.model.ItemGroup;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 
@@ -65,7 +67,12 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
     public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
         if (StringUtils.isNotBlank(settingsConfigId)) {
 
-            Config c = Config.getByIdOrNull(settingsConfigId);
+            Config c = null;
+            if(build instanceof Item){
+                c = Config.getByIdOrNull((Item) build, settingsConfigId);
+            }else if(build instanceof ItemGroup){
+                c = Config.getByIdOrNull((ItemGroup) build, settingsConfigId);
+            }
 
             if (c == null) {
                 listener.getLogger().println("ERROR: your Apache Maven build is setup to use a config with id " + settingsConfigId + " but can not find the config");
@@ -127,7 +134,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
             final ExtensionList<GlobalMavenSettingsConfigProvider> configProviders = Jenkins.getInstance().getExtensionList(GlobalMavenSettingsConfigProvider.class);
             if (configProviders != null && configProviders.size() > 0) {
                 // there is only one implementation...
-                return configProviders.get(0).getAllConfigs();
+//                return configProviders.get(0).getAllConfigs();
             }
             return Collections.emptyList();
         }

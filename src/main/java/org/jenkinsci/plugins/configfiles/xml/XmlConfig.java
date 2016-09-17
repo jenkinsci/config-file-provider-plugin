@@ -28,15 +28,32 @@ import hudson.Extension;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class XmlConfig extends Config {
     private static final long serialVersionUID = 1L;
 
     public XmlConfig(String id, String name, String comment, String content) {
         super(id, name, comment, content);
+    }
+
+    @DataBoundConstructor
+    public XmlConfig(String id, String name, String comment, String content, String providerId) {
+        super(id, name, comment, content, providerId);
+    }
+
+    public XmlConfig(Config config){
+        super(config);
+    }
+
+    @Override
+    public ConfigProvider getDescriptor() {
+        return Jenkins.getInstance().getDescriptorByType(XmlConfigProvider.class);
     }
 
     @Extension(ordinal = 150)
@@ -59,23 +76,23 @@ public class XmlConfig extends Config {
         @Override
         public Config newConfig() {
             String id = getProviderId() + System.currentTimeMillis();
-            return new Config(id, "XmlConfig", "", "<root></root>");
+            return new XmlConfig(id, "XmlConfig", "", "<root></root>");
         }
 
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new Config(id, "XmlConfig", "", "<root></root>", getProviderId());
+            return new XmlConfig(id, "XmlConfig", "", "<root></root>", getProviderId());
+        }
+
+        @Override
+        public <T extends Config> T convert(Config config) {
+            return (T) new XmlConfig(config);
         }
 
         // ======================
         // start stuff for backward compatibility
         protected transient String ID_PREFIX;
-
-        @Override
-        public boolean isResponsibleFor(@NonNull String configId) {
-            return super.isResponsibleFor(configId) || configId.startsWith("XmlConfigProvider.");
-        }
 
         @Override
         protected String getXmlFileName() {

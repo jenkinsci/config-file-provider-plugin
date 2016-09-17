@@ -32,6 +32,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
+import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
@@ -61,13 +62,18 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
     public GlobalMavenSettingsConfig(String id, String name, String comment, String content) {
         super(id, name, comment, content, GlobalMavenSettingsConfigProvider.class.getName());
     }
-    
+
     public List<ServerCredentialMapping> getServerCredentialMappings() {
         return serverCredentialMappings;
     }
 
     public Boolean getIsReplaceAll() {
         return isReplaceAll;
+    }
+
+    @Override
+    public ConfigProvider getDescriptor() {
+        return Jenkins.getInstance().getDescriptorByType(GlobalMavenSettingsConfigProvider.class);
     }
 
     @Extension(ordinal = 200)
@@ -93,6 +99,14 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
             return new GlobalMavenSettingsConfig(id, "MyGlobalSettings", "global settings", loadTemplateContent(), GlobalMavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
         }
 
+        @Override
+        public <T extends Config> T convert(Config config) {
+            if(config instanceof GlobalMavenSettingsConfig){
+                return (T) config;
+            }
+            throw new IllegalArgumentException("not able to convert " + config.getClass() + " to " + GlobalMavenSettingsConfig.class);
+        }
+
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
@@ -102,11 +116,6 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
         // ======================
         // start stuff for backward compatibility
         protected transient String ID_PREFIX;
-
-        @Override
-        public boolean isResponsibleFor(@NonNull String configId) {
-            return super.isResponsibleFor(configId) || configId.startsWith("DefaultGlobalMavenSettingsProvider.");
-        }
 
         @Override
         protected String getXmlFileName() {

@@ -26,12 +26,14 @@ package org.jenkinsci.lib.configprovider;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import groovy.ui.SystemOutputInterceptor;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Descriptor;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
+import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 
 import java.util.Collection;
 
@@ -62,12 +64,14 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      */
     @CheckForNull
     public static ConfigProvider getByIdOrNull(@Nullable String providerId) {
+        System.out.println("getProvider for: "+providerId);
         if (providerId == null || providerId.isEmpty()) {
             return null;
         }
 
         for (ConfigProvider provider : ConfigProvider.all()) {
             if (providerId.equals(provider.getProviderId())) {
+                System.out.println("found provider for: "+providerId+" -> "+provider);
                 return provider;
             }
         }
@@ -75,11 +79,12 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     }
 
     /**
-     * returns all the configs of this provider
+     * returns all the configs belonging to this provider
      * 
      * @return collection of Configs
      */
-    public abstract Collection<Config> getAllConfigs();
+    @Deprecated
+    public abstract Collection<Config> getAllConfigs(ConfigFileStore store);
 
     /**
      * The content type of the configs this provider manages. e.g. can be used to display the content in the UI (editor).
@@ -87,52 +92,6 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      * @return the type. <code>null</code> if no specific formating should be supported.
      */
     public abstract ContentType getContentType();
-
-    /**
-     * Returns the config item identified by this id.
-     * 
-     * @param configId
-     *            the id
-     * @return the config with the given id
-     */
-    public abstract Config getConfigById(String configId);
-
-    /**
-     * Returns {@code true} if the given {@code configId} exists
-     *
-     * @param configId
-     *            the id
-     * @return the config with the given id
-     * @since 2.10.0
-     */
-    public boolean configExists(String configId) {
-        throw new AbstractMethodError(this.getClass() + " should implement configExists(String configId)");
-    }
-
-    /**
-     * Whether this provider is responsible for a Config with the given Id.
-     * 
-     * @param configId
-     *            the id to check
-     * @return <code>true</code> if the provider takes responsibility
-     */
-    public abstract boolean isResponsibleFor(@NonNull String configId);
-
-    /**
-     * save the content of the given config.
-     * 
-     * @param config
-     *            the config to be saved
-     */
-    public abstract void save(Config config);
-
-    /**
-     * Removes/deletes the config with the given Id
-     * 
-     * @param configId
-     *            the id
-     */
-    public abstract void remove(String configId);
 
     /**
      * An ID uniquely identifying this provider, the id of each {@link Config} must start with this ID separated by a '.'!
@@ -163,6 +122,8 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
         // concrete implementation throwing an AbstractMethodError to be backward with old ConfigProvider who only implement newConfig()
         throw new AbstractMethodError(getClass() + " MUST implement 'newConfig(String)'");
     }
+
+    public abstract void clearOldDataStorage();
 
 
 }

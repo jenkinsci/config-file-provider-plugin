@@ -26,7 +26,9 @@ package org.jenkinsci.plugins.configfiles.json;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 
+import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
@@ -41,10 +43,19 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class JsonConfig extends Config {
     private static final long serialVersionUID = 1L;
 
-    @DataBoundConstructor
     public JsonConfig(String id, String name, String comment, String content) {
         super(id, name, comment, fixJsonContent(content));
     }
+
+    @DataBoundConstructor
+    public JsonConfig(String id, String name, String comment, String content, String providerId) {
+        super(id, name, comment, fixJsonContent(content), providerId);
+    }
+
+    public JsonConfig(@NonNull Config config) {
+        super(config);
+    }
+
 
     /**
      * as the form submission with stapler is done in json too, we have to do "deescape" the formated content of the json file.
@@ -59,6 +70,11 @@ public class JsonConfig extends Config {
             return c.substring(1, c.length() - 1);
         }
         return c;
+    }
+
+    @Override
+    public ConfigProvider getDescriptor() {
+        return Jenkins.getInstance().getDescriptorByType(JsonConfigProvider.class);
     }
 
     @Extension(ordinal = 180)
@@ -87,21 +103,20 @@ public class JsonConfig extends Config {
         }
 
         @Override
-        public JsonConfig getConfigById(String configId) {
-            final Config c = super.getConfigById(configId);
-            return new JsonConfig(c.id, c.name, c.comment, c.content);
-        }
-
-        @Override
         public Config newConfig() {
             String id = getProviderId() + System.currentTimeMillis();
-            return new Config(id, "JsonConfig", "", "{}");
+            return new JsonConfig(id, "JsonConfig", "", "{}");
         }
 
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new Config(id, "JsonConfig", "", "{}", getProviderId());
+            return new JsonConfig(id, "JsonConfig", "", "{}", getProviderId());
+        }
+
+        @Override
+        public <T extends Config> T convert(Config config) {
+            return (T) new JsonConfig(config);
         }
     }
 

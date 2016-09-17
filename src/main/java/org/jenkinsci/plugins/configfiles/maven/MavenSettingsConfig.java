@@ -32,9 +32,11 @@ import java.util.List;
 
 import jenkins.model.Jenkins;
 
+import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.jenkinsci.plugins.configfiles.json.JsonConfig;
 import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
 import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -57,13 +59,18 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
         this.serverCredentialMappings = serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
         this.isReplaceAll = (null == isReplaceAll) ? isReplaceAllDefault : isReplaceAll;
     }
-    
+
     public List<ServerCredentialMapping> getServerCredentialMappings() {
         return serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
     }
 
     public Boolean getIsReplaceAll() {
         return isReplaceAll;
+    }
+
+    @Override
+    public ConfigProvider getDescriptor() {
+        return Jenkins.getInstance().getDescriptorByType(MavenSettingsConfigProvider.class);
     }
 
     @Extension(ordinal = 190)
@@ -74,7 +81,7 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
         }
 
         @Override
-        public ContentType getContentType() { 
+        public ContentType getContentType() {
             return ContentType.DefinedType.XML;
         }
 
@@ -82,7 +89,7 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
         public String getDisplayName() {
             return Messages.mvn_settings_provider_name();
         }
-        
+
         @Override
         public Config newConfig() {
             String id = getProviderId() + System.currentTimeMillis();
@@ -95,14 +102,19 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
             return new MavenSettingsConfig(id, "MySettings", "user settings", loadTemplateContent(), MavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
         }
 
+        @Override
+        public <T extends Config> T convert(Config config) {
+            if (config instanceof MavenSettingsConfig) {
+                return (T) config;
+            }
+            throw new IllegalArgumentException("not able to convert " + config.getClass() + " to " + MavenSettingsConfig.class);
+        }
+
+
         // ======================
         // start stuff for backward compatibility
         protected transient String ID_PREFIX;
 
-        @Override
-        public boolean isResponsibleFor(@NonNull String configId) {
-            return super.isResponsibleFor(configId) || configId.startsWith("DefaultMavenSettingsProvider.");
-        }
 
         @Override
         protected String getXmlFileName() {

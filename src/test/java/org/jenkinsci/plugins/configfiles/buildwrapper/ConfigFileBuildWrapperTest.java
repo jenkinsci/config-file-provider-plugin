@@ -7,10 +7,13 @@ import java.util.Collections;
 import javax.inject.Inject;
 
 import com.gargoylesoftware.htmlunit.html.*;
+import hudson.scm.SCM;
+import jenkins.model.GlobalConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig.CustomConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
@@ -34,6 +37,7 @@ import hudson.model.Result;
 import hudson.model.StringParameterDefinition;
 import hudson.model.Cause.UserCause;
 import hudson.tasks.Builder;
+import org.jvnet.hudson.test.ToolInstallations;
 
 public class ConfigFileBuildWrapperTest {
 
@@ -59,10 +63,10 @@ public class ConfigFileBuildWrapperTest {
     public void envVariableMustBeAvailableInMavenModuleSetBuild() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final MavenModuleSet p = j.createMavenProject("mvn");
+        final MavenModuleSet p = j.createProject(MavenModuleSet.class);
 
         // p.getBuildWrappersList().add(new ConfigFileBuildWrapper(managedFiles))
-        p.setMaven(j.configureMaven3().getName());
+        p.setMaven(ToolInstallations.configureMaven3().getName());
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
         p.setGoals("initialize"); // -s ${MVN_SETTING}
 
@@ -153,14 +157,16 @@ public class ConfigFileBuildWrapperTest {
 
     private Config createSetting(ConfigProvider provider) {
         Config c1 = provider.newConfig();
-        provider.save(c1);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c1);
         return c1;
     }
 
     private Config createCustomFile(CustomConfigProvider provider, String content) {
         Config c1 = provider.newConfig();
         c1 = new CustomConfig(c1.id, c1.name, c1.comment, content);
-        provider.save(c1);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c1);
         return c1;
     }
 

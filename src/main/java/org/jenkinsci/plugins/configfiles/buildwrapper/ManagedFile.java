@@ -131,7 +131,7 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
             ExtensionList<ConfigProvider> providers = ConfigProvider.all();
             List<Config> allFiles = new ArrayList<Config>();
             for (ConfigProvider provider : providers) {
-                allFiles.addAll(provider.getAllConfigs());
+//                allFiles.addAll(provider.getAllConfigs());
             }
             return allFiles;
         }

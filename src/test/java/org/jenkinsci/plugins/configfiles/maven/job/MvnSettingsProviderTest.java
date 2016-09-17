@@ -7,9 +7,11 @@ import hudson.model.Item;
 import hudson.model.FreeStyleProject;
 import hudson.tasks.Maven;
 
+import jenkins.model.GlobalConfiguration;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ConfigFileBuildWrapper;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
@@ -71,7 +73,8 @@ public class MvnSettingsProviderTest {
 
     private Config createSetting(ConfigProvider provider) {
         Config c1 = provider.newConfig();
-        provider.save(c1);
+        GlobalConfigFiles globalConfigFiles = jenkins.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c1);
         return c1;
     }
 
@@ -83,7 +86,7 @@ public class MvnSettingsProviderTest {
         Config c1 = createSetting(mavenSettingProvider);
         Config c2 = createSetting(globalMavenSettingsConfigProvider);
 
-        MavenModuleSet p = jenkins.createMavenProject();
+        MavenModuleSet p = jenkins.createProject(MavenModuleSet.class);
         MvnSettingsProvider s1 = new MvnSettingsProvider(c1.id);
         MvnGlobalSettingsProvider s2 = new MvnGlobalSettingsProvider(c2.id);
         p.setSettings(s1);

@@ -23,16 +23,27 @@
  */
 package org.jenkinsci.lib.configprovider.model;
 
+import com.cloudbees.hudson.plugins.folder.AbstractFolder;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import groovy.ui.SystemOutputInterceptor;
 import hudson.Util;
 import hudson.model.Describable;
+import hudson.model.Item;
+import hudson.model.ItemGroup;
+import hudson.model.Run;
+import jenkins.model.Jenkins;
+import org.apache.commons.jelly.Tag;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
+import org.jenkinsci.plugins.configfiles.FolderConfigFileProperty;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a particular configuration file and its content.
@@ -49,53 +60,83 @@ public class Config implements Serializable, Describable<Config> {
 	 * @param configId if of the desired {@link Config}
 	 * @return desired {@link Config} or {@code null} if not found
      */
-	@CheckForNull
-	public static Config getByIdOrNull(@Nullable String configId) {
-		if (configId == null) {
-			return null;
-		}
-		for (ConfigProvider provider : ConfigProvider.all()) {
-			if (Util.isOverridden(ConfigProvider.class, provider.getClass(), "configExists", String.class)) {
-				if (provider.configExists(configId)) {
-					Config config = provider.getConfigById(configId);
-					config.setProviderId(provider.getProviderId());
-					return config;
+//	@CheckForNull
+//	public static Config getByIdOrNull(Run<?, ?> build, String configId) {
+//		if (configId == null) {
+//			return null;
+//		}
+//
+//		if(build.getParent().getParent() instanceof AbstractFolder){
+//			System.out.println("*>>>>>>>>>"+build.getParent().getParent());
+//
+//		}else{
+//			System.out.println("*>>>>>>>>>NO...");
+//		}
+//
+//		for (ConfigProvider provider : ConfigProvider.all()) {
+//			if (Util.isOverridden(ConfigProvider.class, provider.getClass(), "configExists", String.class)) {
+//				if (provider.configExists(configId)) {
+//					Config config = provider.getConfigById(configId);
+//					config.setProviderId(provider.getProviderId());
+//					return config;
+//				}
+//			} else {
+//				// ConfigProvider implementations that doesn't yet implement "configExists(configId))"
+//				// may throw a RuntimeException on "getConfigById(configId)" if the config object does not exist
+//				try {
+//					Config config = provider.getConfigById(configId);
+//					if (config != null) {
+//						config.setProviderId(provider.getProviderId());
+//						return config;
+//					}
+//				} catch (RuntimeException e) {
+//					return null;
+//				}
+//			}
+//		}
+//		return null;
+//	}
+
+	@NonNull
+	public static Config getByIdOrNull(@Nullable ItemGroup itemGroup, @NonNull String configId) {
+
+		while (itemGroup != null) {
+			System.out.println("itemGroup: "+itemGroup.getClass()+" -> "+itemGroup.getFullName());
+			if (itemGroup instanceof AbstractFolder) {
+				final AbstractFolder<?> folder = AbstractFolder.class.cast(itemGroup);
+				FolderConfigFileProperty property = folder.getProperties().get(FolderConfigFileProperty.class);
+				if (property != null) {
+
+					// TODO find config in property and add to result
+                    System.out.println("searching for config on " +itemGroup);
+//                    return ...
 				}
-			} else {
-				// ConfigProvider implementations that doesn't yet implement "configExists(configId))"
-				// may throw a RuntimeException on "getConfigById(configId)" if the config object does not exist
-				try {
-					Config config = provider.getConfigById(configId);
-					if (config != null) {
-						config.setProviderId(provider.getProviderId());
-						return config;
-					}
-				} catch (RuntimeException e) {
-					return null;
-				}
+			}
+			if (itemGroup instanceof Item) {
+				itemGroup = Item.class.cast(itemGroup).getParent();
+			}if(itemGroup instanceof Jenkins){
+                System.out.println("get on Jenkins: "+configId);
+                return GlobalConfigFiles.get().getById(configId);
+            } else {
+				break;
 			}
 		}
 		return null;
 	}
 
-	/**
-	 * Get {@link Config} by id.
-	 *
-	 * @param configId if of the desired {@link Config}
-	 * @return desired {@link Config}, never null
-	 * @throws RuntimeException if the desired config is not found
-	 */
 	@NonNull
-	public static Config getById(@NonNull String configId) {
-		if (configId == null) {
-			throw new IllegalArgumentException("configId can NOT be null");
+	public static Config getByIdOrNull(@NonNull Item item, @NonNull String configId) {
+		if (item instanceof AbstractFolder) {
+			// configfiles defined in the folder should be available in the context of the folder
+			return getByIdOrNull((ItemGroup) item, configId);
 		}
-		Config result = getByIdOrNull(configId);
-		if (result == null) {
-			throw new RuntimeException("No config found for id '" + configId + "'");
-		}
-		return result;
+		if(item != null) {
+            System.out.println("try with: "+item.getParent());
+            return getByIdOrNull(item.getParent(), configId);
+        }
+        return null;
 	}
+
 
 	/**
 	 * a unique id along all providers!
@@ -135,6 +176,10 @@ public class Config implements Serializable, Describable<Config> {
 		this.content = content;
 	}
 
+    public Config(@NonNull Config config) {
+        this(config.id, config.name, config.comment, config.content, config.providerId);
+    }
+
 	public Config(@NonNull String id, String name, String comment, String content, @NonNull String providerId) {
 		if (id == null) {
 			throw new IllegalArgumentException("id can NOT be null");
@@ -155,20 +200,7 @@ public class Config implements Serializable, Describable<Config> {
      * @return never null.
      */
     public ConfigProvider getDescriptor() {
-		ConfigProvider result = ConfigProvider.getByIdOrNull(this.providerId);
-
-		if (result != null) {
-			return result;
-		}
-
-		// backward compatibility: config.providerId may be null (older than 2.10)
-		for (ConfigProvider provider : ConfigProvider.all()) {
-			if (provider.isResponsibleFor(id)) {
-				return provider;
-			}
-		}
-
-        throw new IllegalStateException("Unable to find the owner provider for ID="+id);
+        throw new IllegalStateException(getClass() + " must override 'getDescriptor()' this method!");
     }
 
     /**
@@ -193,7 +225,4 @@ public class Config implements Serializable, Describable<Config> {
 		return "[Config: id=" + id + ", name=" + name + ", providerId=" + providerId +"]";
 	}
 
-	public void remove() {
-		getDescriptor().remove(id);
-	}
 }

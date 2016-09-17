@@ -25,7 +25,7 @@ package org.jenkinsci.plugins.configfiles.buildwrapper;
 
 import hudson.AbortException;
 import hudson.FilePath;
-import hudson.model.AbstractBuild;
+import hudson.model.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import hudson.model.Build;
+import jenkins.tasks.SimpleBuildWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
@@ -44,8 +44,6 @@ import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
-import hudson.model.Run;
-import hudson.model.TaskListener;
 import hudson.slaves.WorkspaceList;
 
 public class ManagedFileUtil {
@@ -86,7 +84,20 @@ public class ManagedFileUtil {
 
         for (ManagedFile managedFile : managedFiles) {
 
-            Config configFile = Config.getByIdOrNull(managedFile.fileId);
+            Config configFile = null;
+            if(build.getParent() != null){
+                Object parent = build.getParent();
+                if(parent instanceof Item){
+                    configFile = Config.getByIdOrNull((Item) parent, managedFile.fileId);
+                }else if(parent instanceof ItemGroup){
+                    configFile = Config.getByIdOrNull((ItemGroup) parent, managedFile.fileId);
+                }else{
+                    System.out.println("build is of type: "+parent.getClass()+" : "+build);
+                }
+            } else {
+                System.out.println("parent was null, build is of type: "+build.getClass()+" : "+build);
+            }
+
             if (configFile == null) {
                 throw new AbortException("not able to provide the following file, can't be resolved by any provider - maybe it got deleted by an administrator: " + managedFile);
             }

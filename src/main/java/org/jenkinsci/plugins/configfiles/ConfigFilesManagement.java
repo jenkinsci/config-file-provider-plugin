@@ -24,11 +24,7 @@
 package org.jenkinsci.plugins.configfiles;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import javax.servlet.ServletException;
 
@@ -38,6 +34,7 @@ import hudson.model.Hudson;
 import hudson.model.ManagementLink;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
+import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -59,7 +56,10 @@ public class ConfigFilesManagement extends ManagementLink {
 
     private static final String ICON_PATH = "/plugin/config-file-provider/images/cfg_logo.png";
 
+    private ConfigFileStore store;
+
     public ConfigFilesManagement() {
+        this.store = GlobalConfigFiles.get();
     }
 
     /**
@@ -109,16 +109,17 @@ public class ConfigFilesManagement extends ManagementLink {
         return null;
     }
 
+    public Map<ConfigProvider, Collection<Config>> getGroupedConfigs() {
+        return GlobalConfigFiles.get().getGroupedConfigs();
+    }
+
     public List<ConfigProvider> getProviders() {
+        GlobalConfigFiles.get().getGroupedConfigs();
         return ConfigProvider.all();
     }
 
     public Collection<Config> getConfigs() {
-        List<Config> all = new ArrayList<Config>();
-        for (ConfigProvider provider : ConfigProvider.all()) {
-            all.addAll(provider.getAllConfigs());
-        }
-        return Collections.unmodifiableCollection(all);
+        return Collections.unmodifiableCollection(store.getConfigs());
     }
 
     /**
@@ -130,9 +131,11 @@ public class ConfigFilesManagement extends ManagementLink {
         checkPermission(Hudson.ADMINISTER);
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
+            System.out.println("***>"+json);
             Config config = req.bindJSON(Config.class, json);
 
-            config.getProvider().save(config);
+            store.save(config);
+//            config.getProvider().save(config);
 
         } catch (ServletException e) {
             e.printStackTrace();
@@ -142,7 +145,7 @@ public class ConfigFilesManagement extends ManagementLink {
 
     public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
 
-        Config config = Config.getById(confgiId);
+        Config config = store.getById(confgiId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.getView(this, "show.jelly").forward(req, rsp);
@@ -164,7 +167,7 @@ public class ConfigFilesManagement extends ManagementLink {
     public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
 
-        Config config = Config.getById(confgiId);
+        Config config = store.getById(confgiId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.setAttribute("provider", config.getProvider());
@@ -215,6 +218,8 @@ public class ConfigFilesManagement extends ManagementLink {
             config = provider.newConfig();
         }
 
+        System.out.println("created config: "+config.getClass() +" with provider "+provider.getClass());
+
         config.setProviderId(provider.getProviderId());
         req.setAttribute("config", config);
 
@@ -246,8 +251,9 @@ public class ConfigFilesManagement extends ManagementLink {
      */
     public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
         checkPermission(Hudson.ADMINISTER);
-        Config config = Config.getById(configId);
-        config.remove();
+
+        Config c = store.getById(configId);
+        GlobalConfigFiles.get().getConfigs().remove(c);
 
         return new HttpRedirect("index");
     }
@@ -257,7 +263,7 @@ public class ConfigFilesManagement extends ManagementLink {
             return FormValidation.warning(Messages.ConfigFilesManagement_configIdCannotBeEmpty());
         }
 
-        Config config = Config.getByIdOrNull(configId);
+        Config config = store.getById(configId);
         if (config == null) {
             return FormValidation.ok();
         } else {

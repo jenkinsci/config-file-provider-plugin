@@ -40,16 +40,16 @@ THE SOFTWARE.
 			
 			<div class="excerpt">
 				
-				<j:forEach var="p" items="${it.providers}">
+				<j:forEach var="pEntry" items="${it.groupedConfigs}">
 					<p/>
 					<p/>
 					<table class="pane">
 						<tr valign="center" style="border-top: 0px;">
 							<td class="pane-header" colspan="2">
-								<i><j:out value="${p.displayName}" /></i>
+								<i><j:out value="${pEntry.key.displayName}" /></i>
 							</td>
 						</tr>
-						<j:forEach var="t" items="${p.allConfigs}">
+						<j:forEach var="t" items="${pEntry.value}">
 							<tr valign="center" style="border-top: thin inset darkgray">
 								<td width="32">
 									<a href="editConfig?id=${t.id}">

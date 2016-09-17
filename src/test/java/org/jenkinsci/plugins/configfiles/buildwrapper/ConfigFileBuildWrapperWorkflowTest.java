@@ -29,9 +29,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import jenkins.model.GlobalConfiguration;
 import jenkins.tasks.SimpleBuildWrapper;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.jenkinsci.plugins.structs.describable.DescribableModel;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
@@ -157,7 +159,9 @@ public class ConfigFileBuildWrapperWorkflowTest {
         ConfigProvider configProvider = story.j.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
         String id = configProvider.getProviderId() + "myfile";
         Config config = new CustomConfig(id, "My File", "", "some content");
-        configProvider.save(config);
+
+        GlobalConfigFiles globalConfigFiles = story.j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(config);
         return config;
     }
 

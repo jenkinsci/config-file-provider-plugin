@@ -28,16 +28,33 @@ import hudson.Extension;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.lib.configprovider.model.ContentType.DefinedType;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.jenkinsci.plugins.configfiles.json.JsonConfig;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class GroovyScript extends Config {
     private static final long serialVersionUID = 1L;
 
     public GroovyScript(String id, String name, String comment, String content) {
         super(id, name, comment, content);
+    }
+
+    @DataBoundConstructor
+    public GroovyScript(String id, String name, String comment, String content, String providerId) {
+        super(id, name, comment, content, providerId);
+    }
+
+    public GroovyScript(Config config){
+        super(config);
+    }
+
+    @Override
+    public ConfigProvider getDescriptor() {
+        return Jenkins.getInstance().getDescriptorByType(GroovyConfigProvider.class);
     }
 
     @Extension(ordinal = 100)
@@ -58,25 +75,25 @@ public class GroovyScript extends Config {
         }
 
         @Override
+        public <T extends Config> T convert(Config config) {
+            return (T) new GroovyScript(config);
+        }
+
+        @Override
         public Config newConfig() {
             String id = getProviderId() + System.currentTimeMillis();
-            return new Config(id, "GroovyConfig", "", "println('hello world')");
+            return new GroovyScript(id, "GroovyConfig", "", "println('hello world')");
         }
 
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new Config(id, "GroovyConfig", "", "println('hello world')", getProviderId());
+            return new GroovyScript(id, "GroovyConfig", "", "println('hello world')", getProviderId());
         }
 
         // ======================
         // stuff for backward compatibility
         protected transient String ID_PREFIX;
-
-        @Override
-        public boolean isResponsibleFor(@NonNull String configId) {
-            return super.isResponsibleFor(configId) || configId.startsWith("GroovyConfigProvider.");
-        }
 
         @Override
         protected String getXmlFileName() {

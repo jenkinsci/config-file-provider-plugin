@@ -3,6 +3,8 @@
  */
 package org.jenkinsci.plugins.configfiles.builder;
 
+import com.cloudbees.hudson.plugins.folder.AbstractFolder;
+import com.cloudbees.hudson.plugins.folder.Folder;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.FilePath;
@@ -83,7 +85,7 @@ public class ConfigFileBuildStep extends Builder implements Serializable {
             ExtensionList<ConfigProvider> providers = ConfigProvider.all();
             List<Config> allFiles = new ArrayList<Config>();
             for (ConfigProvider provider : providers) {
-                allFiles.addAll(provider.getAllConfigs());
+//                allFiles.addAll(provider.getAllConfigs());
             }
             return allFiles;
         }

@@ -29,16 +29,34 @@ import hudson.Extension;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.jenkinsci.plugins.configfiles.xml.XmlConfig;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class MavenToolchainsConfig extends Config {
     private static final long serialVersionUID = 1L;
 
     public MavenToolchainsConfig(String id, String name, String comment, String content) {
         super(id, name, comment, content);
+    }
+
+    @DataBoundConstructor
+    public MavenToolchainsConfig(String id, String name, String comment, String content, String providerId) {
+        super(id, name, comment, content, providerId);
+    }
+
+    public MavenToolchainsConfig(Config config) {
+        super(config);
+    }
+
+    @Override
+    public ConfigProvider getDescriptor() {
+        return Jenkins.getInstance().getDescriptorByType(MavenToolchainsConfigProvider.class);
     }
 
     @Extension(ordinal = 180)
@@ -72,13 +90,18 @@ public class MavenToolchainsConfig extends Config {
         @Override
         public Config newConfig() {
             String id = this.getProviderId() + System.currentTimeMillis();
-            return new Config(id, "MyToolchains", "", loadTemplateContent());
-         }
+            return new MavenToolchainsConfig(id, "MyToolchains", "", loadTemplateContent());
+        }
 
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new Config(id, "MyToolchains", "", loadTemplateContent(), getProviderId());
+            return new MavenToolchainsConfig(id, "MyToolchains", "", loadTemplateContent(), getProviderId());
+        }
+
+        @Override
+        public <T extends Config> T convert(Config config) {
+            return (T) new MavenToolchainsConfig(config);
         }
 
         private String loadTemplateContent() {
@@ -90,7 +113,7 @@ public class MavenToolchainsConfig extends Config {
 
                 try {
                     InputStreamReader reader = new InputStreamReader(is, "UTF-8");
-                    for (int cnt; (cnt = reader.read(tmp)) > 0;)
+                    for (int cnt; (cnt = reader.read(tmp)) > 0; )
                         sb.append(tmp, 0, cnt);
 
                 } finally {
