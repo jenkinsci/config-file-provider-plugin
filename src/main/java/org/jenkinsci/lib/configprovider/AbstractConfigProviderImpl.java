@@ -24,7 +24,7 @@ import org.jenkinsci.plugins.configfiles.json.JsonConfig;
 
 /**
  * Partial default implementation of {@link ConfigProvider}.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 public abstract class AbstractConfigProviderImpl extends ConfigProvider {
@@ -44,28 +44,15 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     public Map<String, Config> getConfigs() {
 
         Map<String, Config> tmp = new HashMap<String, Config>();
-        for (Map.Entry<String, Config> c: configs.entrySet()) {
+        for (Map.Entry<String, Config> c : configs.entrySet()) {
             // many provider implementations saved there config objects with the base Config type instead of the concrete type
             tmp.put(c.getKey(), convert(c.getValue()));
         }
-        
+
         return configs;
     }
 
     public abstract <T extends Config> T convert(Config config);
-
-    @Override
-    public Collection<Config> getAllConfigs(ConfigFileStore store) {
-        Collection<Config> configs = store.getConfigs();
-        List<Config> cfgs = new ArrayList<Config>();
-        for (Config c : configs) {
-            if(this.equals(c.getProvider())){
-                cfgs.add(c);
-            }
-        }
-        Collections.sort(cfgs, new NameComparator());
-        return Collections.unmodifiableCollection(cfgs);
-    }
 
     @Override
     public String getProviderId() {
@@ -125,7 +112,8 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
         }
     }
 
-    public void clearOldDataStorage(){
-        configs=null;
+    public void clearOldDataStorage() {
+        configs = null;
+        save();
     }
 }

@@ -40,11 +40,11 @@ import java.util.Collection;
 /**
  * A ConfigProvider represents a configuration file (such as Maven's settings.xml) where the user can choose its actual content among several {@linkplain Config concrete contents} that are
  * pre-configured.
- * 
+ * <p>
  * <p>
  * {@link ConfigProvider} is an extension point, and should be implemented and instantiated by each kind of configuration. This abstraction doesn't define where the configuration is placed, or
  * how/when it's used &mdash; those semantics should be introduced by a specific instance of {@link ConfigProvider}.
- * 
+ *
  * @author Dominik Bartholdi (imod)
  */
 public abstract class ConfigProvider extends Descriptor<Config> implements ExtensionPoint {
@@ -77,23 +77,15 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     }
 
     /**
-     * returns all the configs belonging to this provider
-     * 
-     * @return collection of Configs
-     */
-    @Deprecated
-    public abstract Collection<Config> getAllConfigs(ConfigFileStore store);
-
-    /**
      * The content type of the configs this provider manages. e.g. can be used to display the content in the UI (editor).
-     * 
+     *
      * @return the type. <code>null</code> if no specific formating should be supported.
      */
     public abstract ContentType getContentType();
 
     /**
      * An ID uniquely identifying this provider, the id of each {@link Config} must start with this ID separated by a '.'!
-     * 
+     *
      * @return the unique id for this provider.
      */
     public abstract String getProviderId();
@@ -101,7 +93,7 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     /**
      * Returns a new {@link Config} object with a unique id, starting with the id of this provider - separated by '.'. e.g. "MyCustomProvider.123456". This object is also used initialize the user
      * interface.
-     * 
+     *
      * @return the new config object, ready for editing.
      * @deprecated use {@link #newConfig(String)}
      */

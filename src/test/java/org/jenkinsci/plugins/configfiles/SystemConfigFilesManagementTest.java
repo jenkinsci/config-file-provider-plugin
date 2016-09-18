@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.configfiles;
 
 import hudson.ExtensionList;
+import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.junit.Assert;
@@ -22,12 +23,15 @@ public class SystemConfigFilesManagementTest {
     @Test
     @LocalData
     public void testLoadAndMergeOldData() {
-
-//        ExtensionList<ConfigFilesManagement> mgmts = j.getInstance().getExtensionList(ConfigFilesManagement.class);
-//        ConfigFilesManagement configFilesManagement = mgmts.get(0);
-//        Assert.assertEquals(4, configFilesManagement.getConfigs().size());
-
+        // testLoadAndMergeOldData.zip contains different configurations files (as used in the old storrage implementation)
+        // after starting, jenkins, all these have to be imported into GlobalConfigFiles
         Assert.assertEquals(4, GlobalConfigFiles.get().getConfigs().size());
+
+        for (ConfigProvider cp : ConfigProvider.all()) {
+            // as all the config files have been moved to global config,
+            // all providers must not hold any files any more
+            Assert.assertTrue(((AbstractConfigProviderImpl) cp).getConfigs().isEmpty());
+        }
 
     }
 }

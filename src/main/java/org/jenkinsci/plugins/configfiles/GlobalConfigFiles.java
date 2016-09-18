@@ -28,7 +28,6 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
     }
 
     public GlobalConfigFiles() {
-
         // migrate old data storage (file per provider) into new storage (one file per scope - global scope)
         ExtensionList<ConfigProvider> allProviders = ConfigProvider.all();
         for (ConfigProvider p : allProviders) {
@@ -39,10 +38,10 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
         }
         if (configs.size() > 0) {
             // in this case we migrated data from the ld format to the new store
+            // this only happens once
             save();
             for (ConfigProvider p : allProviders) {
-//                p.clearOldDataStorage();
-//                p.save();
+                p.clearOldDataStorage();
             }
         } else {
             load();
