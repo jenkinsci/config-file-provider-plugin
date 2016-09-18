@@ -131,6 +131,8 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
 
+            // potentially replace existing
+            store.remove(config.id);
             store.save(config);
 
         } catch (ServletException e) {

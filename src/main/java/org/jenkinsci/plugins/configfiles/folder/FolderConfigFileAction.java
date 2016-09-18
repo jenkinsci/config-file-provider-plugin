@@ -44,7 +44,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
     @Override
     public String getDisplayName() {
-        return "Folder Config Files Action";
+        return "Config Files";
     }
 
     @Override
@@ -88,6 +88,8 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
             Config config = req.bindJSON(Config.class, json);
 
             ConfigFileStore store = getStore(folder);
+            // potentially replace existing
+            store.remove(config.id);
             store.save(config);
 
         } catch (ServletException e) {
@@ -97,6 +99,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
     }
 
     private ConfigFileStore getStore(Folder folder) {
+        // TODO only add property when its really needed (eg. don't add it if there is no config to be saved)
         FolderConfigFileProperty folderConfigFileProperty = folder.getProperties().get(FolderConfigFileProperty.class);
         if(folderConfigFileProperty == null) {
             folderConfigFileProperty = new FolderConfigFileProperty(folder);
@@ -112,11 +115,22 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
     @Override
     public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
 
+        Config config = getStore(folder).getById(confgiId);
+        req.setAttribute("contentType", config.getProvider().getContentType());
+        req.setAttribute("config", config);
+        req.getView(this, "show.jelly").forward(req, rsp);
+
     }
 
     @Override
     public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
+        checkPermission(Hudson.ADMINISTER);
 
+        Config config = getStore(folder).getById(confgiId);
+        req.setAttribute("contentType", config.getProvider().getContentType());
+        req.setAttribute("config", config);
+        req.setAttribute("provider", config.getProvider());
+        req.getView(this, "edit.jelly").forward(req, rsp);
     }
 
     @Override
@@ -169,12 +183,25 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
     @Override
     public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
-        return null;
+        checkPermission(Hudson.ADMINISTER);
+
+        getStore(folder).remove(configId);
+
+        return new HttpRedirect("index");
     }
 
     @Override
     public FormValidation doCheckConfigId(@QueryParameter("configId") String configId) {
-        return null;
+        if (configId == null || configId.isEmpty()) {
+            return FormValidation.warning(Messages.ConfigFilesManagement_configIdCannotBeEmpty());
+        }
+
+        Config config = getStore(folder).getById(configId);
+        if (config == null) {
+            return FormValidation.ok();
+        } else {
+            return FormValidation.warning(Messages.ConfigFilesManagement_configIdAlreadyUsed(config.name, config.id));
+        }
     }
 
     @Extension

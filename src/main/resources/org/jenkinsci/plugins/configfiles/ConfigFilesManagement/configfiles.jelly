@@ -37,53 +37,9 @@ THE SOFTWARE.
 			</h1>
 
 			<j:out value="${%intro}" />
-			
-			<div class="excerpt">
-				
-				<j:forEach var="pEntry" items="${it.groupedConfigs}">
-					<p/>
-					<p/>
-					<table class="pane">
-						<tr valign="center" style="border-top: 0px;">
-							<td class="pane-header" colspan="2">
-								<i><j:out value="${pEntry.key.displayName}" /></i>
-							</td>
-						</tr>
-						<j:forEach var="t" items="${pEntry.value}">
-							<tr valign="center" style="border-top: thin inset darkgray">
-								<td width="32">
-									<a href="editConfig?id=${t.id}">
-										<img width="16" height="16" title="${%edit script} ${t.name}"
-											src="${imagesURL}/16x16/document_edit.gif" />
-									</a>
-									<j:out value=" " />
-									<a href="removeConfig?id=${t.id}" onclick="return cfp_confirmDelete('${t.name}')">
-										<img width="16" height="16" title="${%remove script} ${t.name}"
-											src="${imagesURL}/16x16/edit-delete.gif" />
-									</a>
-								</td>
-								<td >
-									<i><j:out value="${t.name}" /></i>
-								</td>
-							</tr>
-							<tr>
-								<td><j:out value="${t.contentType}" /></td>
-								<td><j:out value="${t.comment}" /></td>
-							</tr>
-						</j:forEach>
-					</table>
-				</j:forEach>
-				
-			</div>
-    <script>
-    function cfp_confirmDelete(name) {
-      if (confirm("Sure you want to delete ["+name+"]?")) {
-        return true;
-      }else{
-        return false;
-      }
-    }
-    </script>
+
+			<cf:configfiles groupedConfigs="${it.groupedConfigs}" />
+
 		</l:main-panel>
 	</l:layout>
 </j:jelly>
