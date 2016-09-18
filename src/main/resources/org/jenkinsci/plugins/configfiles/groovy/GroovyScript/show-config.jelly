@@ -6,12 +6,21 @@
 	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
 	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
 
+
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-	<f:entry title="${%Managed Files}">
-		<f:repeatableProperty field="managedFiles"  minimum="1" noAddButton="true">
-		</f:repeatableProperty>
+	<f:entry title="${%ID}">
+		<f:textbox readonly="readonly" name="config.id" value="${config.id}" />
+	</f:entry>
+	<f:entry title="${%Name}">
+		<f:textbox readonly="readonly" name="config.name" value="${config.name}" />
+	</f:entry>
+	<f:entry title="${%Comment}">
+		<f:textbox readonly="readonly" name="config.comment" value="${config.comment}" />
+	</f:entry>
+	<f:entry title="${%Content}">
+		<f:textarea readonly="readonly" id="config.content" name="config.content" value="${config.content}" />
 	</f:entry>
 
 </j:jelly>
