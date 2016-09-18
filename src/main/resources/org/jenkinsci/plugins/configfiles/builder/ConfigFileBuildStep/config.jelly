@@ -13,53 +13,8 @@
 	</st:once>
 
 	<f:entry title="${%Managed Files}">
-		<f:repeatable var="managedFile" items="${instance.managedFiles}" name="managedFiles" noAddButton="true" minimum="1">
-			<table width="100%">
-
-				<f:entry title="File">
-					<select name="fileId" onChange="fp_initDetailLink('${rootURL}', this);">
-						<j:forEach var="aFile" items="${descriptor.configFiles}" varStatus="loop">
-							<j:choose>
-								<j:when test="${managedFile.fileId==aFile.id}">
-									<option value="${aFile.id}" selected="selected">${aFile.name} - ${aFile.comment}</option>
-								</j:when>
-								<j:otherwise>
-									<option value="${aFile.id}">${aFile.name} - ${aFile.comment}</option>
-								</j:otherwise>
-							</j:choose>
-						</j:forEach>
-					</select>
-				</f:entry>
-				
-				<tr>
-					<td></td>
-					<td></td>
-					<td>
-						<a target="_blank" name="showFileDetailLink" href="" style="display:none;" onclick="window.open(this.href,'window','width=900,height=640,resizable,scrollbars,toolbar,menubar') ;return false;">view selected file</a>
-					</td>
-				</tr>
-
-				<f:entry title="Target" field="targetLocation">
-					<f:textbox value="${managedFile.targetLocation}" />
-				</f:entry>
-
-				<f:entry title="Variable" field="variable">
-					<f:textbox value="${managedFile.variable}" />
-				</f:entry>
-                
-                <f:entry title="${%Replace Tokens}" field="replaceTokens">
-                    <f:checkbox checked="${managedFile.replaceTokens}"/>
-                </f:entry>                        
-
-
-				<f:entry>
-					<div align="right">
-						<input type="button" value="${%Add file}" class="repeatable-add show-if-last" />
-						<input type="button" value="${%Delete}" class="repeatable-delete show-if-not-only" style="margin-left: 1em;" />
-					</div>
-				</f:entry>
-			</table>
-		</f:repeatable>
+		<f:repeatableProperty field="managedFiles"  minimum="1" noAddButton="true">
+		</f:repeatableProperty>
 	</f:entry>
 	<st:once>
 		<script type="text/javascript">

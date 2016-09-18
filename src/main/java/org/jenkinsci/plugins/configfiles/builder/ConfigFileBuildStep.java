@@ -81,15 +81,6 @@ public class ConfigFileBuildStep extends Builder implements Serializable {
             return true;
         }
 
-        public Collection<Config> getConfigFiles() {
-            ExtensionList<ConfigProvider> providers = ConfigProvider.all();
-            List<Config> allFiles = new ArrayList<Config>();
-            for (ConfigProvider provider : providers) {
-//                allFiles.addAll(provider.getAllConfigs());
-            }
-            return allFiles;
-        }
-
     }
 
 }
