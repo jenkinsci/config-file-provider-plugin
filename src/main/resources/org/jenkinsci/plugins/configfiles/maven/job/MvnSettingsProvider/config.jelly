@@ -24,13 +24,7 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
-      <j:set var="mavenSettingsConfigs" value="${descriptor.allMavenSettingsConfigs}" />
-      <f:entry title="${%Provided Settings}">
-        <select class="setting-input" name="settingsConfigId">
-          <f:option value="">- select -</f:option>
-          <j:forEach var="config" items="${mavenSettingsConfigs}">
-            <f:option selected="${instance.settingsConfigId == config.id}" value="${config.id}">${config.name}</f:option>
-          </j:forEach>
-        </select>
-      </f:entry>          
+    <f:entry title="${%Provided Settings}" field="settingsConfigId">
+        <f:select />
+    </f:entry>
 </j:jelly>

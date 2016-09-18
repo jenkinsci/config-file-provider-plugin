@@ -29,11 +29,13 @@ import hudson.ExtensionPoint;
 import hudson.Util;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
+import hudson.model.ItemGroup;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -118,23 +120,15 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
             return null;
         }
 
-        public ListBoxModel doFillFileIdItems() {
+        public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context) {
             ListBoxModel items = new ListBoxModel();
             items.add("please select", "");
-            for (Config config : getConfigFiles()) {
+            for (Config config : Config.getConfigsInContext(context, null)) {
                 items.add(config.name, config.id);
             }
             return items;
         }
 
-        public Collection<Config> getConfigFiles() {
-            ExtensionList<ConfigProvider> providers = ConfigProvider.all();
-            List<Config> allFiles = new ArrayList<Config>();
-            for (ConfigProvider provider : providers) {
-//                allFiles.addAll(provider.getAllConfigs());
-            }
-            return allFiles;
-        }
     }
 }
 

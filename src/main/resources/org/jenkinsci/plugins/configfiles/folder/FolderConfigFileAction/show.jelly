@@ -22,34 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
-	<l:layout norefresh="true">
-	    <style>.CodeMirror {border: 2px inset #dee;}</style>
-		<cf:sitepanel />
 
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<style>.CodeMirror {border: 2px inset #dee;}</style>
+	<l:layout norefresh="true">
 		<l:main-panel>
-			<h1>
-				<img width="48" height="48" src="${imagesURL}/16x16/document_edit.gif" />
-				<img width="16" height="16" src="${imagesURL}/16x16/empty.gif" />
-				${%Edit Configuration File}
-			</h1>
-			<f:form method="post" action="saveConfig">
-			   <f:section title="${%the configuration}" name="config">
-			   		<input type="hidden" name="stapler-class" value="${config.class.name}" />
-			   		<j:choose>
-			          <j:when test="${config.class.name == 'org.jenkinsci.lib.configprovider.model.Config'}">
-			            	<st:include page="edit-config.jelly" from="${instance}"/>
-			          </j:when>
-			          <j:otherwise>
-			            	<st:include page="edit-config.jelly" from="${config}" it="${config}"/>
-			          </j:otherwise>
-			        </j:choose>
-					<f:block>
-						<f:submit value="${%Submit}" />
-					</f:block>
+	
+			<f:form method="" action="">
+				<f:section title="${%Script details}" name="config">
+					<j:choose>
+						<j:when test="${config.class.name == 'org.jenkinsci.lib.configprovider.model.Config'}">
+							<st:include page="show-config.jelly" from="${instance}" />
+						</j:when>
+						<j:otherwise>
+							<st:include page="show-config.jelly" from="${config}" />
+						</j:otherwise>
+					</j:choose>
 				</f:section>
-			</f:form>
+			</f:form>	
+		
 		</l:main-panel>
 	</l:layout>
 	<j:if test="${contentType!=null}">
@@ -60,7 +52,8 @@ THE SOFTWARE.
 	      var editor = CodeMirror.fromTextArea(document.getElementById("config.content"), {
 	        lineNumbers: true,
 	        matchBrackets: true,
-	        mode: "${contentType.mime}"
+	        mode: "${contentType.mime}",
+	        readOnly: true
 	      });
 	    </script>
     </j:if>	

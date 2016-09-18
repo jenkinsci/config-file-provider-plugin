@@ -69,8 +69,6 @@ public class SettingsEnvVarTest {
             try {
                 final String userSettings = TokenMacro.expandAll(build, listener, "${ENV, var=\"MVN_SETTINGS\"}");
                 final String globalSettings = TokenMacro.expandAll(build, listener, "${ENV, var=\"MVN_GLOBALSETTINGS\"}");
-                System.out.println("-->" + userSettings);
-                System.out.println("-->" + globalSettings);
                 Assert.assertTrue("env variable for user settings is not set", StringUtils.isNotBlank(userSettings));
                 Assert.assertTrue("env variable for global settings is not set", StringUtils.isNotBlank(globalSettings));
             } catch (MacroEvaluationException e) {

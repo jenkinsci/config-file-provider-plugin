@@ -1,7 +1,7 @@
 <!--
 The MIT License
 
-Copyright (c) 2012, Dominik Bartholdi
+Copyright (c) 2011, Dominik Bartholdi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,9 @@ THE SOFTWARE.
 -->
 
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">    
-      <f:entry title="${%Provided Global Settings}" field="settingsConfigId">
-        <f:select />
-      </f:entry>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+		 xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
+
+	<st:include page="configfiles.jelly" />
+
 </j:jelly>

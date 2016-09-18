@@ -51,9 +51,8 @@ public class ManagedFileUtil {
 
     /**
      * TODO use 1.652 use WorkspaceList.tempDir
-     * 
-     * @param ws
-     *            workspace of the {@link hudson.model.Build}. See {@link Build#getWorkspace()}
+     *
+     * @param ws workspace of the {@link hudson.model.Build}. See {@link Build#getWorkspace()}
      * @return temporary directory, may not have been created so far
      */
     public static FilePath tempDir(FilePath ws) {
@@ -62,20 +61,15 @@ public class ManagedFileUtil {
 
     /**
      * provisions (publishes) the given files to the workspace.
-     * 
-     * @param managedFiles
-     *            the files to be provisioned
-     * @param workspace
-     *            target workspace
-     * @param listener
-     *            the listener
-     * @param tempFiles
-     *            temp files created by this method, these files should be deleted by the caller
+     *
+     * @param managedFiles the files to be provisioned
+     * @param workspace    target workspace
+     * @param listener     the listener
+     * @param tempFiles    temp files created by this method, these files should be deleted by the caller
      * @return a map of all the files copied, mapped to the path of the remote location, never <code>null</code>.
      * @throws IOException
      * @throws InterruptedException
-     * @throws AbortException
-     *             config file has not been found
+     * @throws AbortException       config file has not been found
      */
     public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, Run<?, ?> build, FilePath workspace, TaskListener listener, List<String> tempFiles) throws IOException, InterruptedException {
 
@@ -85,17 +79,17 @@ public class ManagedFileUtil {
         for (ManagedFile managedFile : managedFiles) {
 
             Config configFile = null;
-            if(build.getParent() != null){
+            if (build.getParent() != null) {
                 Object parent = build.getParent();
-                if(parent instanceof Item){
+                if (parent instanceof Item) {
                     configFile = Config.getByIdOrNull((Item) parent, managedFile.fileId);
-                }else if(parent instanceof ItemGroup){
+                } else if (parent instanceof ItemGroup) {
                     configFile = Config.getByIdOrNull((ItemGroup) parent, managedFile.fileId);
-                }else{
-                    System.out.println("build is of type: "+parent.getClass()+" : "+build);
+                } else {
+                    LOGGER.log(Level.SEVERE, "parent type of build not supported, parent: " + parent.getClass() + ", build: " + build);
                 }
             } else {
-                System.out.println("parent was null, build is of type: "+build.getClass()+" : "+build);
+                throw new RuntimeException("Run " + build.getDisplayName() + " has no parent");
             }
 
             if (configFile == null) {
@@ -141,7 +135,7 @@ public class ManagedFileUtil {
                 }
             }
 
-            LOGGER.log(Level.FINE, "Create file {0} for configuration {1} mapped as {2}", new Object[] { target.getRemote(), configFile, managedFile });
+            LOGGER.log(Level.FINE, "Create file {0} for configuration {1} mapped as {2}", new Object[]{target.getRemote(), configFile, managedFile});
             listener.getLogger().println(Messages.console_output(configFile.name, target.toURI()));
             ByteArrayInputStream bs = new ByteArrayInputStream(fileContent.getBytes("UTF-8"));
             target.copyFrom(bs);
@@ -152,23 +146,23 @@ public class ManagedFileUtil {
         return file2Path;
     }
 
-    private static String insertCredentialsInSettings(Run<?,?> build, Config configFile, FilePath workDir, List<String> tempFiles) throws IOException {
-		String fileContent = configFile.content;
-		
-		if (configFile instanceof HasServerCredentialMappings) {
-			HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
-			final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings());
-			final Boolean isReplaceAll = settings.getIsReplaceAll();
+    private static String insertCredentialsInSettings(Run<?, ?> build, Config configFile, FilePath workDir, List<String> tempFiles) throws IOException {
+        String fileContent = configFile.content;
 
-			if (!resolvedCredentials.isEmpty()) {
-				try {
-					fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
-				} catch (Exception exception) {
-					throw new IOException("[ERROR] could not insert credentials into the settings file " + configFile, exception);
-				}
-			}
-		}
-		
-		return fileContent;
-	}
+        if (configFile instanceof HasServerCredentialMappings) {
+            HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
+            final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings());
+            final Boolean isReplaceAll = settings.getIsReplaceAll();
+
+            if (!resolvedCredentials.isEmpty()) {
+                try {
+                    fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+                } catch (Exception exception) {
+                    throw new IOException("[ERROR] could not insert credentials into the settings file " + configFile, exception);
+                }
+            }
+        }
+
+        return fileContent;
+    }
 }

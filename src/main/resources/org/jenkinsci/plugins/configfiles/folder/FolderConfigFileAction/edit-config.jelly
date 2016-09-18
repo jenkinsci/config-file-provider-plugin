@@ -1,7 +1,7 @@
 <!--
 The MIT License
 
-Copyright (c) 2012, Dominik Bartholdi
+Copyright (c) 2011, Dominik Bartholdi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
+
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">    
-      <f:entry title="${%Provided Global Settings}" field="settingsConfigId">
-        <f:select />
-      </f:entry>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+					<j:set var="descriptor" value="${config.descriptor}"/>
+					<st:include page="id-name-and-comment"  class="${descriptor.clazz}"/>
+
+					<f:entry title="${%Content}">
+						<f:textarea id="config.content" name="config.content" value="${config.content}" /> 
+					</f:entry>
+					
 </j:jelly>

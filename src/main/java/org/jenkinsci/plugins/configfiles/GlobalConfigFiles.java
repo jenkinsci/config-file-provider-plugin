@@ -2,16 +2,14 @@ package org.jenkinsci.plugins.configfiles;
 
 import hudson.Extension;
 import hudson.ExtensionList;
+import hudson.model.Descriptor;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by domi on 17/09/16.
@@ -36,7 +34,6 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
         for (ConfigProvider p : allProviders) {
             for (Config c: ((AbstractConfigProviderImpl)p).getConfigs().values()) {
                 Config converted = ((AbstractConfigProviderImpl) p).convert(c);
-                System.out.println("converted to: "+converted.getClass());
                 configs.add(converted);
             }
         }
@@ -52,6 +49,7 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
         }
     }
 
+    @Override
     public Map<ConfigProvider, Collection<Config>> getGroupedConfigs(){
         Map<ConfigProvider, Collection<Config>> grouped = new HashMap<ConfigProvider, Collection<Config>>();
         for (Config c : configs) {
@@ -71,6 +69,18 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
     }
 
     @Override
+    public Collection<Config> getConfigs(Class<? extends Descriptor> descriptor) {
+        List<Config> cs = new ArrayList<Config>();
+        for (Config c : configs) {
+            System.out.println(c.getDescriptor().getClass()+"<->"+descriptor+" : "+c.getDescriptor().getClass().equals(descriptor));
+            if (c.getDescriptor().getClass().equals(descriptor)) {
+                cs.add(c);
+            }
+        }
+        return cs;
+    }
+
+    @Override
     public Config getById(String id) {
         for (Config c : configs) {
             if (id.equals(c.id)) {
@@ -86,4 +96,10 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
         save();
     }
 
+    @Override
+    public void remove(String id) {
+        Config c = getById(id);
+        configs.remove(c);
+        save();
+    }
 }

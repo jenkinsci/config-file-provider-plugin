@@ -129,7 +129,6 @@ public class ConfigFileBuildWrapperTest {
         public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
             try {
                 final String expanded = TokenMacro.expandAll(build, listener, "${ENV, var=\"" + var + "\"}");
-                System.out.println("-->" + expanded);
                 Assert.assertEquals(expectedValue, expanded);
             } catch (MacroEvaluationException e) {
                 Assert.fail("not able to expand var: " + e.getMessage());

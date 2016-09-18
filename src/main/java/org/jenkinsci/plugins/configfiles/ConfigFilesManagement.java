@@ -34,7 +34,6 @@ import hudson.model.Hudson;
 import hudson.model.ManagementLink;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
-import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -52,9 +51,9 @@ import org.kohsuke.stapler.StaplerResponse;
  * 
  */
 @Extension
-public class ConfigFilesManagement extends ManagementLink {
+public class ConfigFilesManagement extends ManagementLink implements ConfigFilesUIContract {
 
-    private static final String ICON_PATH = "/plugin/config-file-provider/images/cfg_logo.png";
+    public static final String ICON_PATH = "/plugin/config-file-provider/images/cfg_logo.png";
 
     private ConfigFileStore store;
 
@@ -110,11 +109,10 @@ public class ConfigFilesManagement extends ManagementLink {
     }
 
     public Map<ConfigProvider, Collection<Config>> getGroupedConfigs() {
-        return GlobalConfigFiles.get().getGroupedConfigs();
+        return store.getGroupedConfigs();
     }
 
     public List<ConfigProvider> getProviders() {
-        GlobalConfigFiles.get().getGroupedConfigs();
         return ConfigProvider.all();
     }
 
@@ -131,11 +129,9 @@ public class ConfigFilesManagement extends ManagementLink {
         checkPermission(Hudson.ADMINISTER);
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
-            System.out.println("***>"+json);
             Config config = req.bindJSON(Config.class, json);
 
             store.save(config);
-//            config.getProvider().save(config);
 
         } catch (ServletException e) {
             e.printStackTrace();
@@ -218,8 +214,6 @@ public class ConfigFilesManagement extends ManagementLink {
             config = provider.newConfig();
         }
 
-        System.out.println("created config: "+config.getClass() +" with provider "+provider.getClass());
-
         config.setProviderId(provider.getProviderId());
         req.setAttribute("config", config);
 
@@ -252,8 +246,7 @@ public class ConfigFilesManagement extends ManagementLink {
     public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
         checkPermission(Hudson.ADMINISTER);
 
-        Config c = store.getById(configId);
-        GlobalConfigFiles.get().getConfigs().remove(c);
+        store.remove(configId);
 
         return new HttpRedirect("index");
     }

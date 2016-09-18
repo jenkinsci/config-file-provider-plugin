@@ -64,14 +64,12 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      */
     @CheckForNull
     public static ConfigProvider getByIdOrNull(@Nullable String providerId) {
-        System.out.println("getProvider for: "+providerId);
         if (providerId == null || providerId.isEmpty()) {
             return null;
         }
 
         for (ConfigProvider provider : ConfigProvider.all()) {
             if (providerId.equals(provider.getProviderId())) {
-                System.out.println("found provider for: "+providerId+" -> "+provider);
                 return provider;
             }
         }
