@@ -99,14 +99,6 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
             return new GlobalMavenSettingsConfig(id, "MyGlobalSettings", "global settings", loadTemplateContent(), GlobalMavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
         }
 
-        @Override
-        public <T extends Config> T convert(Config config) {
-            if(config instanceof GlobalMavenSettingsConfig){
-                return (T) config;
-            }
-            throw new IllegalArgumentException("not able to convert " + config.getClass() + " to " + GlobalMavenSettingsConfig.class);
-        }
-
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {

@@ -37,7 +37,6 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
     public Collection<Config> getConfigs(Class<? extends Descriptor> descriptor) {
         List<Config> cs = new ArrayList<Config>();
         for (Config c : configs) {
-            System.out.println(c.getDescriptor().getClass()+"<->"+descriptor+" : "+c.getDescriptor().getClass().equals(descriptor));
             if (c.getDescriptor().getClass().equals(descriptor)) {
                 cs.add(c);
             }

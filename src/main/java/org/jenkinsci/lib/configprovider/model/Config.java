@@ -26,13 +26,11 @@ package org.jenkinsci.lib.configprovider.model;
 import com.cloudbees.hudson.plugins.folder.AbstractFolder;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import hudson.model.Describable;
-import hudson.model.Descriptor;
-import hudson.model.Item;
-import hudson.model.ItemGroup;
+import hudson.model.*;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
+import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFileUtil;
 import org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -42,6 +40,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents a particular configuration file and its content.
@@ -51,6 +51,8 @@ import java.util.List;
  * @author domi
  */
 public class Config implements Serializable, Describable<Config> {
+
+    private final static Logger LOGGER = Logger.getLogger(Config.class.getName());
 
     @NonNull
     public static List<Config> getConfigsInContext(@Nullable ItemGroup itemGroup, Class<? extends Descriptor> descriptor) {
@@ -87,17 +89,17 @@ public class Config implements Serializable, Describable<Config> {
     }
 
     @NonNull
-    public static Config getByIdOrNull(@Nullable ItemGroup itemGroup, @NonNull String configId) {
+    public static <T extends Config> T getByIdOrNull(@Nullable ItemGroup itemGroup, @NonNull String configId) {
 
         while (itemGroup != null) {
             if (itemGroup instanceof AbstractFolder) {
                 final AbstractFolder<?> folder = AbstractFolder.class.cast(itemGroup);
-                FolderConfigFileProperty property = folder.getProperties().get(FolderConfigFileProperty.class);
-                if (property != null) {
-
-                    // TODO find config in property and add to result
-                    System.out.println("searching for config on " + itemGroup);
-//                    return ...
+                ConfigFileStore store = folder.getProperties().get(FolderConfigFileProperty.class);
+                if (store != null) {
+                    Config config = store.getById(configId);
+                    if (config != null) {
+                        return (T) config;
+                    }
                 }
             }
             if (itemGroup instanceof Item) {
@@ -105,27 +107,44 @@ public class Config implements Serializable, Describable<Config> {
             }
             if (itemGroup instanceof Jenkins) {
                 // we are on top scope...
-                return GlobalConfigFiles.get().getById(configId);
+                return (T) GlobalConfigFiles.get().getById(configId);
             } else {
                 break;
             }
         }
+
         return null;
     }
 
     @NonNull
-    public static Config getByIdOrNull(@NonNull Item item, @NonNull String configId) {
+    public static <T extends Config> T getByIdOrNull(@NonNull Item item, @NonNull String configId) {
         if (item instanceof AbstractFolder) {
             // configfiles defined in the folder should be available in the context of the folder
-            return getByIdOrNull((ItemGroup) item, configId);
+            return (T) getByIdOrNull((ItemGroup) item, configId);
         }
         if (item != null) {
             System.out.println("try with: " + item.getParent());
-            return getByIdOrNull(item.getParent(), configId);
+            return (T) getByIdOrNull(item.getParent(), configId);
         }
         return null;
     }
 
+    public static <T extends Config> T getByIdOrNull(@NonNull Run<?, ?> build, @NonNull String configId) {
+        Config configFile = null;
+        if (build.getParent() != null) {
+            Object parent = build.getParent();
+            if (parent instanceof Item) {
+                configFile = Config.getByIdOrNull((Item) parent, configId);
+            } else if (parent instanceof ItemGroup) {
+                configFile = Config.getByIdOrNull((ItemGroup) parent, configId);
+            } else {
+                LOGGER.log(Level.SEVERE, "parent type of run not supported, parent: " + parent.getClass() + ", run: " + build);
+            }
+        } else {
+            throw new RuntimeException("Run " + build.getDisplayName() + " has no parent");
+        }
+        return (T) configFile;
+    }
 
     /**
      * a unique id along all providers!
@@ -211,7 +230,7 @@ public class Config implements Serializable, Describable<Config> {
 
     @Override
     public String toString() {
-        return "[Config: id=" + id + ", name=" + name + ", providerId=" + providerId + "]";
+        return "[" + getClass().getSimpleName() + ": id=" + id + ", name=" + name + ", providerId=" + providerId + "]";
     }
 
 }

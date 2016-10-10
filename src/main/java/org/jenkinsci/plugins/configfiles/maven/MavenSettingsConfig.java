@@ -102,15 +102,6 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
             return new MavenSettingsConfig(id, "MySettings", "user settings", loadTemplateContent(), MavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
         }
 
-        @Override
-        public <T extends Config> T convert(Config config) {
-            if (config instanceof MavenSettingsConfig) {
-                return (T) config;
-            }
-            throw new IllegalArgumentException("not able to convert " + config.getClass() + " to " + MavenSettingsConfig.class);
-        }
-
-
         // ======================
         // start stuff for backward compatibility
         protected transient String ID_PREFIX;

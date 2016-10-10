@@ -49,10 +49,13 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
             tmp.put(c.getKey(), convert(c.getValue()));
         }
 
-        return configs;
+        return tmp;
     }
 
-    public abstract <T extends Config> T convert(Config config);
+    public <T extends Config> T convert(Config config) {
+        return (T) config;
+    }
+
 
     @Override
     public String getProviderId() {
@@ -113,7 +116,9 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     }
 
     public void clearOldDataStorage() {
-        configs = null;
+        configs = Collections.emptyMap();
         save();
     }
+
+
 }

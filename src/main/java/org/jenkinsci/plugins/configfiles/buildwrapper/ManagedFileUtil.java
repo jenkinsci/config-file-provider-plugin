@@ -78,19 +78,7 @@ public class ManagedFileUtil {
 
         for (ManagedFile managedFile : managedFiles) {
 
-            Config configFile = null;
-            if (build.getParent() != null) {
-                Object parent = build.getParent();
-                if (parent instanceof Item) {
-                    configFile = Config.getByIdOrNull((Item) parent, managedFile.fileId);
-                } else if (parent instanceof ItemGroup) {
-                    configFile = Config.getByIdOrNull((ItemGroup) parent, managedFile.fileId);
-                } else {
-                    LOGGER.log(Level.SEVERE, "parent type of build not supported, parent: " + parent.getClass() + ", build: " + build);
-                }
-            } else {
-                throw new RuntimeException("Run " + build.getDisplayName() + " has no parent");
-            }
+            Config configFile = Config.getByIdOrNull(build, managedFile.fileId);
 
             if (configFile == null) {
                 throw new AbortException("not able to provide the following file, can't be resolved by any provider - maybe it got deleted by an administrator: " + managedFile);
