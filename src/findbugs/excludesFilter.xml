@@ -1,0 +1,7 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="org.jenkinsci.plugins.configfiles.builder.ConfigFileBuildStep" />
+        <Field name="managedFiles" />
+        <Bug pattern="SE_BAD_FIELD" />
+    </Match>
+</FindBugsFilter>

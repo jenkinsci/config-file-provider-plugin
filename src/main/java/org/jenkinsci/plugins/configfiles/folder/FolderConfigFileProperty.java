@@ -95,7 +95,7 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
         @Override
         public String getDisplayName() {
             // nothing to be shown
-            return null;
+            return "";
         }
     }
 }

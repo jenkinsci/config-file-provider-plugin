@@ -6,6 +6,7 @@ import hudson.model.listeners.SaveableListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -107,7 +108,8 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
         return getId() + ".xml";
     }
 
-    private static final class NameComparator implements Comparator<Config> {
+    private static final class NameComparator implements Comparator<Config>, Serializable {
+        private static final long serialVersionUID = -1L;
         public int compare(Config o1, Config o2) {
             String a = o1.name != null ? o1.name : "";
             String b = o2.name != null ? o2.name : "";

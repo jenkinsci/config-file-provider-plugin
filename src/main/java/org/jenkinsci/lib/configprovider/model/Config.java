@@ -88,7 +88,6 @@ public class Config implements Serializable, Describable<Config> {
         return configs;
     }
 
-    @NonNull
     public static <T extends Config> T getByIdOrNull(@Nullable ItemGroup itemGroup, @NonNull String configId) {
 
         while (itemGroup != null) {
@@ -116,14 +115,13 @@ public class Config implements Serializable, Describable<Config> {
         return null;
     }
 
-    @NonNull
     public static <T extends Config> T getByIdOrNull(@NonNull Item item, @NonNull String configId) {
         if (item instanceof AbstractFolder) {
             // configfiles defined in the folder should be available in the context of the folder
             return (T) getByIdOrNull((ItemGroup) item, configId);
         }
         if (item != null) {
-            System.out.println("try with: " + item.getParent());
+            LOGGER.log(Level.FINE, "try with: " + item.getParent());
             return (T) getByIdOrNull(item.getParent(), configId);
         }
         return null;
@@ -133,10 +131,10 @@ public class Config implements Serializable, Describable<Config> {
         Config configFile = null;
         if (build.getParent() != null) {
             Object parent = build.getParent();
-            if (parent instanceof Item) {
-                configFile = Config.getByIdOrNull((Item) parent, configId);
-            } else if (parent instanceof ItemGroup) {
+            if (parent instanceof ItemGroup) {
                 configFile = Config.getByIdOrNull((ItemGroup) parent, configId);
+            } else if (parent instanceof Item) {
+                configFile = Config.getByIdOrNull((Item) parent, configId);
             } else {
                 LOGGER.log(Level.SEVERE, "parent type of run not supported, parent: " + parent.getClass() + ", run: " + build);
             }

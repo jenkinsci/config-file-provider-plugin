@@ -24,6 +24,7 @@ import org.kohsuke.stapler.*;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 
 public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
@@ -213,11 +214,6 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
         @Override
         public Collection<? extends Action> createFor(Folder target) {
-            DescribableList<AbstractFolderProperty<?>, AbstractFolderPropertyDescriptor> properties = target.getProperties();
-
-            FolderConfigFileProperty folderConfigFileProperty = properties.get(FolderConfigFileProperty.class);
-            System.out.println("found "+folderConfigFileProperty);
-
             return Collections.singleton(new FolderConfigFileAction(target));
         }
     }

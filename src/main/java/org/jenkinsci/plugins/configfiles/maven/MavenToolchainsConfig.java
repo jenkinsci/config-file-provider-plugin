@@ -26,6 +26,7 @@ package org.jenkinsci.plugins.configfiles.maven;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -106,22 +107,34 @@ public class MavenToolchainsConfig extends Config {
 
         private String loadTemplateContent() {
             String tpl;
+            InputStream is = null;
             try {
-                InputStream is = this.getClass().getResourceAsStream("toolchains-tpl.xml");
+                is = this.getClass().getResourceAsStream("toolchains-tpl.xml");
                 StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
                 char[] tmp = new char[4096];
 
+                InputStreamReader reader = null;
                 try {
-                    InputStreamReader reader = new InputStreamReader(is, "UTF-8");
-                    for (int cnt; (cnt = reader.read(tmp)) > 0; )
+                    reader = new InputStreamReader(is, "UTF-8");
+                    for (int cnt; (cnt = reader.read(tmp)) > 0; ) {
                         sb.append(tmp, 0, cnt);
+                    }
 
                 } finally {
+                    reader.close();
                     is.close();
                 }
                 tpl = sb.toString();
             } catch (Exception e) {
                 tpl = "<toolchains></toolchains>";
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        //
+                    }
+                }
             }
             return tpl;
         }

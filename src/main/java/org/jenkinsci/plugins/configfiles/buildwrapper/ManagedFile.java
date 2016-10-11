@@ -117,7 +117,7 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
     public static class DescriptorImpl extends Descriptor<ManagedFile> {
         @Override
         public String getDisplayName() {
-            return null;
+            return "";
         }
 
         public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context) {

@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import hudson.util.IOUtils;
@@ -48,8 +49,9 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
     }
 
     protected String loadTemplateContent() {
+        InputStream is = null;
         try {
-            InputStream is = this.getClass().getResourceAsStream("settings-tpl.xml");
+            is = this.getClass().getResourceAsStream("settings-tpl.xml");
 
             try {
                 return IOUtils.toString(is, "UTF-8");
@@ -58,6 +60,14 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
             }
         } catch (Exception e) {
             return "<settings></settings>";
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    //
+                }
+            }
         }
     }
 }

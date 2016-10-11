@@ -37,6 +37,7 @@ public class ConfigFileBuildStep extends Builder implements Serializable {
 
     private static final long serialVersionUID = -5623878268985950032L;
 
+
     private List<ManagedFile> managedFiles = new ArrayList<ManagedFile>();
 
     @DataBoundConstructor
