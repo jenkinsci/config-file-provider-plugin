@@ -109,7 +109,7 @@ public class Config implements Serializable, Describable<Config> {
                 // we are on top scope...
                 return (T) GlobalConfigFiles.get().getById(configId);
             } else {
-                break;
+                continue;
             }
         }
 
