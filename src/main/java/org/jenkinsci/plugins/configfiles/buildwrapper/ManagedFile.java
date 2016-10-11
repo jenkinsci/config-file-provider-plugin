@@ -108,7 +108,7 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
 
     @Override
     public Descriptor<ManagedFile> getDescriptor() {
-        return (DescriptorImpl) Jenkins.getInstance().getDescriptorOrDie(getClass());
+        return (DescriptorImpl) Jenkins.getActiveInstance().getDescriptorOrDie(getClass());
     }
 
 

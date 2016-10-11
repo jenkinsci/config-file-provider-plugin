@@ -74,7 +74,7 @@ public class JsonConfig extends Config {
 
     @Override
     public ConfigProvider getDescriptor() {
-        return Jenkins.getInstance().getDescriptorByType(JsonConfigProvider.class);
+        return Jenkins.getActiveInstance().getDescriptorByType(JsonConfigProvider.class);
     }
 
     @Extension(ordinal = 180)

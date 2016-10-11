@@ -53,7 +53,7 @@ public class XmlConfig extends Config {
 
     @Override
     public ConfigProvider getDescriptor() {
-        return Jenkins.getInstance().getDescriptorByType(XmlConfigProvider.class);
+        return Jenkins.getActiveInstance().getDescriptorByType(XmlConfigProvider.class);
     }
 
     @Extension(ordinal = 150)

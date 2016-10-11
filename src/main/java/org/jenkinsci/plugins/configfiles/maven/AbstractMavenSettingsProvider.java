@@ -49,25 +49,14 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
     }
 
     protected String loadTemplateContent() {
-        InputStream is = null;
+        InputStream in = null;
         try {
-            is = this.getClass().getResourceAsStream("settings-tpl.xml");
-
-            try {
-                return IOUtils.toString(is, "UTF-8");
-            } finally {
-                is.close();
-            }
+            in = AbstractMavenSettingsProvider.class.getResourceAsStream("settings-tpl.xml");
+            return org.apache.commons.io.IOUtils.toString(in, "UTF-8");
         } catch (Exception e) {
             return "<settings></settings>";
         } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    //
-                }
-            }
+            org.apache.commons.io.IOUtils.closeQuietly(in);
         }
     }
 }

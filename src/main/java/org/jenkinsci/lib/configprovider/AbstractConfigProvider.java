@@ -81,7 +81,7 @@ public abstract class AbstractConfigProvider extends AbstractConfigProviderImpl 
     }
 
     protected XmlFile getConfigXml() {
-        return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getInstance().getRootDir(), this.getXmlFileName()));
+        return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getActiveInstance().getRootDir(), this.getXmlFileName()));
     }
 
     protected String getXmlFileName() {
