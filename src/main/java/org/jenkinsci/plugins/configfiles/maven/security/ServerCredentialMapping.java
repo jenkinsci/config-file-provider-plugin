@@ -53,7 +53,7 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @QueryParameter String serverId) {
-            AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.getInstance());
+            AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.getActiveInstance());
             if (_context == null || !_context.hasPermission(Computer.CONFIGURE)) {
                 return new StandardUsernameListBoxModel().includeCurrentValue(serverId);
             }

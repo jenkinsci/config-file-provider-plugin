@@ -54,7 +54,7 @@ public class GroovyScript extends Config {
 
     @Override
     public ConfigProvider getDescriptor() {
-        return Jenkins.getInstance().getDescriptorByType(GroovyConfigProvider.class);
+        return Jenkins.getActiveInstance().getDescriptorByType(GroovyConfigProvider.class);
     }
 
     @Extension(ordinal = 100)

@@ -1,16 +1,12 @@
 package org.jenkinsci.plugins.configfiles;
 
-import hudson.ExtensionList;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
-import org.jenkinsci.lib.configprovider.model.Config;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.recipes.LocalData;
-
-import java.util.Collection;
 
 /**
  * Created by domi on 17/09/16.

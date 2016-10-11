@@ -53,7 +53,7 @@ public class CustomConfig extends Config {
 
     @Override
     public ConfigProvider getDescriptor() {
-        return Jenkins.getInstance().getDescriptorByType(CustomConfigProvider.class);
+        return Jenkins.getActiveInstance().getDescriptorByType(CustomConfigProvider.class);
     }
 
     @Extension(ordinal = 50)

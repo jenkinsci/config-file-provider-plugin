@@ -73,7 +73,7 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
 
     @Override
     public ConfigProvider getDescriptor() {
-        return Jenkins.getInstance().getDescriptorByType(GlobalMavenSettingsConfigProvider.class);
+        return Jenkins.getActiveInstance().getDescriptorByType(GlobalMavenSettingsConfigProvider.class);
     }
 
     @Extension(ordinal = 200)

@@ -26,17 +26,17 @@ package org.jenkinsci.plugins.configfiles.maven;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 
 import jenkins.model.Jenkins;
+import org.apache.commons.io.IOUtils;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
-import org.jenkinsci.plugins.configfiles.xml.XmlConfig;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class MavenToolchainsConfig extends Config {
@@ -57,7 +57,7 @@ public class MavenToolchainsConfig extends Config {
 
     @Override
     public ConfigProvider getDescriptor() {
-        return Jenkins.getInstance().getDescriptorByType(MavenToolchainsConfigProvider.class);
+        return Jenkins.getActiveInstance().getDescriptorByType(MavenToolchainsConfigProvider.class);
     }
 
     @Extension(ordinal = 180)
@@ -106,39 +106,16 @@ public class MavenToolchainsConfig extends Config {
         }
 
         private String loadTemplateContent() {
-            String tpl;
-            InputStream is = null;
+            InputStream in = null;
             try {
-                is = this.getClass().getResourceAsStream("toolchains-tpl.xml");
-                StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
-                char[] tmp = new char[4096];
-
-                InputStreamReader reader = null;
-                try {
-                    reader = new InputStreamReader(is, "UTF-8");
-                    for (int cnt; (cnt = reader.read(tmp)) > 0; ) {
-                        sb.append(tmp, 0, cnt);
-                    }
-
-                } finally {
-                    reader.close();
-                    is.close();
-                }
-                tpl = sb.toString();
+                in = this.getClass().getResourceAsStream("toolchains-tpl.xml");
+                return IOUtils.toString(in, "UTF-8");
             } catch (Exception e) {
-                tpl = "<toolchains></toolchains>";
+                return "<toolchains></toolchains>";
             } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                        //
-                    }
-                }
+                IOUtils.closeQuietly(in);
             }
-            return tpl;
         }
-
     }
 
 }

@@ -128,19 +128,14 @@ public class Config implements Serializable, Describable<Config> {
     }
 
     public static <T extends Config> T getByIdOrNull(@NonNull Run<?, ?> build, @NonNull String configId) {
-        Config configFile = null;
-        if (build.getParent() != null) {
-            Object parent = build.getParent();
-            if (parent instanceof ItemGroup) {
-                configFile = Config.getByIdOrNull((ItemGroup) parent, configId);
-            } else if (parent instanceof Item) {
-                configFile = Config.getByIdOrNull((Item) parent, configId);
-            } else {
-                LOGGER.log(Level.SEVERE, "parent type of run not supported, parent: " + parent.getClass() + ", run: " + build);
-            }
+        Item parent = build.getParent();
+        Config configFile;
+        if (parent instanceof ItemGroup) {
+            configFile = Config.getByIdOrNull((ItemGroup) parent, configId);
         } else {
-            throw new RuntimeException("Run " + build.getDisplayName() + " has no parent");
+            configFile = Config.getByIdOrNull(parent, configId);
         }
+
         return (T) configFile;
     }
 
