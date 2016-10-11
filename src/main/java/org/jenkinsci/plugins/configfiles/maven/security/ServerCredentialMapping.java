@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +25,7 @@ import hudson.security.AccessControlled;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 
-public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCredentialMapping> {
+public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCredentialMapping> implements Serializable {
 
     private final String serverId;
     private final String credentialsId;
