@@ -81,7 +81,9 @@ public class ManagedFileUtil {
             Config configFile = Config.getByIdOrNull(build, managedFile.fileId);
 
             if (configFile == null) {
-                throw new AbortException("not able to provide the following file, can't be resolved by any provider - maybe it got deleted by an administrator: " + managedFile);
+                String message = "not able to provide the file " + managedFile + ", can't be resolved by any provider - maybe it got deleted by an administrator?";
+                listener.getLogger().println(message);
+                throw new AbortException(message);
             }
 
             FilePath workDir = tempDir(workspace);

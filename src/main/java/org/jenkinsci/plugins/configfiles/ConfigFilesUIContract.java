@@ -41,9 +41,9 @@ import java.util.*;
 
 /**
  * Defines the contract for actions called by jelly
- * 
+ *
  * @author domi
- * 
+ *
  */
 public interface ConfigFilesUIContract {
 
@@ -56,8 +56,6 @@ public interface ConfigFilesUIContract {
 
     public List<ConfigProvider> getProviders();
 
-    public Collection<Config> getConfigs();
-
     /**
      * Insert or update
      * @param req
@@ -69,7 +67,7 @@ public interface ConfigFilesUIContract {
 
     /**
      * Loads the config by its id and forwards the request to "edit.jelly".
-     * 
+     *
      * @param req
      *            request
      * @param rsp
@@ -83,7 +81,7 @@ public interface ConfigFilesUIContract {
 
     /**
      * Requests a new config object from provider (defined by the given id) and forwards the request to "edit.jelly".
-     * 
+     *
      * @param req
      *            request
      * @param rsp
@@ -99,7 +97,7 @@ public interface ConfigFilesUIContract {
 
     /**
      * Removes a script from the config and filesystem.
-     * 
+     *
      * @param res
      *            response
      * @param rsp
