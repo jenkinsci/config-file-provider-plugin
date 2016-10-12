@@ -79,14 +79,14 @@ public class CustomConfig extends Config {
         }
 
         @Override
-        public Config newConfig() {
+        public CustomConfig newConfig() {
             String id = getProviderId() + System.currentTimeMillis();
             return new CustomConfig(id, "MyCustom", "", "");
         }
 
         @NonNull
         @Override
-        public Config newConfig(@NonNull String id) {
+        public CustomConfig newConfig(@NonNull String id) {
             return new CustomConfig(id, "MyCustom", "", "", getProviderId());
         }
 

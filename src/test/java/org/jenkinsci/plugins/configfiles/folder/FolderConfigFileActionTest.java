@@ -1,13 +1,12 @@
 package org.jenkinsci.plugins.configfiles.folder;
 
 import com.cloudbees.hudson.plugins.folder.Folder;
-import hudson.ExtensionList;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
+import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
-import org.jenkinsci.plugins.configfiles.xml.XmlConfig;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -18,7 +17,6 @@ import org.jvnet.hudson.test.JenkinsRule;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -36,16 +34,15 @@ public class FolderConfigFileActionTest {
     @Test
     public void foldersHaveTheirOwnListOfConfigs() throws Exception {
         Folder f1 = createFolder();
-        getStore(f1).save(newXmlFile());
+        getStore(f1).save(newCustomFile());
 
         Map<ConfigProvider, Collection<Config>> groupedConfigs1 = getStore(f1).getGroupedConfigs();
         assertNotNull(groupedConfigs1);
         Folder f2 = createFolder();
-        getStore(f2).save(newXmlFile());
+        getStore(f2).save(newCustomFile());
 
         Map<ConfigProvider, Collection<Config>> groupedConfigs2 = getStore(f2).getGroupedConfigs();
         assertNotNull(groupedConfigs2);
-        System.out.println(groupedConfigs1 + " - " + groupedConfigs2);
         assertNotEquals(groupedConfigs1, groupedConfigs2);
     }
 
@@ -59,13 +56,13 @@ public class FolderConfigFileActionTest {
         Collection<Config> configs = globalConfigFiles.getConfigs();
         assertNotNull(configs);
         assertTrue(configs.isEmpty());
-        globalConfigFiles.save(newMvnSettings("my-maven-settings"));
+        globalConfigFiles.save(newMvnSettings("my-file-id"));
 
         WorkflowJob jobInRoot = r.jenkins.createProject(WorkflowJob.class, "p");
         jobInRoot.setDefinition(getNewJobDefinition());
 
         Folder folder1 = createFolder();
-        getStore(folder1).save(newMvnSettings("my-maven-settings"));
+        getStore(folder1).save(newMvnSettings("my-file-id"));
 
         WorkflowJob jobInFolder1 = folder1.createProject(WorkflowJob.class, "p");
         jobInFolder1.setDefinition(getNewJobDefinition());
@@ -81,13 +78,36 @@ public class FolderConfigFileActionTest {
         WorkflowRun b2 = r.assertBuildStatusSuccess(jobInFolder2.scheduleBuild2(0));
     }
 
+    @Test
+    public void correctFileMustBeSelectedInHierarchy() throws Exception {
+        GlobalConfigFiles globalConfigFiles = r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
+        Collection<Config> configs = globalConfigFiles.getConfigs();
+        assertNotNull(configs);
+        assertTrue(configs.isEmpty());
+        globalConfigFiles.save(newCustomFile("my-file-id", "Hello Root"));
+
+        WorkflowJob jobInRoot = r.jenkins.createProject(WorkflowJob.class, "p");
+        jobInRoot.setDefinition(getNewJobDefinition());
+
+        Folder folder1 = createFolder();
+        getStore(folder1).save(newCustomFile("my-file-id", "Hello Folder1"));
+
+        WorkflowJob jobInFolder1 = folder1.createProject(WorkflowJob.class, "p");
+        jobInFolder1.setDefinition(getNewJobDefinition());
+
+        WorkflowRun b0 = r.assertBuildStatusSuccess(jobInRoot.scheduleBuild2(0));
+        r.assertLogContains("Hello Root", b0);
+        WorkflowRun b1 = r.assertBuildStatusSuccess(jobInFolder1.scheduleBuild2(0));
+        r.assertLogContains("Hello Folder1", b1);
+    }
+
     private CpsFlowDefinition getNewJobDefinition() {
         return new CpsFlowDefinition(""
                 + "node {\n" +
-                "    configFileProvider([configFile(fileId: 'my-maven-settings', variable: 'MY_MAVEN_SETTINGS')]) {\n" +
+                "    configFileProvider([configFile(fileId: 'my-file-id', variable: 'MY_FILE')]) {\n" +
                 "       sh '''\n" +
-                "       ls -al $MY_MAVEN_SETTINGS\n" +
-                "       cat $MY_MAVEN_SETTINGS\n" +
+                "       ls -al $MY_FILE\n" +
+                "       cat $MY_FILE\n" +
                 "       '''\n" +
                 "   }\n" +
                 "}", true);
@@ -103,9 +123,14 @@ public class FolderConfigFileActionTest {
         return r.jenkins.createProject(Folder.class, "folder" + r.jenkins.getItems().size());
     }
 
-    private Config newXmlFile() {
-        XmlConfig.XmlConfigProvider configProvider = r.jenkins.getExtensionList(ConfigProvider.class).get(XmlConfig.XmlConfigProvider.class);
-        return configProvider.newConfig("xml_" + System.currentTimeMillis());
+    private Config newCustomFile() {
+        CustomConfig.CustomConfigProvider configProvider = r.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
+        return configProvider.newConfig("custom_" + System.currentTimeMillis());
+    }
+
+    private Config newCustomFile(String id, String content) {
+        CustomConfig.CustomConfigProvider configProvider = r.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
+        return new CustomConfig(id, "custom.txt", "custom file", content, configProvider.getProviderId());
     }
 
     private Config newMvnSettings(String settingsId) {
