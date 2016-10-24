@@ -118,8 +118,10 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     }
 
     public void clearOldDataStorage() {
-        configs = Collections.emptyMap();
-        save();
+        if(configs != null && !configs.isEmpty()) {
+            configs = Collections.emptyMap();
+            save();
+        }
     }
 
 
