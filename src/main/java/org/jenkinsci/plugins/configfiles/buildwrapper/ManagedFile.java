@@ -39,6 +39,7 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -46,7 +47,7 @@ import java.util.List;
 /**
  * @author domi
  */
-public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
+public class ManagedFile implements ExtensionPoint, Describable<ManagedFile>, Serializable {
 
     public final String fileId;
     public String targetLocation;

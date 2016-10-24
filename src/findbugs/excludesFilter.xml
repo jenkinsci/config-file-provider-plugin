@@ -1,17 +1,2 @@
 <FindBugsFilter>
-    <Match>
-        <Class name="org.jenkinsci.plugins.configfiles.builder.ConfigFileBuildStep" />
-        <Field name="managedFiles" />
-        <Bug pattern="SE_BAD_FIELD" />
-    </Match>
-    <Match>
-        <Class name="org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig" />
-        <Field name="serverCredentialMappings" />
-        <Bug pattern="SE_BAD_FIELD" />
-    </Match>
-    <Match>
-        <Class name="org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig" />
-        <Field name="serverCredentialMappings" />
-        <Bug pattern="SE_BAD_FIELD" />
-    </Match>
 </FindBugsFilter>
