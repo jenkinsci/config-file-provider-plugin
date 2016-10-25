@@ -24,7 +24,6 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
 import hudson.Extension;
-import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.Util;
 import hudson.model.Describable;
@@ -33,16 +32,13 @@ import hudson.model.ItemGroup;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * @author domi
@@ -124,7 +120,7 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile>, Se
         public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context) {
             ListBoxModel items = new ListBoxModel();
             items.add("please select", "");
-            for (Config config : Config.getConfigsInContext(context, null)) {
+            for (Config config : ConfigFiles.getConfigsInContext(context, null)) {
                 items.add(config.name, config.id);
             }
             return items;

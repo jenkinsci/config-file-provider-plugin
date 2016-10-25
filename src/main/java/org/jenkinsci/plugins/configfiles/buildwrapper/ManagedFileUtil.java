@@ -35,9 +35,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jenkins.tasks.SimpleBuildWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
 import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
@@ -78,7 +78,7 @@ public class ManagedFileUtil {
 
         for (ManagedFile managedFile : managedFiles) {
 
-            Config configFile = Config.getByIdOrNull(build, managedFile.fileId);
+            Config configFile = ConfigFiles.getByIdOrNull(build, managedFile.fileId);
 
             if (configFile == null) {
                 String message = "not able to provide the file " + managedFile + ", can't be resolved by any provider - maybe it got deleted by an administrator?";

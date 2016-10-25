@@ -1,7 +1,6 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
 import hudson.Extension;
-import hudson.ExtensionList;
 import hudson.FilePath;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
@@ -9,23 +8,20 @@ import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import hudson.util.ListBoxModel;
-import jenkins.model.Jenkins;
 import jenkins.mvn.SettingsProvider;
 import jenkins.mvn.SettingsProviderDescriptor;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFileUtil;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
-import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
@@ -73,11 +69,11 @@ public class MvnSettingsProvider extends SettingsProvider {
 
             Config c = null;
             if (build instanceof Item) {
-                c = Config.getByIdOrNull((Item) build, settingsConfigId);
+                c = ConfigFiles.getByIdOrNull((Item) build, settingsConfigId);
             } else if (build instanceof ItemGroup) {
-                c = Config.getByIdOrNull((ItemGroup) build, settingsConfigId);
+                c = ConfigFiles.getByIdOrNull((ItemGroup) build, settingsConfigId);
             } else if (build.getParent() instanceof ItemGroup) {
-                c = Config.getByIdOrNull((ItemGroup) build.getParent(), settingsConfigId);
+                c = ConfigFiles.getByIdOrNull((ItemGroup) build.getParent(), settingsConfigId);
             }
 
             if (c == null) {
@@ -141,7 +137,7 @@ public class MvnSettingsProvider extends SettingsProvider {
         public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context) {
             ListBoxModel items = new ListBoxModel();
             items.add("please select", "");
-            for (Config config : Config.getConfigsInContext(context, MavenSettingsConfigProvider.class)) {
+            for (Config config : ConfigFiles.getConfigsInContext(context, MavenSettingsConfigProvider.class)) {
                 items.add(config.name, config.id);
             }
             return items;
