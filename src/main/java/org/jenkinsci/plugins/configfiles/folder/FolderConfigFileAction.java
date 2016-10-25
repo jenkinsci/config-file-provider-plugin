@@ -200,7 +200,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
         }
     }
 
-    @Extension
+    @Extension(optional = true)
     public static class ActionFactory extends TransientActionFactory<Folder> {
         @Override
         public Class<Folder> type() {
