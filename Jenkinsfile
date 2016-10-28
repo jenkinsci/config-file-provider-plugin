@@ -31,4 +31,5 @@ platforms['linux'] = {
     }
 }
 
+stage 'build'
 parallel(platforms)
