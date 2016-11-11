@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.configfiles.maven;
 import java.io.IOException;
 import java.io.InputStream;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.IOUtils;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -49,7 +48,6 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
         return ContentType.DefinedType.XML;
     }
 
-    @SuppressFBWarnings("UI_INHERITANCE_UNSAFE_GETRESOURCE")
     protected String loadTemplateContent() {
         InputStream in = null;
         try {
