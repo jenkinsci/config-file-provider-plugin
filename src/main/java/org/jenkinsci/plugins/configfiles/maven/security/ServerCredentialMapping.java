@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +25,7 @@ import hudson.security.AccessControlled;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 
-public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCredentialMapping> {
+public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCredentialMapping> implements Serializable {
 
     private final String serverId;
     private final String credentialsId;
@@ -53,7 +54,7 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @QueryParameter String serverId) {
-            AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.getInstance());
+            AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.getActiveInstance());
             if (_context == null || !_context.hasPermission(Computer.CONFIGURE)) {
                 return new StandardUsernameListBoxModel().includeCurrentValue(serverId);
             }

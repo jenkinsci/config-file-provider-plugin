@@ -36,6 +36,7 @@
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <jenkins.version>1.642.3</jenkins.version>
         <java.level>7</java.level>
+        <findbugs.failOnError>true</findbugs.failOnError>
     </properties>
 
     <developers>
@@ -55,6 +56,12 @@
         </license>
     </licenses>
     <dependencies>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>cloudbees-folder</artifactId>
+            <version>5.12</version>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>token-macro</artifactId>
@@ -151,8 +158,20 @@
         <dependency>
             <groupId>org.jenkins-ci.main</groupId>
             <artifactId>jenkins-test-harness-tools</artifactId>
-            <scope>test</scope>
             <version>2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>junit</artifactId>
+            <version>1.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>3.0.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

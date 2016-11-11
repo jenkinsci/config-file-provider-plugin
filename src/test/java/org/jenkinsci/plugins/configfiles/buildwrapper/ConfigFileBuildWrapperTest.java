@@ -7,10 +7,12 @@ import java.util.Collections;
 import javax.inject.Inject;
 
 import com.gargoylesoftware.htmlunit.html.*;
+import jenkins.model.GlobalConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig.CustomConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
@@ -20,6 +22,7 @@ import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.jvnet.hudson.test.BuildWatcher;
 import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
@@ -39,28 +42,31 @@ import org.jvnet.hudson.test.ToolInstallations;
 public class ConfigFileBuildWrapperTest {
 
     @Rule
-    public JenkinsRule          j = new JenkinsRule();
+    public JenkinsRule j = new JenkinsRule();
+
+    @Rule
+    public BuildWatcher buildWatcher = new BuildWatcher();
 
     @Inject
-    ConfigFilesManagement       configManagement;
+    ConfigFilesManagement configManagement;
 
     @Inject
     MavenSettingsConfigProvider mavenSettingProvider;
 
     @Inject
-    XmlConfigProvider           xmlProvider;
+    XmlConfigProvider xmlProvider;
 
     @Inject
-    CustomConfigProvider        customConfigProvider;
+    CustomConfigProvider customConfigProvider;
 
     @Inject
-    ConfigFilesManagement       configFilesManagement;
+    ConfigFilesManagement configFilesManagement;
 
     @Test
     public void envVariableMustBeAvailableInMavenModuleSetBuild() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final MavenModuleSet p = j.jenkins.createProject(MavenModuleSet.class, "mvn");
+        final MavenModuleSet p = j.createProject(MavenModuleSet.class);
 
         // p.getBuildWrappersList().add(new ConfigFileBuildWrapper(managedFiles))
         p.setMaven(ToolInstallations.configureMaven3().getName());
@@ -74,7 +80,7 @@ public class ConfigFileBuildWrapperTest {
 
         ParametersDefinitionProperty parametersDefinitionProperty = new ParametersDefinitionProperty(new StringParameterDefinition("MVN_SETTING", "/tmp/settings.xml"));
         p.addProperty(parametersDefinitionProperty);
-        p.getPostbuilders().add(new VerifyBuilder("MVN_SETTING", "/tmp/settings.xml"));
+        p.getPostbuilders().add(new VerifyEnvVariableBuilder("MVN_SETTING", "/tmp/settings.xml"));
 
         j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
     }
@@ -83,7 +89,7 @@ public class ConfigFileBuildWrapperTest {
     public void envVariableMustBeReplacedInFileContent() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final Config customFile = createCustomFile(customConfigProvider, "echo ${USER}");
+        final Config customFile = createCustomFile(customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
 
         final FreeStyleProject p = j.createFreeStyleProject("free");
 
@@ -91,8 +97,7 @@ public class ConfigFileBuildWrapperTest {
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mCustom));
         p.getBuildWrappersList().add(bw);
 
-        final String userName = System.getProperty("user.name");
-        p.getBuildersList().add(new VerifyFileBuilder(mCustom.targetLocation, "echo " + userName));
+        p.getBuildersList().add(new VerifyFileContentBuilder(mCustom.targetLocation, "echo free"));
 
         j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
     }
@@ -101,7 +106,7 @@ public class ConfigFileBuildWrapperTest {
     public void envVariableMustNotBeReplacedInFileContentIfNotRequested() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final Config customFile = createCustomFile(customConfigProvider, "echo ${USER}");
+        final Config customFile = createCustomFile(customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
 
         final FreeStyleProject p = j.createFreeStyleProject("free");
 
@@ -109,15 +114,15 @@ public class ConfigFileBuildWrapperTest {
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mCustom));
         p.getBuildWrappersList().add(bw);
 
-        p.getBuildersList().add(new VerifyFileBuilder(mCustom.targetLocation, "echo ${USER}"));
+        p.getBuildersList().add(new VerifyFileContentBuilder(mCustom.targetLocation, "echo ${ENV, var=\"JOB_NAME\"}"));
 
         j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
     }
 
-    private static final class VerifyBuilder extends Builder {
+    private static final class VerifyEnvVariableBuilder extends Builder {
         private final String var, expectedValue;
 
-        public VerifyBuilder(String var, String expectedValue) {
+        public VerifyEnvVariableBuilder(String var, String expectedValue) {
             this.var = var;
             this.expectedValue = expectedValue;
         }
@@ -126,7 +131,6 @@ public class ConfigFileBuildWrapperTest {
         public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
             try {
                 final String expanded = TokenMacro.expandAll(build, listener, "${ENV, var=\"" + var + "\"}");
-                System.out.println("-->" + expanded);
                 Assert.assertEquals(expectedValue, expanded);
             } catch (MacroEvaluationException e) {
                 Assert.fail("not able to expand var: " + e.getMessage());
@@ -135,11 +139,11 @@ public class ConfigFileBuildWrapperTest {
         }
     }
 
-    private static final class VerifyFileBuilder extends Builder {
+    private static final class VerifyFileContentBuilder extends Builder {
         private final String filePath;
         private final String expectedContent;
 
-        public VerifyFileBuilder(String filePath, String expectedContent) {
+        public VerifyFileContentBuilder(String filePath, String expectedContent) {
             this.filePath = filePath;
             this.expectedContent = expectedContent;
         }
@@ -154,14 +158,16 @@ public class ConfigFileBuildWrapperTest {
 
     private Config createSetting(ConfigProvider provider) {
         Config c1 = provider.newConfig();
-        provider.save(c1);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c1);
         return c1;
     }
 
     private Config createCustomFile(CustomConfigProvider provider, String content) {
         Config c1 = provider.newConfig();
         c1 = new CustomConfig(c1.id, c1.name, c1.comment, content);
-        provider.save(c1);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c1);
         return c1;
     }
 

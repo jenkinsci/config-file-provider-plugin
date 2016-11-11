@@ -1,14 +1,12 @@
 package org.jenkinsci.lib.configprovider;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.BulkChange;
 import hudson.XmlFile;
 import hudson.model.listeners.SaveableListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,75 +20,53 @@ import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.ConfigFileStore;
+import org.jenkinsci.plugins.configfiles.json.JsonConfig;
 
 /**
  * Partial default implementation of {@link ConfigProvider}.
- * 
- * Subtype must call the {@link #load()} method in the constructor.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 public abstract class AbstractConfigProviderImpl extends ConfigProvider {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractConfigProviderImpl.class.getName());
 
+    @Deprecated
     protected Map<String, Config> configs = new HashMap<String, Config>();
 
     public AbstractConfigProviderImpl() {
     }
 
-    @Override
-    public Collection<Config> getAllConfigs() {
-        List<Config> c = new ArrayList<Config>(configs.values());
-        Collections.sort(c, new NameComparator());
-        return Collections.unmodifiableCollection(c);
+    /**
+     * only used for data migration
+     */
+    @Deprecated
+    public Map<String, Config> getConfigs() {
+
+        Map<String, Config> tmp = new HashMap<String, Config>();
+        for (Map.Entry<String, Config> c : configs.entrySet()) {
+            // many provider implementations saved there config objects with the base Config type instead of the concrete type
+            tmp.put(c.getKey(), convert(c.getValue()));
+        }
+
+        return tmp;
     }
 
-    @Override
-    public Config getConfigById(String configId) {
-        return configs.get(configId);
+    public <T extends Config> T convert(Config config) {
+        return (T) config;
     }
 
-    @Override
-    public boolean configExists(String configId) {
-        return configs.containsKey(configId);
-    }
-    
+
     @Override
     public String getProviderId() {
         return getId();
     }
 
     @Override
-    public boolean isResponsibleFor(@NonNull String configId) {
-        if (this.configs.containsKey(configId)) {
-            return true;
-        }
-
-        // backward compatibility - older than 2.10
-        if (configId.startsWith(getProviderId())) {
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
     public Config newConfig() {
         String id = this.getProviderId() + "." + System.currentTimeMillis();
         return new Config(id, null, null, null);
-    }
-
-    @Override
-    public void remove(String configId) {
-        configs.remove(configId);
-        this.save();
-    }
-
-    @Override
-    public void save(Config config) {
-        configs.put(config.id, config);
-        this.save();
     }
 
     /**
@@ -110,6 +86,7 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     /**
      * Overridden for backward compatibility to let subtype customize the file name.
      */
+    @Deprecated
     public void load() {
         XmlFile xml = getConfigXml();
         if (xml.exists()) {
@@ -121,21 +98,31 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
         }
     }
 
-    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Jenkins.getInstance() should never be null")
+    @Deprecated
     protected XmlFile getConfigXml() {
-        return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getInstance().getRootDir(), this.getXmlFileName()));
+        return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getActiveInstance().getRootDir(), this.getXmlFileName()));
     }
 
+    @Deprecated
     protected String getXmlFileName() {
         return getId() + ".xml";
     }
 
-    @SuppressFBWarnings("SE_COMPARATOR_SHOULD_BE_SERIALIZABLE")
-    private static final class NameComparator implements Comparator<Config> {
+    private static final class NameComparator implements Comparator<Config>, Serializable {
+        private static final long serialVersionUID = -1L;
         public int compare(Config o1, Config o2) {
             String a = o1.name != null ? o1.name : "";
             String b = o2.name != null ? o2.name : "";
             return a.compareTo(b);
         }
     }
+
+    public void clearOldDataStorage() {
+        if(configs != null && !configs.isEmpty()) {
+            configs = Collections.emptyMap();
+            save();
+        }
+    }
+
+
 }

@@ -24,22 +24,40 @@
 package org.jenkinsci.plugins.configfiles.maven;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 
+import jenkins.model.Jenkins;
+import org.apache.commons.io.IOUtils;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class MavenToolchainsConfig extends Config {
     private static final long serialVersionUID = 1L;
 
     public MavenToolchainsConfig(String id, String name, String comment, String content) {
         super(id, name, comment, content);
+    }
+
+    @DataBoundConstructor
+    public MavenToolchainsConfig(String id, String name, String comment, String content, String providerId) {
+        super(id, name, comment, content, providerId);
+    }
+
+    public MavenToolchainsConfig(Config config) {
+        super(config);
+    }
+
+    @Override
+    public ConfigProvider getDescriptor() {
+        return Jenkins.getActiveInstance().getDescriptorByType(MavenToolchainsConfigProvider.class);
     }
 
     @Extension(ordinal = 180)
@@ -73,40 +91,31 @@ public class MavenToolchainsConfig extends Config {
         @Override
         public Config newConfig() {
             String id = this.getProviderId() + System.currentTimeMillis();
-            return new Config(id, "MyToolchains", "", loadTemplateContent());
-         }
+            return new MavenToolchainsConfig(id, "MyToolchains", "", loadTemplateContent());
+        }
 
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new Config(id, "MyToolchains", "", loadTemplateContent(), getProviderId());
+            return new MavenToolchainsConfig(id, "MyToolchains", "", loadTemplateContent(), getProviderId());
         }
 
-        @SuppressFBWarnings("REC_CATCH_EXCEPTION")
+        @Override
+        public <T extends Config> T convert(Config config) {
+            return (T) new MavenToolchainsConfig(config);
+        }
+
         private String loadTemplateContent() {
-            String tpl;
+            InputStream in = null;
             try {
-                InputStream is = this.getClass().getResourceAsStream("toolchains-tpl.xml");
-                InputStreamReader reader = new InputStreamReader(is, "UTF-8");;
-
-                try {
-                    StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
-                    char[] tmp = new char[4096];
-
-                    for (int cnt; (cnt = reader.read(tmp)) > 0;)
-                        sb.append(tmp, 0, cnt);
-
-                    tpl = sb.toString();
-                } finally {
-                    reader.close();
-                    is.close();
-                }
+                in = this.getClass().getResourceAsStream("toolchains-tpl.xml");
+                return IOUtils.toString(in, "UTF-8");
             } catch (Exception e) {
-                tpl = "<toolchains></toolchains>";
+                return "<toolchains></toolchains>";
+            } finally {
+                IOUtils.closeQuietly(in);
             }
-            return tpl;
         }
-
     }
 
 }

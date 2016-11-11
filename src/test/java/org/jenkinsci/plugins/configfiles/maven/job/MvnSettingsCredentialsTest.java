@@ -1,20 +1,19 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.CredentialsScope;
+import com.cloudbees.plugins.credentials.CredentialsStore;
+import com.cloudbees.plugins.credentials.domains.Domain;
+import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.FilePath;
 import hudson.maven.MavenModuleSet;
-import hudson.model.Result;
-import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 import hudson.model.Cause.UserCause;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
+import hudson.model.Result;
+import hudson.model.TaskListener;
+import jenkins.model.GlobalConfiguration;
 import org.apache.commons.io.FileUtils;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
@@ -25,13 +24,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
-
-import com.cloudbees.plugins.credentials.CredentialsProvider;
-import com.cloudbees.plugins.credentials.CredentialsScope;
-import com.cloudbees.plugins.credentials.CredentialsStore;
-import com.cloudbees.plugins.credentials.domains.Domain;
-import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import org.jvnet.hudson.test.ToolInstallations;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 public class MvnSettingsCredentialsTest {
 
@@ -48,7 +48,7 @@ public class MvnSettingsCredentialsTest {
     public void serverCredentialsMustBeInSettingsXmlAtRuntime() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final MavenModuleSet p = j.jenkins.createProject(MavenModuleSet.class, "mvn");
+        final MavenModuleSet p = j.createProject(MavenModuleSet.class);
 
         p.setMaven(ToolInstallations.configureMaven3().getName());
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
@@ -125,7 +125,10 @@ public class MvnSettingsCredentialsTest {
 
         MavenSettingsConfig c1 = (MavenSettingsConfig) provider.newConfig();
         MavenSettingsConfig c2 = new MavenSettingsConfig(c1.id + "dummy", c1.name, c1.comment, c1.content, MavenSettingsConfig.isReplaceAllDefault, mappings);
-        provider.save(c2);
+
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c2);
+
         return c2;
     }
 
@@ -140,7 +143,10 @@ public class MvnSettingsCredentialsTest {
 
         GlobalMavenSettingsConfig c1 = (GlobalMavenSettingsConfig) provider.newConfig();
         GlobalMavenSettingsConfig c2 = new GlobalMavenSettingsConfig(c1.id + "dummy2", c1.name, c1.comment, c1.content,  GlobalMavenSettingsConfig.isReplaceAllDefault, mappings);
-        provider.save(c2);
+
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c2);
+
         return c2;
     }
 }

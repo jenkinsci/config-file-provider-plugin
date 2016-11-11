@@ -3,7 +3,8 @@
  */
 package org.jenkinsci.plugins.configfiles.builder;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.cloudbees.hudson.plugins.folder.AbstractFolder;
+import com.cloudbees.hudson.plugins.folder.Folder;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.FilePath;
@@ -32,10 +33,10 @@ import java.util.Map;
  * @author Dominik Bartholdi (imod)
  * 
  */
-@SuppressFBWarnings("SE_BAD_FIELD")
 public class ConfigFileBuildStep extends Builder implements Serializable {
 
     private static final long serialVersionUID = -5623878268985950032L;
+
 
     private List<ManagedFile> managedFiles = new ArrayList<ManagedFile>();
 
@@ -79,15 +80,6 @@ public class ConfigFileBuildStep extends Builder implements Serializable {
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             return true;
-        }
-
-        public Collection<Config> getConfigFiles() {
-            ExtensionList<ConfigProvider> providers = ConfigProvider.all();
-            List<Config> allFiles = new ArrayList<Config>();
-            for (ConfigProvider provider : providers) {
-                allFiles.addAll(provider.getAllConfigs());
-            }
-            return allFiles;
         }
 
     }

@@ -25,7 +25,7 @@ package org.jenkinsci.plugins.configfiles.buildwrapper;
 
 import hudson.AbortException;
 import hudson.FilePath;
-import hudson.model.AbstractBuild;
+import hudson.model.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -35,17 +35,15 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import hudson.model.Build;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
 import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
-import hudson.model.Run;
-import hudson.model.TaskListener;
 import hudson.slaves.WorkspaceList;
 
 public class ManagedFileUtil {
@@ -53,9 +51,8 @@ public class ManagedFileUtil {
 
     /**
      * TODO use 1.652 use WorkspaceList.tempDir
-     * 
-     * @param ws
-     *            workspace of the {@link hudson.model.Build}. See {@link Build#getWorkspace()}
+     *
+     * @param ws workspace of the {@link hudson.model.Build}. See {@link Build#getWorkspace()}
      * @return temporary directory, may not have been created so far
      */
     public static FilePath tempDir(FilePath ws) {
@@ -64,20 +61,15 @@ public class ManagedFileUtil {
 
     /**
      * provisions (publishes) the given files to the workspace.
-     * 
-     * @param managedFiles
-     *            the files to be provisioned
-     * @param workspace
-     *            target workspace
-     * @param listener
-     *            the listener
-     * @param tempFiles
-     *            temp files created by this method, these files should be deleted by the caller
+     *
+     * @param managedFiles the files to be provisioned
+     * @param workspace    target workspace
+     * @param listener     the listener
+     * @param tempFiles    temp files created by this method, these files should be deleted by the caller
      * @return a map of all the files copied, mapped to the path of the remote location, never <code>null</code>.
      * @throws IOException
      * @throws InterruptedException
-     * @throws AbortException
-     *             config file has not been found
+     * @throws AbortException       config file has not been found
      */
     public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, Run<?, ?> build, FilePath workspace, TaskListener listener, List<String> tempFiles) throws IOException, InterruptedException {
 
@@ -86,9 +78,12 @@ public class ManagedFileUtil {
 
         for (ManagedFile managedFile : managedFiles) {
 
-            Config configFile = Config.getByIdOrNull(managedFile.fileId);
+            Config configFile = ConfigFiles.getByIdOrNull(build, managedFile.fileId);
+
             if (configFile == null) {
-                throw new AbortException("not able to provide the following file, can't be resolved by any provider - maybe it got deleted by an administrator: " + managedFile);
+                String message = "not able to provide the file " + managedFile + ", can't be resolved by any provider - maybe it got deleted by an administrator?";
+                listener.getLogger().println(message);
+                throw new AbortException(message);
             }
 
             FilePath workDir = tempDir(workspace);
@@ -130,7 +125,7 @@ public class ManagedFileUtil {
                 }
             }
 
-            LOGGER.log(Level.FINE, "Create file {0} for configuration {1} mapped as {2}", new Object[] { target.getRemote(), configFile, managedFile });
+            LOGGER.log(Level.FINE, "Create file {0} for configuration {1} mapped as {2}", new Object[]{target.getRemote(), configFile, managedFile});
             listener.getLogger().println(Messages.console_output(configFile.name, target.toURI()));
             ByteArrayInputStream bs = new ByteArrayInputStream(fileContent.getBytes("UTF-8"));
             target.copyFrom(bs);
@@ -141,23 +136,23 @@ public class ManagedFileUtil {
         return file2Path;
     }
 
-    private static String insertCredentialsInSettings(Run<?,?> build, Config configFile, FilePath workDir, List<String> tempFiles) throws IOException {
-		String fileContent = configFile.content;
-		
-		if (configFile instanceof HasServerCredentialMappings) {
-			HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
-			final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings());
-			final Boolean isReplaceAll = settings.getIsReplaceAll();
+    private static String insertCredentialsInSettings(Run<?, ?> build, Config configFile, FilePath workDir, List<String> tempFiles) throws IOException {
+        String fileContent = configFile.content;
 
-			if (!resolvedCredentials.isEmpty()) {
-				try {
-					fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
-				} catch (Exception exception) {
-					throw new IOException("[ERROR] could not insert credentials into the settings file " + configFile, exception);
-				}
-			}
-		}
-		
-		return fileContent;
-	}
+        if (configFile instanceof HasServerCredentialMappings) {
+            HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
+            final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings());
+            final Boolean isReplaceAll = settings.getIsReplaceAll();
+
+            if (!resolvedCredentials.isEmpty()) {
+                try {
+                    fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+                } catch (Exception exception) {
+                    throw new IOException("[ERROR] could not insert credentials into the settings file " + configFile, exception);
+                }
+            }
+        }
+
+        return fileContent;
+    }
 }

@@ -12,7 +12,9 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
+import jenkins.model.GlobalConfiguration;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
@@ -40,7 +42,7 @@ public class SettingsEnvVarTest {
     public void serverCredentialsMustBeInSettingsXmlAtRuntime() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final MavenModuleSet p = j.jenkins.createProject(MavenModuleSet.class, "mvn");
+        final MavenModuleSet p = j.createProject(MavenModuleSet.class);
 
         p.setMaven(ToolInstallations.configureMaven3().getName());
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
@@ -67,8 +69,6 @@ public class SettingsEnvVarTest {
             try {
                 final String userSettings = TokenMacro.expandAll(build, listener, "${ENV, var=\"MVN_SETTINGS\"}");
                 final String globalSettings = TokenMacro.expandAll(build, listener, "${ENV, var=\"MVN_GLOBALSETTINGS\"}");
-                System.out.println("-->" + userSettings);
-                System.out.println("-->" + globalSettings);
                 Assert.assertTrue("env variable for user settings is not set", StringUtils.isNotBlank(userSettings));
                 Assert.assertTrue("env variable for global settings is not set", StringUtils.isNotBlank(globalSettings));
             } catch (MacroEvaluationException e) {
@@ -81,14 +81,16 @@ public class SettingsEnvVarTest {
     private MavenSettingsConfig createSettings(MavenSettingsConfigProvider provider) throws Exception {
 
         MavenSettingsConfig c1 = (MavenSettingsConfig) provider.newConfig();
-        provider.save(c1);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c1);
         return c1;
     }
 
     private GlobalMavenSettingsConfig createGlobalSettings(GlobalMavenSettingsConfigProvider provider) throws Exception {
 
         GlobalMavenSettingsConfig c1 = (GlobalMavenSettingsConfig) provider.newConfig();
-        provider.save(c1);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c1);
         return c1;
     }
 }

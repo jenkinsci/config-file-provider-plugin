@@ -83,7 +83,7 @@ public abstract class AbstractConfigProvider extends AbstractConfigProviderImpl 
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Jenkins.getInstance() should never be null")
     protected XmlFile getConfigXml() {
-        return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getInstance().getRootDir(), this.getXmlFileName()));
+        return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getActiveInstance().getRootDir(), this.getXmlFileName()));
     }
 
     protected String getXmlFileName() {

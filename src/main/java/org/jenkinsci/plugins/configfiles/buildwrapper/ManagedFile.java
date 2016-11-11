@@ -25,27 +25,26 @@ package org.jenkinsci.plugins.configfiles.buildwrapper;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
-import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.Util;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
+import hudson.model.ItemGroup;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.ConfigFiles;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.io.Serializable;
 
 /**
  * @author domi
  */
-public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
+public class ManagedFile implements ExtensionPoint, Describable<ManagedFile>, Serializable {
 
     public final String fileId;
     public String targetLocation;
@@ -116,7 +115,7 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
     @Override
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Jenkins.getInstance() should never be null")
     public Descriptor<ManagedFile> getDescriptor() {
-        return (DescriptorImpl) Jenkins.getInstance().getDescriptorOrDie(getClass());
+        return (DescriptorImpl) Jenkins.getActiveInstance().getDescriptorOrDie(getClass());
     }
 
 
@@ -128,23 +127,15 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
             return "";
         }
 
-        public ListBoxModel doFillFileIdItems() {
+        public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context) {
             ListBoxModel items = new ListBoxModel();
             items.add("please select", "");
-            for (Config config : getConfigFiles()) {
+            for (Config config : ConfigFiles.getConfigsInContext(context, null)) {
                 items.add(config.name, config.id);
             }
             return items;
         }
 
-        public Collection<Config> getConfigFiles() {
-            ExtensionList<ConfigProvider> providers = ConfigProvider.all();
-            List<Config> allFiles = new ArrayList<Config>();
-            for (ConfigProvider provider : providers) {
-                allFiles.addAll(provider.getAllConfigs());
-            }
-            return allFiles;
-        }
     }
 }
 

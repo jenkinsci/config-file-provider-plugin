@@ -28,15 +28,32 @@ import hudson.Extension;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.jenkinsci.plugins.configfiles.json.JsonConfig;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class CustomConfig extends Config {
     private static final long serialVersionUID = 1L;
 
     public CustomConfig(String id, String name, String comment, String content) {
         super(id, name, comment, content);
+    }
+
+    @DataBoundConstructor
+    public CustomConfig(String id, String name, String comment, String content, String providerId) {
+        super(id, name, comment, content, providerId);
+    }
+
+    public CustomConfig(Config config){
+        super(config);
+    }
+
+    @Override
+    public ConfigProvider getDescriptor() {
+        return Jenkins.getActiveInstance().getDescriptorByType(CustomConfigProvider.class);
     }
 
     @Extension(ordinal = 50)
@@ -57,30 +74,33 @@ public class CustomConfig extends Config {
         }
 
         @Override
-        public Config newConfig() {
+        public <T extends Config> T convert(Config config) {
+            return (T) new CustomConfig(config);
+        }
+
+        @Override
+        public CustomConfig newConfig() {
             String id = getProviderId() + System.currentTimeMillis();
-            return new Config(id, "MyCustom", "", "");
+            return new CustomConfig(id, "MyCustom", "", "");
         }
 
         @NonNull
         @Override
-        public Config newConfig(@NonNull String id) {
-            return new Config(id, "MyCustom", "", "", getProviderId());
+        public CustomConfig newConfig(@NonNull String id) {
+            return new CustomConfig(id, "MyCustom", "", "", getProviderId());
         }
 
         // ======================
         // start stuff for backward compatibility
         protected transient String ID_PREFIX;
 
-        @Override
-        public boolean isResponsibleFor(@NonNull String configId) {
-            return super.isResponsibleFor(configId) || configId.startsWith("CustomConfigProvider.");
-        }
 
         @Override
         protected String getXmlFileName() {
             return "custom-config-files.xml";
         }
+
+
 
         static {
             Jenkins.XSTREAM.alias("org.jenkinsci.plugins.configfiles.custom.CustomConfigProvider", CustomConfigProvider.class);

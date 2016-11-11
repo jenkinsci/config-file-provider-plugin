@@ -184,7 +184,7 @@ public class CredentialsHelper {
                 serversNode.appendChild(server);
             } else {
                 LOGGER.log(Level.WARNING, "Maven Server ID {0}: credentials type of {1} not supported: {2}",
-                        new Object[]{mavenServerId, credential.getId(), credential.getClass()});
+                        new Object[]{mavenServerId, credential == null ? null : credential.getId(), credential == null ? null : credential.getClass()});
             }
 
         }

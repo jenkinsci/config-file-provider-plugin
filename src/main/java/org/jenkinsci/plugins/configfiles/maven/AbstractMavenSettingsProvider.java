@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -50,16 +51,14 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
 
     @SuppressFBWarnings("UI_INHERITANCE_UNSAFE_GETRESOURCE")
     protected String loadTemplateContent() {
+        InputStream in = null;
         try {
-            InputStream is = this.getClass().getResourceAsStream("settings-tpl.xml");
-
-            try {
-                return IOUtils.toString(is, "UTF-8");
-            } finally {
-                is.close();
-            }
+            in = AbstractMavenSettingsProvider.class.getResourceAsStream("settings-tpl.xml");
+            return org.apache.commons.io.IOUtils.toString(in, "UTF-8");
         } catch (Exception e) {
             return "<settings></settings>";
+        } finally {
+            org.apache.commons.io.IOUtils.closeQuietly(in);
         }
     }
 }
