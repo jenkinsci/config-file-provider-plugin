@@ -26,6 +26,7 @@ package org.jenkinsci.lib.configprovider;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Descriptor;
@@ -50,6 +51,7 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     /**
      * All registered {@link ConfigProvider}s.
      */
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Jenkins.getInstance() should never be null")
     public static ExtensionList<ConfigProvider> all() {
         return Jenkins.getInstance().getExtensionList(ConfigProvider.class);
     }

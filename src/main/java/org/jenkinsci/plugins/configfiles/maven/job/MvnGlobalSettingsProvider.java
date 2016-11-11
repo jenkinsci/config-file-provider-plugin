@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.FilePath;
@@ -62,6 +63,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
     }
 
     @Override
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "build.getWorkspace() is not intended to be null")
     public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
         if (StringUtils.isNotBlank(settingsConfigId)) {
 
@@ -116,6 +118,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
     }
 
     @Extension(ordinal = 10)
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Jenkins.getInstance() should never be null")
     public static class DescriptorImpl extends GlobalSettingsProviderDescriptor {
 
         @Override

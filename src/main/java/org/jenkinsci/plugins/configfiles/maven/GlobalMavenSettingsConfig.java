@@ -29,6 +29,7 @@ import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
@@ -39,6 +40,7 @@ import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappi
 import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+@SuppressFBWarnings("SE_BAD_FIELD")
 public class GlobalMavenSettingsConfig extends Config implements HasServerCredentialMappings {
     private static final long serialVersionUID = 1L;
 

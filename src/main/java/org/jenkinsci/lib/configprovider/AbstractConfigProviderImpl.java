@@ -2,6 +2,7 @@ package org.jenkinsci.lib.configprovider;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.BulkChange;
 import hudson.XmlFile;
 import hudson.model.listeners.SaveableListener;
@@ -120,6 +121,7 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
         }
     }
 
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Jenkins.getInstance() should never be null")
     protected XmlFile getConfigXml() {
         return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getInstance().getRootDir(), this.getXmlFileName()));
     }
@@ -128,6 +130,7 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
         return getId() + ".xml";
     }
 
+    @SuppressFBWarnings("SE_COMPARATOR_SHOULD_BE_SERIALIZABLE")
     private static final class NameComparator implements Comparator<Config> {
         public int compare(Config o1, Config o2) {
             String a = o1.name != null ? o1.name : "";

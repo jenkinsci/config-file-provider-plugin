@@ -31,6 +31,7 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.CredentialsStore;
 import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
+import org.jvnet.hudson.test.ToolInstallations;
 
 public class MvnSettingsCredentialsTest {
 
@@ -47,9 +48,9 @@ public class MvnSettingsCredentialsTest {
     public void serverCredentialsMustBeInSettingsXmlAtRuntime() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final MavenModuleSet p = j.createMavenProject("mvn");
+        final MavenModuleSet p = j.jenkins.createProject(MavenModuleSet.class, "mvn");
 
-        p.setMaven(j.configureMaven3().getName());
+        p.setMaven(ToolInstallations.configureMaven3().getName());
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
         p.setGoals("initialize");
 

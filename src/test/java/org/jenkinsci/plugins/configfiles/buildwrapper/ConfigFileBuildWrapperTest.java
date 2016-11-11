@@ -34,6 +34,7 @@ import hudson.model.Result;
 import hudson.model.StringParameterDefinition;
 import hudson.model.Cause.UserCause;
 import hudson.tasks.Builder;
+import org.jvnet.hudson.test.ToolInstallations;
 
 public class ConfigFileBuildWrapperTest {
 
@@ -59,10 +60,10 @@ public class ConfigFileBuildWrapperTest {
     public void envVariableMustBeAvailableInMavenModuleSetBuild() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final MavenModuleSet p = j.createMavenProject("mvn");
+        final MavenModuleSet p = j.jenkins.createProject(MavenModuleSet.class, "mvn");
 
         // p.getBuildWrappersList().add(new ConfigFileBuildWrapper(managedFiles))
-        p.setMaven(j.configureMaven3().getName());
+        p.setMaven(ToolInstallations.configureMaven3().getName());
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
         p.setGoals("initialize"); // -s ${MVN_SETTING}
 

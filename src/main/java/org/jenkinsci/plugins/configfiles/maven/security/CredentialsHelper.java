@@ -184,7 +184,7 @@ public class CredentialsHelper {
                 serversNode.appendChild(server);
             } else {
                 LOGGER.log(Level.WARNING, "Maven Server ID {0}: credentials type of {1} not supported: {2}",
-                        new Object[]{mavenServerId, credential.getId(), credential == null ? null : credential.getClass()});
+                        new Object[]{mavenServerId, credential.getId(), credential.getClass()});
             }
 
         }
@@ -222,7 +222,7 @@ public class CredentialsHelper {
             Node node = nodes.item(i);
             String name = node.getNodeName();
             String content = node.getTextContent();
-            if ("id" == name.toLowerCase()) {
+            if ("id".equals(name.toLowerCase())) {
                 return content;
             }
         }

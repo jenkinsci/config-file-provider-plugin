@@ -83,7 +83,7 @@ public class MvnSettingsProviderTest {
         Config c1 = createSetting(mavenSettingProvider);
         Config c2 = createSetting(globalMavenSettingsConfigProvider);
 
-        MavenModuleSet p = jenkins.createMavenProject();
+        MavenModuleSet p = jenkins.jenkins.createProject(MavenModuleSet.class, "mvn");
         MvnSettingsProvider s1 = new MvnSettingsProvider(c1.id);
         MvnGlobalSettingsProvider s2 = new MvnGlobalSettingsProvider(c2.id);
         p.setSettings(s1);

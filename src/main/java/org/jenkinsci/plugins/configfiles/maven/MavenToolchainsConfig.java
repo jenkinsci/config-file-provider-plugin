@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.configfiles.maven;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 
 import java.io.InputStream;
@@ -81,22 +82,25 @@ public class MavenToolchainsConfig extends Config {
             return new Config(id, "MyToolchains", "", loadTemplateContent(), getProviderId());
         }
 
+        @SuppressFBWarnings("REC_CATCH_EXCEPTION")
         private String loadTemplateContent() {
             String tpl;
             try {
                 InputStream is = this.getClass().getResourceAsStream("toolchains-tpl.xml");
-                StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
-                char[] tmp = new char[4096];
+                InputStreamReader reader = new InputStreamReader(is, "UTF-8");;
 
                 try {
-                    InputStreamReader reader = new InputStreamReader(is, "UTF-8");
+                    StringBuilder sb = new StringBuilder(Math.max(16, is.available()));
+                    char[] tmp = new char[4096];
+
                     for (int cnt; (cnt = reader.read(tmp)) > 0;)
                         sb.append(tmp, 0, cnt);
 
+                    tpl = sb.toString();
                 } finally {
+                    reader.close();
                     is.close();
                 }
-                tpl = sb.toString();
             } catch (Exception e) {
                 tpl = "<toolchains></toolchains>";
             }

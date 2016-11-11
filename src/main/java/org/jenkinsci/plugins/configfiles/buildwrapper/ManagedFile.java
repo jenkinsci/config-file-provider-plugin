@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
@@ -80,9 +81,17 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
         this.replaceTokens = false;
     }
 
+    public String getTargetLocation() {
+        return this.targetLocation;
+    }
+
     @DataBoundSetter
     public void setTargetLocation(String targetLocation) {
         this.targetLocation = Util.fixEmpty(targetLocation);
+    }
+
+    public String getVariable() {
+        return this.variable;
     }
 
     @DataBoundSetter
@@ -105,6 +114,7 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
     }
 
     @Override
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Jenkins.getInstance() should never be null")
     public Descriptor<ManagedFile> getDescriptor() {
         return (DescriptorImpl) Jenkins.getInstance().getDescriptorOrDie(getClass());
     }
@@ -115,7 +125,7 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile> {
     public static class DescriptorImpl extends Descriptor<ManagedFile> {
         @Override
         public String getDisplayName() {
-            return null;
+            return "";
         }
 
         public ListBoxModel doFillFileIdItems() {
