@@ -79,9 +79,17 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile>, Se
         this.replaceTokens = false;
     }
 
+    public String getTargetLocation() {
+        return this.targetLocation;
+    }
+
     @DataBoundSetter
     public void setTargetLocation(String targetLocation) {
         this.targetLocation = Util.fixEmpty(targetLocation);
+    }
+
+    public String getVariable() {
+        return this.variable;
     }
 
     @DataBoundSetter
