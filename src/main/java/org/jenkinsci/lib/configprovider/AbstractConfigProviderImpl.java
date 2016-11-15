@@ -64,6 +64,7 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     }
 
     @Override
+    @Deprecated // use org.jenkinsci.lib.configprovider.ConfigProvider.newConfig(java.lang.String)
     public Config newConfig() {
         String id = this.getProviderId() + "." + System.currentTimeMillis();
         return new Config(id, null, null, null);
