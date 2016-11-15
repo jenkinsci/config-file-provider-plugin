@@ -2,8 +2,9 @@ package org.jenkinsci.plugins.configfiles;
 
 import hudson.Extension;
 import hudson.ExtensionList;
+import hudson.ExtensionPoint;
+import hudson.model.Describable;
 import hudson.model.Descriptor;
-import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
@@ -15,12 +16,16 @@ import java.util.*;
  * Created by domi on 17/09/16.
  */
 @Extension
-public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFileStore {
+public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements ConfigFileStore, ExtensionPoint, Describable<GlobalConfigFiles> {
 
     private Collection<Config> configs = new ArrayList<Config>();
 
+    public final Descriptor<GlobalConfigFiles> getDescriptor() {
+        return this;
+    }
+
     public static GlobalConfigFiles get() {
-        GlobalConfigFiles instance = GlobalConfiguration.all().get(GlobalConfigFiles.class);
+        GlobalConfigFiles instance = Jenkins.getActiveInstance().getDescriptorList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         if (instance == null) { // TODO would be useful to have an ExtensionList.getOrFail
             throw new IllegalStateException();
         }
@@ -28,6 +33,7 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
     }
 
     public GlobalConfigFiles() {
+        super(self());
         // migrate old data storage (file per provider) into new storage (one file per scope - global scope)
         ExtensionList<ConfigProvider> allProviders = ConfigProvider.all();
         for (ConfigProvider p : allProviders) {
