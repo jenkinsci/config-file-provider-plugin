@@ -11,7 +11,6 @@ import hudson.model.AbstractBuild;
 import hudson.model.Cause.UserCause;
 import hudson.model.Result;
 import hudson.model.TaskListener;
-import jenkins.model.GlobalConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
@@ -26,12 +25,11 @@ import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.ToolInstallations;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 public class MvnSettingsCredentialsTest {
 
@@ -126,7 +124,7 @@ public class MvnSettingsCredentialsTest {
         MavenSettingsConfig c1 = (MavenSettingsConfig) provider.newConfig();
         MavenSettingsConfig c2 = new MavenSettingsConfig(c1.id + "dummy", c1.name, c1.comment, c1.content, MavenSettingsConfig.isReplaceAllDefault, mappings);
 
-        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c2);
 
         return c2;
@@ -144,7 +142,7 @@ public class MvnSettingsCredentialsTest {
         GlobalMavenSettingsConfig c1 = (GlobalMavenSettingsConfig) provider.newConfig();
         GlobalMavenSettingsConfig c2 = new GlobalMavenSettingsConfig(c1.id + "dummy2", c1.name, c1.comment, c1.content,  GlobalMavenSettingsConfig.isReplaceAllDefault, mappings);
 
-        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c2);
 
         return c2;

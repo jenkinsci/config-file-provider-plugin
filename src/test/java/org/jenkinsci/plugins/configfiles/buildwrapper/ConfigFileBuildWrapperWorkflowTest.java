@@ -24,12 +24,6 @@
 
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import jenkins.model.GlobalConfiguration;
 import jenkins.tasks.SimpleBuildWrapper;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -42,13 +36,18 @@ import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jenkinsci.plugins.workflow.steps.CoreWrapperStep;
 import org.jenkinsci.plugins.workflow.steps.StepConfigTester;
 import org.jenkinsci.plugins.workflow.test.steps.SemaphoreStep;
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runners.model.Statement;
 import org.jvnet.hudson.test.BuildWatcher;
-import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.RestartableJenkinsRule;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 public class ConfigFileBuildWrapperWorkflowTest {
 
@@ -160,7 +159,7 @@ public class ConfigFileBuildWrapperWorkflowTest {
         String id = configProvider.getProviderId() + "myfile";
         Config config = new CustomConfig(id, "My File", "", "some content");
 
-        GlobalConfigFiles globalConfigFiles = story.j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles = story.j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(config);
         return config;
     }

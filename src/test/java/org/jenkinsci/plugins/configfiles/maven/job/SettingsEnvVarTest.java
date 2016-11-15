@@ -2,17 +2,11 @@ package org.jenkinsci.plugins.configfiles.maven.job;
 
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
-import hudson.model.BuildListener;
-import hudson.model.Result;
 import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
 import hudson.model.Cause.UserCause;
+import hudson.model.Result;
 import hudson.tasks.Builder;
-
-import java.io.IOException;
-
-import javax.inject.Inject;
-
-import jenkins.model.GlobalConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
@@ -27,6 +21,9 @@ import org.junit.Test;
 import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.ToolInstallations;
+
+import javax.inject.Inject;
+import java.io.IOException;
 
 public class SettingsEnvVarTest {
     @Rule
@@ -81,7 +78,7 @@ public class SettingsEnvVarTest {
     private MavenSettingsConfig createSettings(MavenSettingsConfigProvider provider) throws Exception {
 
         MavenSettingsConfig c1 = (MavenSettingsConfig) provider.newConfig();
-        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
         return c1;
     }
@@ -89,7 +86,7 @@ public class SettingsEnvVarTest {
     private GlobalMavenSettingsConfig createGlobalSettings(GlobalMavenSettingsConfigProvider provider) throws Exception {
 
         GlobalMavenSettingsConfig c1 = (GlobalMavenSettingsConfig) provider.newConfig();
-        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
         return c1;
     }

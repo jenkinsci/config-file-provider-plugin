@@ -1,13 +1,14 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Collections;
-
-import javax.inject.Inject;
-
-import com.gargoylesoftware.htmlunit.html.*;
-import jenkins.model.GlobalConfiguration;
+import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.DomNodeList;
+import com.gargoylesoftware.htmlunit.html.HtmlOption;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import hudson.Launcher;
+import hudson.maven.MavenModuleSet;
+import hudson.model.*;
+import hudson.model.Cause.UserCause;
+import hudson.tasks.Builder;
 import org.apache.commons.io.IOUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -26,18 +27,12 @@ import org.jvnet.hudson.test.BuildWatcher;
 import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
-
-import hudson.Launcher;
-import hudson.maven.MavenModuleSet;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
-import hudson.model.FreeStyleProject;
-import hudson.model.ParametersDefinitionProperty;
-import hudson.model.Result;
-import hudson.model.StringParameterDefinition;
-import hudson.model.Cause.UserCause;
-import hudson.tasks.Builder;
 import org.jvnet.hudson.test.ToolInstallations;
+
+import javax.inject.Inject;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Collections;
 
 public class ConfigFileBuildWrapperTest {
 
@@ -158,7 +153,7 @@ public class ConfigFileBuildWrapperTest {
 
     private Config createSetting(ConfigProvider provider) {
         Config c1 = provider.newConfig();
-        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
         return c1;
     }
@@ -166,7 +161,7 @@ public class ConfigFileBuildWrapperTest {
     private Config createCustomFile(CustomConfigProvider provider, String content) {
         Config c1 = provider.newConfig();
         c1 = new CustomConfig(c1.id, c1.name, c1.comment, content);
-        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfiguration.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
         return c1;
     }
