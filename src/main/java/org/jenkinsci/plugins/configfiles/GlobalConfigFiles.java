@@ -13,6 +13,8 @@ import org.jenkinsci.lib.configprovider.model.Config;
 import java.util.*;
 
 /**
+ * ConfigFileStore holding config files saved on top level (Jenkins instance).
+ *
  * Created by domi on 17/09/16.
  */
 @Extension

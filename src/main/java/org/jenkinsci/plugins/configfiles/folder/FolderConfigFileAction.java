@@ -1,14 +1,11 @@
 package org.jenkinsci.plugins.configfiles.folder;
 
-import com.cloudbees.hudson.plugins.folder.AbstractFolderProperty;
-import com.cloudbees.hudson.plugins.folder.AbstractFolderPropertyDescriptor;
 import com.cloudbees.hudson.plugins.folder.Folder;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.Action;
 import hudson.model.Hudson;
 import hudson.security.Permission;
-import hudson.util.DescribableList;
 import hudson.util.FormValidation;
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
@@ -24,7 +21,6 @@ import org.kohsuke.stapler.*;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
 
 public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
@@ -72,7 +68,14 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
     @Override
     public List<ConfigProvider> getProviders() {
-        return ConfigProvider.all();
+        List<ConfigProvider> all = ConfigProvider.all();
+        List<ConfigProvider> folderSupportedProviders = new ArrayList<>();
+        for (ConfigProvider p : all) {
+            if (p.supportsFolder()){
+                folderSupportedProviders.add(p);
+            }
+        }
+        return folderSupportedProviders;
     }
 
     @Override
@@ -129,6 +132,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
         req.getView(this, "edit.jelly").forward(req, rsp);
     }
 
+
     @Override
     public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
 
@@ -144,7 +148,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
         if (error != null) {
             req.setAttribute("error", error);
             checkPermission(Hudson.ADMINISTER);
-            req.setAttribute("providers", ConfigProvider.all());
+            req.setAttribute("providers", getProviders());
             req.setAttribute("configId", configId);
             req.getView(this, "selectprovider.jelly").forward(req, rsp);
             return;
@@ -172,7 +176,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
     @Override
     public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
-        req.setAttribute("providers", ConfigProvider.all());
+        req.setAttribute("providers", getProviders());
         req.setAttribute("configId", UUID.randomUUID().toString());
         req.getView(this, "selectprovider.jelly").forward(req, rsp);
     }

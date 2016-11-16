@@ -116,4 +116,16 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     public abstract void clearOldDataStorage();
 
 
+    /**
+     * Tells whether this provider is able to handle configuration files stored on folder level too, or if it only supports global confuguration files.
+     * This flag will tell the web UI whether a file can be created on a folder.
+     * Defaults to <code>true</code>, overwrite if your configfiles are not support on folders.
+     *
+     * @return <code>true</code> if the provider supports configfiles stored on folder levels too.
+     * @see org.jenkinsci.plugins.configfiles.GlobalConfigFiles
+     */
+    public boolean supportsFolder() {
+        return true;
+    }
+
 }
