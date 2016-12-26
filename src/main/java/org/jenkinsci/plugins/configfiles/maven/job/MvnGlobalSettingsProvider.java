@@ -1,18 +1,23 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
+import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import hudson.slaves.WorkspaceList;
 import hudson.util.ListBoxModel;
 import jenkins.mvn.GlobalSettingsProvider;
 import jenkins.mvn.GlobalSettingsProviderDescriptor;
@@ -24,11 +29,16 @@ import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFileUtil;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
+import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
+import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 /**
  * This provider delivers the global settings.xml to the job during job/project execution. <br>
@@ -60,6 +70,67 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
 
     public void setSettingsConfigId(String settingsConfigId) {
         this.settingsConfigId = settingsConfigId;
+    }
+
+    @Override
+    @CheckForNull
+    public FilePath supplySettings(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull TaskListener listener) {
+        if (StringUtils.isBlank(settingsConfigId)) {
+            return null;
+        }
+
+        Config c = ConfigFiles.getByIdOrNull((Item) run, settingsConfigId);
+
+        PrintStream console = listener.getLogger();
+        if (c == null) {
+            listener.error("Maven global settings.xml with id '" + settingsConfigId + "' not found");
+            return null;
+        }
+        if (StringUtils.isBlank(c.content)) {
+            console.format("Ignore empty maven global settings.xml with id " + settingsConfigId);
+            return null;
+        }
+
+        GlobalMavenSettingsConfig config;
+        if (c instanceof GlobalMavenSettingsConfig) {
+            config = (GlobalMavenSettingsConfig) c;
+        } else {
+            config = new GlobalMavenSettingsConfig(c.id, c.name, c.comment, c.content, GlobalMavenSettingsConfig.isReplaceAllDefault, null);
+        }
+
+        try {
+            FilePath tmpDir = WorkspaceList.tempDir(workspace).createTempDir("config-file-provider","maven-global");
+
+            String fileContent = config.content;
+
+            final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
+            final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(run, serverCredentialMappings);
+            final Boolean isReplaceAll = config.getIsReplaceAll();
+
+            if (resolvedCredentials.isEmpty()) {
+
+            } else {
+                // temporary credentials files (ssh pem files...)
+                List<String> tmpCredentialsFiles = new ArrayList<>();
+                console.print("Inject in Maven global settings.xml credentials (replaceAll: " + config.isReplaceAll + ") for: " + Joiner.on(",").join(resolvedCredentials.keySet()));
+                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, tmpDir, tmpCredentialsFiles);
+                for (String tempFile : tmpCredentialsFiles) {
+                    run.addAction(new CleanTempFilesAction(tempFile));
+                }
+            }
+
+            final FilePath mavenGlobalSettingsFile = tmpDir.child("settings.xml");
+            mavenGlobalSettingsFile.copyFrom(org.apache.commons.io.IOUtils.toInputStream(fileContent, Charsets.UTF_8));
+
+            LOGGER.log(Level.FINE, "Create {0} from {1}", new Object[]{mavenGlobalSettingsFile, config.id});
+
+            // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
+            // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
+            run.addAction(new CleanTempFilesAction(mavenGlobalSettingsFile.getRemote()));
+            return mavenGlobalSettingsFile;
+        } catch (Exception e) {
+            throw new IllegalStateException("the settings.xml could not be supplied for the current build: " + e.getMessage(), e);
+        }
     }
 
     @Override
