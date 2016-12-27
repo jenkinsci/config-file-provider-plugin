@@ -3,8 +3,11 @@ package org.jenkinsci.plugins.configfiles.maven.security;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -40,7 +44,8 @@ import hudson.util.Secret;
 
 public class CredentialsHelper {
 
-    private final static Logger LOGGER = Logger.getLogger(CredentialsHelper.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CredentialsHelper.class.getName());
+    private static final Collection<String> ATTRIBUTES_TO_KEEPT = Arrays.asList("filePermissions", "directoryPermissions", "configuration");
 
     /**
      * hide constructor
@@ -102,6 +107,7 @@ public class CredentialsHelper {
         }
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(content)));
 
+        Map<String, Node> removedMavenServers = Collections.emptyMap();
 
         // locate the server node(s)
         XPath xpath = XPathFactory.newInstance().newXPath();
@@ -113,13 +119,15 @@ public class CredentialsHelper {
             settingsNode.appendChild(serversNode);
         } else {
             // remove the server nodes
-            removeMavenServerDefinitions(serversNode, mavenServerId2jenkinsCredential.keySet(), isReplaceAllServerDefinitions);
+        	removedMavenServers = removeMavenServerDefinitions(serversNode, mavenServerId2jenkinsCredential.keySet(), Boolean.TRUE.equals(isReplaceAllServerDefinitions));
         }
 
         for (Entry<String, StandardUsernameCredentials> mavenServerId2JenkinsCredential : mavenServerId2jenkinsCredential.entrySet()) {
 
             final StandardUsernameCredentials credential = mavenServerId2JenkinsCredential.getValue();
             String mavenServerId = mavenServerId2JenkinsCredential.getKey();
+
+            Node currentDefinition = removedMavenServers.get(mavenServerId);
             if (credential instanceof StandardUsernamePasswordCredentials) {
 
                 StandardUsernamePasswordCredentials usernamePasswordCredentials = (StandardUsernamePasswordCredentials) credential;
@@ -138,6 +146,7 @@ public class CredentialsHelper {
                 server.appendChild(id);
                 server.appendChild(username);
                 server.appendChild(password);
+                copyServerAttributes(currentDefinition,	server);
 
                 serversNode.appendChild(server);
             } else if (credential instanceof SSHUserPrivateKey) {
@@ -167,6 +176,7 @@ public class CredentialsHelper {
 
                 workDir.mkdirs();
                 FilePath privateKeyFile = workDir.createTextTempFile("private-key-", ".pem", privateKeyContent, true);
+                privateKeyFile.chmod(0600);
                 tempFiles.add(privateKeyFile.getRemote());
                 LOGGER.log(Level.FINE, "Create {0}", new Object[]{privateKeyFile.getRemote()});
 
@@ -180,6 +190,7 @@ public class CredentialsHelper {
                 server.appendChild(username);
                 server.appendChild(privateKey);
                 server.appendChild(passphrase);
+                copyServerAttributes(currentDefinition,	server);
 
                 serversNode.appendChild(server);
             } else {
@@ -192,37 +203,70 @@ public class CredentialsHelper {
         // save the result
         StringWriter writer = new StringWriter();
         Transformer xformer = TransformerFactory.newInstance().newTransformer();
+        xformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        xformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
         xformer.transform(new DOMSource(doc), new StreamResult(writer));
         content = writer.toString();
 
         return content;
     }
 
-    /**
-     * Removes all childs
-     * 
-     * @param serversNode
-     *            the node to remove all childs from
+    /*
+     * Copy non credential attributes from a node to other
      */
-    private static void removeMavenServerDefinitions(final Node serversNode, final Set<String> credentialKeys, final Boolean replaceAll) {
-        final NodeList serverNodes = serversNode.getChildNodes();
-        for (int i = 0; i < serverNodes.getLength(); i++) {
-            final Node server = serverNodes.item(i);
-            String serverId = getServerId(server);
-            if (Boolean.TRUE.equals(replaceAll) || (credentialKeys.contains(serverId))) {
-                serversNode.removeChild(server);
-                --i;
+    private static void copyServerAttributes(Node from, Node to) {
+        if (from == null || to == null) {
+            // nothing to copy	
+            return;
+        }
+
+        NodeList nodes = from.getChildNodes();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            String name = StringUtils.trimToNull(node.getNodeName());
+            if (ATTRIBUTES_TO_KEEPT.contains(name)) {
+                to.appendChild(node);
             }
         }
     }
 
-    private static String getServerId(Node server) {
+    /**
+     * Removes all children
+     * 
+     * @param serversNode
+     *            the node to remove all children from
+     * @param credentialKeys
+     *            list of server id to replace
+     * @param replaceAll
+     *            if remove all server nodes
+     */
+    private static Map<String, Node> removeMavenServerDefinitions(final Node serversNode, final Set<String> credentialKeys, final boolean replaceAll) {
+        Map<String, Node> serverId2Node = new LinkedHashMap<>(credentialKeys.size());
+
+        final NodeList serverNodes = serversNode.getChildNodes();
+        for (int i = 0; i < serverNodes.getLength(); i++) {
+            final Node server = serverNodes.item(i);
+            String serverId = getServerId(server);
+            if (replaceAll || (credentialKeys.contains(serverId))) {
+                Node removed = serversNode.removeChild(server);
+                if (credentialKeys.contains(serverId)) {
+                    serverId2Node.put(serverId, removed);
+                }
+                --i;
+            }
+        }
+        
+        
+        return serverId2Node;
+    }
+
+    private static String getServerId(final Node server) {
         NodeList nodes = server.getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
-            String name = node.getNodeName();
-            String content = node.getTextContent();
-            if ("id".equals(name.toLowerCase())) {
+            String name = StringUtils.lowerCase(node.getNodeName());
+            String content = StringUtils.trimToNull(node.getTextContent());
+            if ("id".equals(name)) {
                 return content;
             }
         }

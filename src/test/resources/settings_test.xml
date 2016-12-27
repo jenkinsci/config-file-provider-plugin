@@ -91,12 +91,22 @@
             <username>dummy1</username>
             <password>XXX</password>
         </server>        
-		<server>
-		    <id>my-passphraseserver</id>
-			<passphrase>AAAAAAAAA</passphrase>
-			<privateKey>OldKey</privateKey>
-		</server>
-        
+        <server>
+            <id>my-passphraseserver</id>
+            <passphrase>AAAAAAAAA</passphrase>
+            <privateKey>OldKey</privateKey>
+        </server>
+        <server>
+            <id>jenkins-39991</id>
+            <passphrase>secret</passphrase>
+            <privateKey>ssh-rsa qwerty==</privateKey>
+            <filePermissions>644</filePermissions>
+            <directoryPermissions>744</directoryPermissions>
+            <configuration>
+                <interactive>false</interactive>
+            </configuration>
+        </server>
+
     </servers>
 
     <!-- mirrors | This is a list of mirrors to be used in downloading artifacts 
