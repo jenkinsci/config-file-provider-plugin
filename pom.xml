@@ -223,6 +223,14 @@
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.3</version>
             </plugin>
+            <plugin>
+                <groupId>org.jenkins-ci.tools</groupId>
+                <artifactId>maven-hpi-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <compatibleSinceVersion>2.15</compatibleSinceVersion>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
