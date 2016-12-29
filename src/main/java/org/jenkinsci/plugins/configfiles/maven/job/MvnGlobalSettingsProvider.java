@@ -10,6 +10,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,12 +75,12 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
 
     @Override
     @CheckForNull
-    public FilePath supplySettings(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull TaskListener listener) {
+    public FilePath supplySettings(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull TaskListener listener) throws IOException, InterruptedException{
         if (StringUtils.isBlank(settingsConfigId)) {
             return null;
         }
 
-        Config c = ConfigFiles.getByIdOrNull((Item) run, settingsConfigId);
+        Config c = ConfigFiles.getByIdOrNull(run, settingsConfigId);
 
         PrintStream console = listener.getLogger();
         if (c == null) {
@@ -98,101 +99,49 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
             config = new GlobalMavenSettingsConfig(c.id, c.name, c.comment, c.content, GlobalMavenSettingsConfig.isReplaceAllDefault, null);
         }
 
-        try {
-            FilePath tmpDir = WorkspaceList.tempDir(workspace).createTempDir("config-file-provider","maven-global");
+        FilePath workspaceTmpDir = WorkspaceList.tempDir(workspace);
+        workspaceTmpDir.mkdirs();
 
-            String fileContent = config.content;
+        String fileContent = config.content;
 
-            final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
-            final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(run, serverCredentialMappings);
-            final Boolean isReplaceAll = config.getIsReplaceAll();
+        final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
+        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(run, serverCredentialMappings);
+        final Boolean isReplaceAll = config.getIsReplaceAll();
 
-            if (resolvedCredentials.isEmpty()) {
-
-            } else {
-                // temporary credentials files (ssh pem files...)
-                List<String> tmpCredentialsFiles = new ArrayList<>();
-                console.print("Inject in Maven global settings.xml credentials (replaceAll: " + config.isReplaceAll + ") for: " + Joiner.on(",").join(resolvedCredentials.keySet()));
-                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, tmpDir, tmpCredentialsFiles);
-                for (String tempFile : tmpCredentialsFiles) {
-                    run.addAction(new CleanTempFilesAction(tempFile));
-                }
+        if (!resolvedCredentials.isEmpty()) {
+            // temporary credentials files (ssh pem files...)
+            List<String> tmpCredentialsFiles = new ArrayList<>();
+            console.println("Inject in Maven global settings.xml credentials (replaceAll: " + config.isReplaceAll + ") for: " + Joiner.on(",").join(resolvedCredentials.keySet()));
+            try {
+                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workspaceTmpDir, tmpCredentialsFiles);
+            } catch (IOException e) {
+                throw new IOException("Exception injecting credentials for maven global settings file '" + config.id + "' during '" + run + "'", e);
+            } catch (InterruptedException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException("Exception injecting credentials for maven global settings file '" + config.id + "' during '" + run + "'", e);
             }
-
-            final FilePath mavenGlobalSettingsFile = tmpDir.child("settings.xml");
-            mavenGlobalSettingsFile.copyFrom(org.apache.commons.io.IOUtils.toInputStream(fileContent, Charsets.UTF_8));
-
-            LOGGER.log(Level.FINE, "Create {0} from {1}", new Object[]{mavenGlobalSettingsFile, config.id});
-
-            // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
-            // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
-            run.addAction(new CleanTempFilesAction(mavenGlobalSettingsFile.getRemote()));
-            return mavenGlobalSettingsFile;
-        } catch (Exception e) {
-            throw new IllegalStateException("the settings.xml could not be supplied for the current build: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
-        if (StringUtils.isNotBlank(settingsConfigId)) {
-
-            Config c = null;
-            if (build instanceof Item) {
-                c = ConfigFiles.getByIdOrNull((Item) build, settingsConfigId);
-            } else if (build instanceof ItemGroup) {
-                c = ConfigFiles.getByIdOrNull((ItemGroup) build, settingsConfigId);
-            } else if (build.getParent() instanceof ItemGroup) {
-                c = ConfigFiles.getByIdOrNull((ItemGroup) build.getParent(), settingsConfigId);
-            }
-
-
-            if (c == null) {
-                listener.getLogger().println("ERROR: your Apache Maven build is setup to use a config with id " + settingsConfigId + " but can not find the config");
-            } else {
-
-                GlobalMavenSettingsConfig config;
-                if (c instanceof GlobalMavenSettingsConfig) {
-                    config = (GlobalMavenSettingsConfig) c;
-                } else {
-                    config = new GlobalMavenSettingsConfig(c.id, c.name, c.comment, c.content, GlobalMavenSettingsConfig.isReplaceAllDefault, null);
-                }
-
-                listener.getLogger().println("using global settings config with name " + config.name);
-                listener.getLogger().println("Replacing all maven server entries not found in credentials list is " + config.getIsReplaceAll());
-                if (StringUtils.isNotBlank(config.content)) {
-                    try {
-
-                        FilePath workDir = ManagedFileUtil.tempDir(build.getWorkspace());
-                        String fileContent = config.content;
-
-                        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, config.getServerCredentialMappings());
-                        final Boolean isReplaceAll = config.getIsReplaceAll();
-
-                        if (!resolvedCredentials.isEmpty()) {
-                            List<String> tempFiles = new ArrayList<String>();
-                            fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
-                            for (String tempFile : tempFiles) {
-                                build.addAction(new CleanTempFilesAction(tempFile));
-                            }
-                        }
-
-                        FilePath configurationFile = build.getWorkspace().createTextTempFile("global-settings", ".xml", fileContent, false);
-                        LOGGER.log(Level.FINE, "Create {0}", new Object[]{configurationFile});
-                        build.getEnvironments().add(new SimpleEnvironment("MVN_GLOBALSETTINGS", configurationFile.getRemote()));
-
-                        // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
-                        // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
-                        build.addAction(new CleanTempFilesAction(configurationFile.getRemote()));
-                        return configurationFile;
-                    } catch (Exception e) {
-                        throw new IllegalStateException("the global settings.xml could not be supplied for the current build: " + e.getMessage());
-                    }
-                }
+            for (String tmpCredentialsFile : tmpCredentialsFiles) {
+                run.addAction(new CleanTempFilesAction(tmpCredentialsFile));
             }
         }
 
-        return null;
+        final FilePath mavenGlobalSettingsFile = workspaceTmpDir.createTempFile("maven-global-", "-settings.xml");
+        mavenGlobalSettingsFile.copyFrom(org.apache.commons.io.IOUtils.toInputStream(fileContent, Charsets.UTF_8));
+
+        LOGGER.log(Level.FINE, "Create {0} from {1}", new Object[]{mavenGlobalSettingsFile, config.id});
+
+        // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
+        // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
+        run.addAction(new CleanTempFilesAction(mavenGlobalSettingsFile.getRemote()));
+
+        if (run instanceof AbstractBuild) {
+            AbstractBuild build = (AbstractBuild) run;
+            build.getEnvironments().add(new SimpleEnvironment("MVN_GLOBALSETTINGS", mavenGlobalSettingsFile.getRemote()));
+        }
+
+        return mavenGlobalSettingsFile;
+
     }
 
     @Extension(ordinal = 10)
