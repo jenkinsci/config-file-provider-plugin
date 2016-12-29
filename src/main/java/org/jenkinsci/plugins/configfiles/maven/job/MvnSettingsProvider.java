@@ -1,26 +1,21 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.model.Item;
-import hudson.model.ItemGroup;
-import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import hudson.model.ItemGroup;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.slaves.WorkspaceList;
 import hudson.util.ListBoxModel;
 import jenkins.mvn.SettingsProvider;
 import jenkins.mvn.SettingsProviderDescriptor;
-
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
-import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFileUtil;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
@@ -29,8 +24,16 @@ import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 /**
  * This provider delivers the settings.xml to the job during job/project execution. <br>
  * <b>Important: Do not rename this class!!</b> For backward compatibility, this class is also created via reflection from the maven-plugin.
@@ -64,66 +67,73 @@ public class MvnSettingsProvider extends SettingsProvider {
     }
 
     @Override
-    public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
-        if (StringUtils.isNotBlank(settingsConfigId)) {
+    @CheckForNull
+    public FilePath supplySettings(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull TaskListener listener) throws IOException, InterruptedException {
+        if (StringUtils.isBlank(settingsConfigId)) {
+            return null;
+        }
 
-            Config c = null;
-            if (build instanceof Item) {
-                c = ConfigFiles.getByIdOrNull((Item) build, settingsConfigId);
-            } else if (build instanceof ItemGroup) {
-                c = ConfigFiles.getByIdOrNull((ItemGroup) build, settingsConfigId);
-            } else if (build.getParent() instanceof ItemGroup) {
-                c = ConfigFiles.getByIdOrNull((ItemGroup) build.getParent(), settingsConfigId);
+        Config c = ConfigFiles.getByIdOrNull(run, settingsConfigId);
+
+        PrintStream console = listener.getLogger();
+        if (c == null) {
+            listener.error("Maven settings.xml with id '" + settingsConfigId + "' not found");
+            return null;
+        }
+        if (StringUtils.isBlank(c.content)) {
+            console.format("Ignore empty maven settings.xml with id " + settingsConfigId);
+            return null;
+        }
+
+        MavenSettingsConfig config;
+        if (c instanceof MavenSettingsConfig) {
+            config = (MavenSettingsConfig) c;
+        } else {
+            config = new MavenSettingsConfig(c.id, c.name, c.comment, c.content, MavenSettingsConfig.isReplaceAllDefault, null);
+        }
+
+        FilePath workspaceTmpDir = WorkspaceList.tempDir(workspace);
+        workspaceTmpDir.mkdirs();
+
+        String fileContent = config.content;
+
+        final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
+        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(run, serverCredentialMappings);
+        final Boolean isReplaceAll = config.getIsReplaceAll();
+
+        if (!resolvedCredentials.isEmpty()) {
+            // temporary credentials files (ssh pem files...)
+            List<String> tmpCredentialsFiles = new ArrayList<>();
+            console.println("Inject in Maven settings.xml credentials (replaceAll: " + config.isReplaceAll + ") for: " + Joiner.on(",").join(resolvedCredentials.keySet()));
+            try {
+                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workspaceTmpDir, tmpCredentialsFiles);
+            } catch (IOException e) {
+                throw new IOException("Exception injecting credentials for maven settings file '" + config.id + "' during '" + run + "'", e);
+            } catch (InterruptedException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException("Exception injecting credentials for maven settings file '" + config.id + "' during '" + run + "'", e);
             }
-
-            if (c == null) {
-                listener.getLogger().println("ERROR: your Apache Maven build is setup to use a config with id " + settingsConfigId + " but can not find the config");
-            } else {
-
-                MavenSettingsConfig config;
-                if (c instanceof MavenSettingsConfig) {
-                    config = (MavenSettingsConfig) c;
-                } else {
-                    config = new MavenSettingsConfig(c.id, c.name, c.comment, c.content, MavenSettingsConfig.isReplaceAllDefault, null);
-                }
-
-                listener.getLogger().println("using settings config with name " + config.name);
-                listener.getLogger().println("Replacing all maven server entries not found in credentials list is " + config.getIsReplaceAll());
-                if (StringUtils.isNotBlank(config.content)) {
-                    FilePath workDir = ManagedFileUtil.tempDir(build.getWorkspace());
-
-                    try {
-
-                        String fileContent = config.content;
-
-                        final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
-                        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, serverCredentialMappings);
-                        final Boolean isReplaceAll = config.getIsReplaceAll();
-
-                        if (!resolvedCredentials.isEmpty()) {
-                            List<String> tempFiles = new ArrayList<String>();
-                            fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
-                            for (String tempFile : tempFiles) {
-                                build.addAction(new CleanTempFilesAction(tempFile));
-                            }
-                        }
-
-                        final FilePath f = build.getWorkspace().createTextTempFile("settings", ".xml", fileContent, false);
-                        LOGGER.log(Level.FINE, "Create {0}", new Object[]{f});
-                        build.getEnvironments().add(new SimpleEnvironment("MVN_SETTINGS", f.getRemote()));
-
-                        // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
-                        // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
-                        build.addAction(new CleanTempFilesAction(f.getRemote()));
-                        return f;
-                    } catch (Exception e) {
-                        throw new IllegalStateException("the settings.xml could not be supplied for the current build: " + e.getMessage(), e);
-                    }
-                }
+            for (String tmpCredentialsFile : tmpCredentialsFiles) {
+                run.addAction(new CleanTempFilesAction(tmpCredentialsFile));
             }
         }
 
-        return null;
+        final FilePath mavenSettingsFile = workspaceTmpDir.createTempFile ("maven-","-settings.xml");
+        mavenSettingsFile.copyFrom(org.apache.commons.io.IOUtils.toInputStream(fileContent, Charsets.UTF_8));
+
+        LOGGER.log(Level.FINE, "Create {0} from {1}", new Object[]{mavenSettingsFile, config.id});
+
+        // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
+        // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
+        run.addAction(new CleanTempFilesAction(mavenSettingsFile.getRemote()));
+
+        if (run instanceof AbstractBuild) {
+            AbstractBuild build = (AbstractBuild) run;
+            build.getEnvironments().add(new SimpleEnvironment("MVN_SETTINGS", mavenSettingsFile.getRemote()));
+        }
+
+        return mavenSettingsFile;
     }
 
     @Extension(ordinal = 10)
