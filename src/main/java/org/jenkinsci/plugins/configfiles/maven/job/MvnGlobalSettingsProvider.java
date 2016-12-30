@@ -1,7 +1,9 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.ItemGroup;
@@ -24,6 +26,7 @@ import jenkins.mvn.GlobalSettingsProviderDescriptor;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -103,15 +106,25 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
         String fileContent = config.content;
 
         final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
-        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(run, serverCredentialMappings);
+        final Map<String, StandardUsernameCredentials> credentialsByMavenServerId = CredentialsHelper.resolveCredentials(run, serverCredentialMappings);
         final Boolean isReplaceAll = config.getIsReplaceAll();
 
-        if (!resolvedCredentials.isEmpty()) {
+        if (!credentialsByMavenServerId.isEmpty()) {
+
+            console.println("Inject in Maven global settings.xml credentials for maven servers (replaceAll: " + config.isReplaceAll + "): " +
+                    Joiner.on(", ").skipNulls().join(
+                            Iterables.transform(credentialsByMavenServerId.entrySet(),
+                                    new Function<Map.Entry<String, StandardUsernameCredentials>, String>() {
+                                        @Override
+                                        public String apply(@Nullable Map.Entry<String, StandardUsernameCredentials> entry) {
+                                            return entry == null ? null: (entry.getKey() + "->" + entry.getValue());
+                                        }
+                                    })));
+
             // temporary credentials files (ssh pem files...)
             List<String> tmpCredentialsFiles = new ArrayList<>();
-            console.println("Inject in Maven global settings.xml credentials (replaceAll: " + config.isReplaceAll + ") for: " + Joiner.on(",").join(resolvedCredentials.keySet()));
             try {
-                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workspaceTmpDir, tmpCredentialsFiles);
+                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, credentialsByMavenServerId, workspaceTmpDir, tmpCredentialsFiles);
             } catch (IOException e) {
                 throw new IOException("Exception injecting credentials for maven global settings file '" + config.id + "' during '" + run + "'", e);
             } catch (InterruptedException e) {

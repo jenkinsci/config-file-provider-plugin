@@ -2,7 +2,9 @@ package org.jenkinsci.plugins.configfiles.maven.job;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
@@ -34,6 +36,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * This provider delivers the settings.xml to the job during job/project execution. <br>
  * <b>Important: Do not rename this class!!</b> For backward compatibility, this class is also created via reflection from the maven-plugin.
@@ -98,15 +102,26 @@ public class MvnSettingsProvider extends SettingsProvider {
         String fileContent = config.content;
 
         final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
-        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(run, serverCredentialMappings);
+        final Map<String, StandardUsernameCredentials> credentialsByMavenServerId = CredentialsHelper.resolveCredentials(run, serverCredentialMappings);
         final Boolean isReplaceAll = config.getIsReplaceAll();
 
-        if (!resolvedCredentials.isEmpty()) {
+        if (!credentialsByMavenServerId.isEmpty()) {
+
+            console.println("Inject in Maven settings.xml credentials for maven servers (replaceAll: " + config.isReplaceAll + "): " +
+                    Joiner.on(", ").skipNulls().join(
+                            Iterables.transform(credentialsByMavenServerId.entrySet(),
+                                    new Function<Map.Entry<String, StandardUsernameCredentials>, String>() {
+                                        @Override
+                                        public String apply(@Nullable Map.Entry<String, StandardUsernameCredentials> entry) {
+                                            return entry == null ? null: (entry.getKey() + "->" + entry.getValue());
+                                        }
+                                    })));
+
             // temporary credentials files (ssh pem files...)
             List<String> tmpCredentialsFiles = new ArrayList<>();
-            console.println("Inject in Maven settings.xml credentials (replaceAll: " + config.isReplaceAll + ") for: " + Joiner.on(",").join(resolvedCredentials.keySet()));
+
             try {
-                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workspaceTmpDir, tmpCredentialsFiles);
+                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, credentialsByMavenServerId, workspaceTmpDir, tmpCredentialsFiles);
             } catch (IOException e) {
                 throw new IOException("Exception injecting credentials for maven settings file '" + config.id + "' during '" + run + "'", e);
             } catch (InterruptedException e) {
