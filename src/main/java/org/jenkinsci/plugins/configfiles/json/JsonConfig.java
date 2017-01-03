@@ -116,7 +116,7 @@ public class JsonConfig extends Config {
 
         @Override
         public <T extends Config> T convert(Config config) {
-            return (T) new JsonConfig(config);
+            return (T) new JsonConfig(config.id, config.name,config.comment,config.content,getProviderId());
         }
     }
 
