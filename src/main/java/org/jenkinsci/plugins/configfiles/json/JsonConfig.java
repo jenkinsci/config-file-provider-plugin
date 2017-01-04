@@ -36,9 +36,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * A config/provider to handle the special case of a Json file
- * 
+ *
  * @author Dominik Bartholdi (imod)
- * 
  */
 public class JsonConfig extends Config {
     private static final long serialVersionUID = 1L;
@@ -52,16 +51,10 @@ public class JsonConfig extends Config {
         super(id, name, comment, fixJsonContent(content), providerId);
     }
 
-    public JsonConfig(@NonNull Config config) {
-        super(config);
-    }
-
-
     /**
      * as the form submission with stapler is done in json too, we have to do "deescape" the formated content of the json file.
-     * 
-     * @param content
-     *            the json body of the file
+     *
+     * @param content the json body of the file
      * @return deescaped json
      */
     private static String fixJsonContent(String content) {
@@ -116,7 +109,7 @@ public class JsonConfig extends Config {
 
         @Override
         public <T extends Config> T convert(Config config) {
-            return (T) new JsonConfig(config.id, config.name,config.comment,config.content,getProviderId());
+            return (T) new JsonConfig(config.id, config.name, config.comment, config.content, getProviderId());
         }
     }
 

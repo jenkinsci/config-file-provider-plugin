@@ -51,10 +51,6 @@ public class MavenToolchainsConfig extends Config {
         super(id, name, comment, content, providerId);
     }
 
-    public MavenToolchainsConfig(Config config) {
-        super(config);
-    }
-
     @Override
     public ConfigProvider getDescriptor() {
         return Jenkins.getActiveInstance().getDescriptorByType(MavenToolchainsConfigProvider.class);
@@ -102,7 +98,7 @@ public class MavenToolchainsConfig extends Config {
 
         @Override
         public <T extends Config> T convert(Config config) {
-            return (T) new MavenToolchainsConfig(config);
+            return (T) new MavenToolchainsConfig(config.id, config.name, config.comment, config.content, getProviderId());
         }
 
         private String loadTemplateContent() {

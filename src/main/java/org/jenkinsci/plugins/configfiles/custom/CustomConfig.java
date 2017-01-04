@@ -47,10 +47,6 @@ public class CustomConfig extends Config {
         super(id, name, comment, content, providerId);
     }
 
-    public CustomConfig(Config config){
-        super(config);
-    }
-
     @Override
     public ConfigProvider getDescriptor() {
         return Jenkins.getActiveInstance().getDescriptorByType(CustomConfigProvider.class);
@@ -75,7 +71,7 @@ public class CustomConfig extends Config {
 
         @Override
         public <T extends Config> T convert(Config config) {
-            return (T) new CustomConfig(config);
+            return (T) new CustomConfig(config.id, config.name, config.comment, config.content, getProviderId());
         }
 
         @Override

@@ -2,6 +2,7 @@ package org.jenkinsci.lib.configprovider;
 
 import hudson.BulkChange;
 import hudson.XmlFile;
+import hudson.model.ItemGroup;
 import hudson.model.listeners.SaveableListener;
 
 import java.io.File;
@@ -40,6 +41,7 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
 
     /**
      * only used for data migration
+     * @see org.jenkinsci.plugins.configfiles.ConfigFiles
      */
     @Deprecated
     public Map<String, Config> getConfigs() {
@@ -53,6 +55,11 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
         return tmp;
     }
 
+    /**
+     * Only used to convert data from the old (< 1.5) storage format to the new >= 1.5.
+     * New implementations of this extension point do not need to implement this
+     */
+    @Deprecated
     public <T extends Config> T convert(Config config) {
         return (T) config;
     }
