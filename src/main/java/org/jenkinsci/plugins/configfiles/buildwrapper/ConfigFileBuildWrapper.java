@@ -74,6 +74,7 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
             if (noTargetGiven) {
                 tempFiles.add(entry.getValue().getRemote());
             }
+            listener.getLogger().println("Provide configuration file " + mf.fileId + " at " + fp.getRemote());
         }
         if (!tempFiles.isEmpty()) {
             context.setDisposer(new TempFileCleaner(tempFiles));
