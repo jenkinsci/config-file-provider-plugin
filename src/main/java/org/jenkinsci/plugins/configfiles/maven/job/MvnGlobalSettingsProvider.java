@@ -42,6 +42,8 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
 
     private String settingsConfigId;
 
+    private transient boolean failIfSettingsNotFound = false;
+
     /**
      * Default constructor used to load class via reflection by the maven-plugin for backward compatibility
      */
@@ -54,6 +56,13 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
         this.settingsConfigId = settingsConfigId;
     }
 
+    /*
+     * currently for testing only
+     */
+    public void setFailIfSettingsNotFound(boolean failIfSettingsNotFound) {
+        this.failIfSettingsNotFound = failIfSettingsNotFound;
+    }
+
     public String getSettingsConfigId() {
         return settingsConfigId;
     }
@@ -63,12 +72,16 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
     }
 
     @Override
-    public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
+    public FilePath supplySettings(AbstractBuild<?, ?> originBuild, TaskListener listener) {
         if (StringUtils.isNotBlank(settingsConfigId)) {
+
+            AbstractBuild<?, ?> build = originBuild.getRootBuild();
 
             Config c = null;
             if (build instanceof Item) {
                 c = ConfigFiles.getByIdOrNull((Item) build, settingsConfigId);
+            } else if (build.getParent() instanceof Item) {
+                c = ConfigFiles.getByIdOrNull((Item) build.getParent(), settingsConfigId);
             } else if (build instanceof ItemGroup) {
                 c = ConfigFiles.getByIdOrNull((ItemGroup) build, settingsConfigId);
             } else if (build.getParent() instanceof ItemGroup) {
@@ -77,7 +90,11 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
 
 
             if (c == null) {
-                listener.getLogger().println("ERROR: your Apache Maven build is setup to use a config with id " + settingsConfigId + " but can not find the config");
+                String msg = "your Apache Maven build is setup to use a global config with id " + settingsConfigId + " but can not find the config";
+                listener.getLogger().println("ERROR: " + msg);
+                if (failIfSettingsNotFound) {
+                    throw new IllegalStateException(msg);
+                }
             } else {
 
                 GlobalMavenSettingsConfig config;

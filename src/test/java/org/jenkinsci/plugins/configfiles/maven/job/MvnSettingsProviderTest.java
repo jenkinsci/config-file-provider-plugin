@@ -3,8 +3,10 @@ package org.jenkinsci.plugins.configfiles.maven.job;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 import hudson.maven.MavenModuleSet;
+import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
 import hudson.model.Item;
+import hudson.model.Result;
 import hudson.tasks.Maven;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -16,8 +18,10 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.Bug;
+import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
+import org.jvnet.hudson.test.ToolInstallations;
 
 import javax.inject.Inject;
 
@@ -25,6 +29,7 @@ import static org.junit.Assert.assertNotSame;
 
 /**
  * @author Kohsuke Kawaguchi
+ * @author Dominik Bartholdi (imod)
  */
 public class MvnSettingsProviderTest {
     @Rule
@@ -116,5 +121,28 @@ public class MvnSettingsProviderTest {
             Assert.assertEquals("name NOK", c2.name, name.getValueAttribute());
             Assert.assertEquals("comment NOK", c2.comment, comment.getValueAttribute());
         }
+    }
+
+    @Test
+    @Bug(40737)
+    public void mavenSettingsMustBeFoundInFreestyleProject() throws Exception {
+        jenkins.jenkins.getInjector().injectMembers(this);
+
+        final FreeStyleProject p = jenkins.createFreeStyleProject();
+
+        String mvnName = ToolInstallations.configureMaven3().getName();
+        Config c1 = createSetting(mavenSettingProvider);
+        Config c2 = createSetting(globalMavenSettingsConfigProvider);
+
+        MvnSettingsProvider s1 = new MvnSettingsProvider(c1.id);
+        s1.setFailIfSettingsNotFound(true);
+        MvnGlobalSettingsProvider s2 = new MvnGlobalSettingsProvider(c2.id);
+        s2.setFailIfSettingsNotFound(true);
+
+        Maven m = new Maven("clean", mvnName, null, null, null, false, s1, s2);
+        p.getBuildersList().add(m);
+        p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
+
+        jenkins.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new Cause.UserCause()).get());
     }
 }
