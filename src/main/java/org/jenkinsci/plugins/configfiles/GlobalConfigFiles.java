@@ -108,4 +108,9 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
         configs.remove(c);
         save();
     }
+
+    @Override
+    public String getDisplayName() {
+        return Messages.display_name();
+    }
 }
