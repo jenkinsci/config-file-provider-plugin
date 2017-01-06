@@ -86,7 +86,11 @@ public class ConfigFiles {
                 // we are on top scope...
                 return (T) GlobalConfigFiles.get().getById(configId);
             } else {
-                continue;
+                if ((itemGroup instanceof AbstractFolder) || (itemGroup instanceof Item)) {
+                    continue;
+                } else {
+                    throw new IllegalArgumentException("can not determine current context/parent for: " + itemGroup.getFullName() + " of type " + itemGroup.getClass());
+                }
             }
         }
 
