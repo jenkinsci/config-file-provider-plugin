@@ -42,8 +42,6 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
 
     private String settingsConfigId;
 
-    private transient boolean failIfSettingsNotFound = false;
-
     /**
      * Default constructor used to load class via reflection by the maven-plugin for backward compatibility
      */
@@ -56,13 +54,6 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
         this.settingsConfigId = settingsConfigId;
     }
 
-    /*
-     * currently for testing only
-     */
-    public void setFailIfSettingsNotFound(boolean failIfSettingsNotFound) {
-        this.failIfSettingsNotFound = failIfSettingsNotFound;
-    }
-
     public String getSettingsConfigId() {
         return settingsConfigId;
     }
@@ -72,29 +63,15 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
     }
 
     @Override
-    public FilePath supplySettings(AbstractBuild<?, ?> originBuild, TaskListener listener) {
+    public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
         if (StringUtils.isNotBlank(settingsConfigId)) {
 
-            AbstractBuild<?, ?> build = originBuild.getRootBuild();
-
-            Config c = null;
-            if (build instanceof Item) {
-                c = ConfigFiles.getByIdOrNull((Item) build, settingsConfigId);
-            } else if (build.getParent() instanceof Item) {
-                c = ConfigFiles.getByIdOrNull((Item) build.getParent(), settingsConfigId);
-            } else if (build instanceof ItemGroup) {
-                c = ConfigFiles.getByIdOrNull((ItemGroup) build, settingsConfigId);
-            } else if (build.getParent() instanceof ItemGroup) {
-                c = ConfigFiles.getByIdOrNull((ItemGroup) build.getParent(), settingsConfigId);
-            }
-
+            Config c = ConfigFiles.getByIdOrNull(build.getRootBuild(), settingsConfigId);
 
             if (c == null) {
                 String msg = "your Apache Maven build is setup to use a global config with id " + settingsConfigId + " but can not find the config";
                 listener.getLogger().println("ERROR: " + msg);
-                if (failIfSettingsNotFound) {
-                    throw new IllegalStateException(msg);
-                }
+                throw new IllegalStateException(msg);
             } else {
 
                 GlobalMavenSettingsConfig config;
@@ -109,28 +86,33 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                 if (StringUtils.isNotBlank(config.content)) {
                     try {
 
-                        FilePath workDir = ManagedFileUtil.tempDir(build.getWorkspace());
-                        String fileContent = config.content;
+                        FilePath workspace = build.getWorkspace();
+                        if (workspace != null) {
+                            FilePath workDir = ManagedFileUtil.tempDir(workspace);
+                            String fileContent = config.content;
 
-                        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, config.getServerCredentialMappings());
-                        final Boolean isReplaceAll = config.getIsReplaceAll();
+                            final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, config.getServerCredentialMappings());
+                            final Boolean isReplaceAll = config.getIsReplaceAll();
 
-                        if (!resolvedCredentials.isEmpty()) {
-                            List<String> tempFiles = new ArrayList<String>();
-                            fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
-                            for (String tempFile : tempFiles) {
-                                build.addAction(new CleanTempFilesAction(tempFile));
+                            if (resolvedCredentials != null && !resolvedCredentials.isEmpty()) {
+                                List<String> tempFiles = new ArrayList<String>();
+                                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+                                for (String tempFile : tempFiles) {
+                                    build.addAction(new CleanTempFilesAction(tempFile));
+                                }
                             }
+
+                            FilePath configurationFile = workspace.createTextTempFile("global-settings", ".xml", fileContent, false);
+                            LOGGER.log(Level.FINE, "Create {0}", new Object[]{configurationFile});
+                            build.getEnvironments().add(new SimpleEnvironment("MVN_GLOBALSETTINGS", configurationFile.getRemote()));
+
+                            // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
+                            // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
+                            build.addAction(new CleanTempFilesAction(configurationFile.getRemote()));
+                            return configurationFile;
+                        } else {
+                            listener.getLogger().println("ERROR: can't supply maven settings, workspace is null / slave seems not contected...");
                         }
-
-                        FilePath configurationFile = build.getWorkspace().createTextTempFile("global-settings", ".xml", fileContent, false);
-                        LOGGER.log(Level.FINE, "Create {0}", new Object[]{configurationFile});
-                        build.getEnvironments().add(new SimpleEnvironment("MVN_GLOBALSETTINGS", configurationFile.getRemote()));
-
-                        // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
-                        // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
-                        build.addAction(new CleanTempFilesAction(configurationFile.getRemote()));
-                        return configurationFile;
                     } catch (Exception e) {
                         throw new IllegalStateException("the global settings.xml could not be supplied for the current build: " + e.getMessage());
                     }

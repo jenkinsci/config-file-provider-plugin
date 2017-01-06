@@ -135,14 +135,31 @@ public class MvnSettingsProviderTest {
         Config c2 = createSetting(globalMavenSettingsConfigProvider);
 
         MvnSettingsProvider s1 = new MvnSettingsProvider(c1.id);
-        s1.setFailIfSettingsNotFound(true);
         MvnGlobalSettingsProvider s2 = new MvnGlobalSettingsProvider(c2.id);
-        s2.setFailIfSettingsNotFound(true);
 
         Maven m = new Maven("clean", mvnName, null, null, null, false, s1, s2);
         p.getBuildersList().add(m);
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
 
         jenkins.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new Cause.UserCause()).get());
+    }
+
+    @Test
+    @Bug(40737)
+    public void notFoundMavenSettingsMustCauseBuildToFail() throws Exception {
+        jenkins.jenkins.getInjector().injectMembers(this);
+
+        final FreeStyleProject p = jenkins.createFreeStyleProject();
+
+        String mvnName = ToolInstallations.configureMaven3().getName();
+
+        MvnSettingsProvider s1 = new MvnSettingsProvider("dummyId");
+        MvnGlobalSettingsProvider s2 = new MvnGlobalSettingsProvider("dummyGlobalId");
+
+        Maven m = new Maven("clean", mvnName, null, null, null, false, s1, s2);
+        p.getBuildersList().add(m);
+        p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
+
+        jenkins.assertBuildStatus(Result.FAILURE, p.scheduleBuild2(0, new Cause.UserCause()).get());
     }
 }
