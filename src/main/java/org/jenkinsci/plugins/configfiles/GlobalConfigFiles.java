@@ -20,7 +20,14 @@ import java.util.*;
 @Extension
 public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements ConfigFileStore, ExtensionPoint, Describable<GlobalConfigFiles> {
 
-    private Collection<Config> configs = new ArrayList<Config>();
+    private static Comparator<Config> COMPARATOR = new Comparator<Config>() {
+        @Override
+        public int compare(Config o1, Config o2) {
+            return o1.id.compareTo(o2.id);
+        }
+    };
+
+    private Collection<Config> configs = new TreeSet<>(COMPARATOR);
 
     public final Descriptor<GlobalConfigFiles> getDescriptor() {
         return this;
@@ -105,12 +112,23 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
     @Override
     public void remove(String id) {
         Config c = getById(id);
-        configs.remove(c);
-        save();
+        if (c != null) {
+            configs.remove(c);
+            save();
+        }
     }
 
     @Override
     public String getDisplayName() {
         return Messages.display_name();
+    }
+
+    private Object readResolve() {
+        if (!(configs instanceof TreeSet)) {
+            Collection<Config> newConfigs = new TreeSet<>(COMPARATOR);
+            newConfigs.addAll(configs);
+            configs = newConfigs;
+        }
+        return this;
     }
 }
