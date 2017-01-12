@@ -34,6 +34,7 @@ import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 
 import java.util.Collection;
 
@@ -128,4 +129,46 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
         return true;
     }
 
+
+    /**
+     * @deprecated Use <tt>GlobalConfigFiles.get().getConfigs()</tt> instead.
+     */
+    @Deprecated
+    public Collection<Config> getAllConfigs() {
+        return GlobalConfigFiles.get().getConfigs();
+    }
+
+    /**
+     * @deprecated Use <tt>GlobalConfigFiles.get().getById(String)</tt> instead.
+     */
+    @Deprecated
+    public Config getConfigById(String configId) {
+        return GlobalConfigFiles.get().getById(configId);
+    }
+
+    /**
+     * @deprecated Use <tt>GlobalConfigFiles.get().getById(String)</tt> instead.
+     */
+    @Deprecated
+    public boolean configExists(String configId) {
+        return GlobalConfigFiles.get().getById(configId) != null;
+    }
+
+    /**
+     * @deprecated Use <tt>GlobalConfigFiles.get().remove(String)</tt> instead.
+     */
+    @Deprecated
+    public void remove(String configId) {
+        GlobalConfigFiles.get().remove(configId);
+        this.save();
+    }
+
+    /**
+     * @deprecated Use <tt>GlobalConfigFiles.get().save(Config)</tt> instead.
+     */
+    @Deprecated
+    public void save(Config config) {
+        GlobalConfigFiles.get().save(config);
+        this.save();
+    }
 }
