@@ -17,7 +17,7 @@ import java.util.*;
  *
  * Created by domi on 17/09/16.
  */
-@Extension
+@Extension(ordinal = 5)
 public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements ConfigFileStore, ExtensionPoint, Describable<GlobalConfigFiles> {
 
     private Collection<Config> configs = new ArrayList<Config>();
@@ -27,7 +27,7 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
     }
 
     public static GlobalConfigFiles get() {
-        GlobalConfigFiles instance = Jenkins.getActiveInstance().getDescriptorList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles instance = Jenkins.getActiveInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         if (instance == null) { // TODO would be useful to have an ExtensionList.getOrFail
             throw new IllegalStateException();
         }
