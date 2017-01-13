@@ -88,7 +88,6 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
             ConfigFileStore store = getStore();
             // potentially replace existing
-            store.remove(config.id);
             store.save(config);
 
         } catch (ServletException e) {

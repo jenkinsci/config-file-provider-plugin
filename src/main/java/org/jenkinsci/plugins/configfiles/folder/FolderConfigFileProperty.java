@@ -20,7 +20,14 @@ import java.util.*;
 
 public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFolder<?>> implements ConfigFileStore {
 
-    private Collection<Config> configs = new ArrayList<Config>();
+    private static Comparator<Config> COMPARATOR = new Comparator<Config>() {
+        @Override
+        public int compare(Config o1, Config o2) {
+            return o1.id.compareTo(o2.id);
+        }
+    };
+
+    private Collection<Config> configs = new TreeSet<>(COMPARATOR);
 
     private transient AbstractFolder<?> owner;
 
@@ -67,11 +74,13 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
     @Override
     public void remove(String id) {
         Config c = getById(id);
-        configs.remove(c);
-        try {
-            getOwner().save();
-        } catch (IOException e) {
-            throw new RuntimeException("failed to remove config from store", e);
+        if (c != null) {
+            configs.remove(c);
+            try {
+                getOwner().save();
+            } catch (IOException e) {
+                throw new RuntimeException("failed to remove config from store", e);
+            }
         }
     }
 
@@ -87,6 +96,15 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
             configs.add(c);
         }
         return grouped;
+    }
+
+    private Object readResolve() {
+        if (!(configs instanceof TreeSet)) {
+            Collection<Config> newConfigs = new TreeSet<>(COMPARATOR);
+            newConfigs.addAll(configs);
+            configs = newConfigs;
+        }
+        return this;
     }
 
     @Extension(optional = true)
