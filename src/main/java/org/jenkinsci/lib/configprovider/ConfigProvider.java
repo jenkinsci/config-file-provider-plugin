@@ -26,14 +26,13 @@ package org.jenkinsci.lib.configprovider;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import groovy.ui.SystemOutputInterceptor;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Descriptor;
+import hudson.model.ItemGroup;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
-import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 
 import java.util.Collection;
@@ -131,15 +130,15 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
 
 
     /**
-     * @deprecated Use <tt>GlobalConfigFiles.get().getConfigs()</tt> instead.
+     * @deprecated Use {@link org.jenkinsci.plugins.configfiles.ConfigFiles#getConfigsInContext(ItemGroup, Class)} instead.
      */
     @Deprecated
     public Collection<Config> getAllConfigs() {
-        return GlobalConfigFiles.get().getConfigs();
+        return GlobalConfigFiles.get().getConfigs(getClass());
     }
 
     /**
-     * @deprecated Use <tt>GlobalConfigFiles.get().getById(String)</tt> instead.
+     * @deprecated Use {@link org.jenkinsci.plugins.configfiles.ConfigFiles#getByIdOrNull} instead.
      */
     @Deprecated
     public Config getConfigById(String configId) {
@@ -147,7 +146,7 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     }
 
     /**
-     * @deprecated Use <tt>GlobalConfigFiles.get().getById(String)</tt> instead.
+     * @deprecated Use {@link org.jenkinsci.plugins.configfiles.ConfigFiles#getByIdOrNull} instead.
      */
     @Deprecated
     public boolean configExists(String configId) {
