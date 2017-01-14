@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by domi on 25/10/16.
+ * Central class to access configuration files
  */
 public class ConfigFiles {
 
@@ -32,6 +32,17 @@ public class ConfigFiles {
         return (folderPlugin != null);
     }
 
+    /**
+     * Lists all configurations of the given type which are visible in the context of the provided item gourp.
+     * e.g. if itemGroup is of type {@link AbstractFolder} or within an {@link AbstractFolder}, then this method
+     * will list all configurations in that folder and in all parent folders up (and including) all configurations on jenkins top level.
+     * <p>
+     * This method is typically used to display all available options in the UI.
+     *
+     * @param itemGroup  the context
+     * @param descriptor configuration type
+     * @return a list of configuration items of the requested type, visible in the provided context.
+     */
     @NonNull
     public static List<Config> getConfigsInContext(@Nullable ItemGroup itemGroup, Class<? extends Descriptor> descriptor) {
 
@@ -66,6 +77,17 @@ public class ConfigFiles {
         return configs;
     }
 
+    /**
+     * Used to get hold on a single configuration in the given context.
+     * The configuration will be looked up for from the current context (itemGroup, e.g. {@link AbstractFolder} or {@link Jenkins}
+     * if not within a folder) until a configuration with the given id was found.
+     *
+     * @param itemGroup context to start the lookup from
+     * @param configId  id of the configuration to search for
+     * @param <T>       expected type of the returned configuration item.
+     * @return <code>null</code> if no configuration was found
+     * @throws IllegalArgumentException if while walking up the tree, one of the parents is not either of type {@link AbstractFolder}, {@link Item} or {@link Jenkins}
+     */
     public static <T extends Config> T getByIdOrNull(@Nullable ItemGroup itemGroup, @NonNull String configId) {
 
         while (itemGroup != null) {
@@ -97,6 +119,17 @@ public class ConfigFiles {
         return null;
     }
 
+    /**
+     * Used to get hold on a single configuration in the given context.
+     * The configuration will be looked up for from the current context (itemGroup, e.g. {@link AbstractFolder} or {@link Jenkins}
+     * if not within a folder) until a configuration with the given id was found.
+     *
+     * @param itemGroup context to start the lookup from
+     * @param configId  id of the configuration to search for
+     * @param <T>       expected type of the returned configuration item.
+     * @return <code>null</code> if no configuration was found
+     * @throws IllegalArgumentException if while walking up the tree, one of the parents is not either of type {@link AbstractFolder}, {@link Item} or {@link Jenkins}
+     */
     public static <T extends Config> T getByIdOrNull(@NonNull Item item, @NonNull String configId) {
         if (folderPluginInstalled() && item instanceof AbstractFolder) {
             // configfiles defined in the folder should be available in the context of the folder
@@ -109,6 +142,19 @@ public class ConfigFiles {
         return null;
     }
 
+    /**
+     * Used to get hold on a single configuration in the given context.
+     * The configuration will be looked up for from the current context (itemGroup, e.g. {@link AbstractFolder} or {@link Jenkins}
+     * if not within a folder) until a configuration with the given id was found.
+     * <p>
+     * Usually used to access the configuration during a run/job execution.
+     *
+     * @param build    active to start the lookup from
+     * @param configId id of the configuration to search for
+     * @param <T>      expected type of the returned configuration item.
+     * @return <code>null</code> if no configuration was found
+     * @throws IllegalArgumentException if while walking up the tree, one of the parents is not either of type {@link AbstractFolder}, {@link Item} or {@link Jenkins}
+     */
     public static <T extends Config> T getByIdOrNull(@NonNull Run<?, ?> build, @NonNull String configId) {
         Item parent = build.getParent();
         Config configFile;
