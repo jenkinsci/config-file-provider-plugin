@@ -60,10 +60,6 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
         return null;
     }
 
-    public String getPermissionGranted() {
-        return "foo";
-    }
-
     @Override
     public Map<ConfigProvider, Collection<Config>> getGroupedConfigs() {
         ConfigFileStore store = getStore();
@@ -218,10 +214,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
     }
 
     private void checkPermission(Permission permission) {
-//        Ancestor ancestor = req.findAncestor(Folder.class);
-//        Folder parent = (Folder) ancestor.getObject();
-
-        this.folder.checkPermission(permission);
+        folder.checkPermission(permission);
     }
 
 }
