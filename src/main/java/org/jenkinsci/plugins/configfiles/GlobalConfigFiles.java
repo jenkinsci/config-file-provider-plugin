@@ -105,6 +105,7 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
 
     @Override
     public void save(Config config){
+        configs.remove(config);
         configs.add(config);
         save();
     }

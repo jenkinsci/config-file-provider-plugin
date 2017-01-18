@@ -63,6 +63,7 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
 
     @Override
     public void save(Config config) {
+        configs.remove(config);
         configs.add(config);
         try {
             getOwner().save();
