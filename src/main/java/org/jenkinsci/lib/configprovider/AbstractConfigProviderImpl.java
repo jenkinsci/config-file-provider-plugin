@@ -128,9 +128,10 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     public void clearOldDataStorage() {
         if(configs != null && !configs.isEmpty()) {
             configs = Collections.emptyMap();
-            save();
+            File file = getConfigXml().getFile();
+            if (!file.delete()) {
+                LOGGER.info("Unable to delete " + file.getAbsolutePath());
+            }
         }
     }
-
-
 }
