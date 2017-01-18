@@ -14,7 +14,7 @@ import java.util.*;
 
 /**
  * ConfigFileStore holding config files saved on top level (Jenkins instance).
- *
+ * <p>
  * Created by domi on 17/09/16.
  */
 @Extension(ordinal = 5)
@@ -26,6 +26,8 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
             return o1.id.compareTo(o2.id);
         }
     };
+
+    private static ConfigProviderComparator CONFIGPROVIDER_COMPARATOR = new ConfigProviderComparator();
 
     private Collection<Config> configs = new TreeSet<>(COMPARATOR);
 
@@ -46,7 +48,7 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
         // migrate old data storage (file per provider) into new storage (one file per scope - global scope)
         ExtensionList<ConfigProvider> allProviders = ConfigProvider.all();
         for (ConfigProvider p : allProviders) {
-            for (Config c: ((AbstractConfigProviderImpl)p).getConfigs().values()) {
+            for (Config c : ((AbstractConfigProviderImpl) p).getConfigs().values()) {
                 Config converted = ((AbstractConfigProviderImpl) p).convert(c);
                 configs.add(converted);
             }
@@ -64,11 +66,11 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
     }
 
     @Override
-    public Map<ConfigProvider, Collection<Config>> getGroupedConfigs(){
-        Map<ConfigProvider, Collection<Config>> grouped = new HashMap<ConfigProvider, Collection<Config>>();
+    public Map<ConfigProvider, Collection<Config>> getGroupedConfigs() {
+        Map<ConfigProvider, Collection<Config>> grouped = new TreeMap<ConfigProvider, Collection<Config>>(CONFIGPROVIDER_COMPARATOR);
         for (Config c : configs) {
             Collection<Config> configs = grouped.get(c.getProvider());
-            if(configs == null){
+            if (configs == null) {
                 configs = new ArrayList<Config>();
                 grouped.put(c.getProvider(), configs);
             }
@@ -104,7 +106,7 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
     }
 
     @Override
-    public void save(Config config){
+    public void save(Config config) {
         configs.remove(config);
         configs.add(config);
         save();

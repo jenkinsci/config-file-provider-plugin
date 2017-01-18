@@ -12,6 +12,7 @@ import hudson.model.ItemGroup;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
+import org.jenkinsci.plugins.configfiles.ConfigProviderComparator;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
 
 import java.io.IOException;
@@ -26,6 +27,8 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
             return o1.id.compareTo(o2.id);
         }
     };
+
+    private static ConfigProviderComparator CONFIGPROVIDER_COMPARATOR = new ConfigProviderComparator();
 
     private Collection<Config> configs = new TreeSet<>(COMPARATOR);
 
@@ -87,7 +90,7 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
 
     @Override
     public Map<ConfigProvider, Collection<Config>> getGroupedConfigs() {
-        Map<ConfigProvider, Collection<Config>> grouped = new HashMap<ConfigProvider, Collection<Config>>();
+        Map<ConfigProvider, Collection<Config>> grouped = new TreeMap<ConfigProvider, Collection<Config>>(CONFIGPROVIDER_COMPARATOR);
         for (Config c : configs) {
             Collection<Config> configs = grouped.get(c.getProvider());
             if (configs == null) {
