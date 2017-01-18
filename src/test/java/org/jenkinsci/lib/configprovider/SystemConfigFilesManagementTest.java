@@ -1,7 +1,6 @@
-package org.jenkinsci.plugins.configfiles;
+package org.jenkinsci.lib.configprovider;
 
-import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,8 +25,9 @@ public class SystemConfigFilesManagementTest {
         for (ConfigProvider cp : ConfigProvider.all()) {
             // as all the config files have been moved to global config,
             // all providers must not hold any files any more
-            Assert.assertTrue(((AbstractConfigProviderImpl) cp).getConfigs().isEmpty());
+            AbstractConfigProviderImpl acp = (AbstractConfigProviderImpl) cp;
+            Assert.assertTrue(acp.getConfigs().isEmpty());
+            Assert.assertFalse(acp.getConfigXml().getFile().exists());
         }
-
     }
 }
