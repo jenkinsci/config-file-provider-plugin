@@ -5,6 +5,7 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.model.Action;
 import hudson.model.Hudson;
+import hudson.model.Job;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
 import jenkins.model.TransientActionFactory;
@@ -80,8 +81,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
     @Override
     public HttpResponse doSaveConfig(StaplerRequest req) throws IOException, ServletException {
-        checkPermission(Hudson.ADMINISTER);
-
+        checkPermission(Job.CONFIGURE);
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
@@ -112,18 +112,15 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
     @Override
     public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
-
         Config config = getStore().getById(confgiId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.getView(this, "show.jelly").forward(req, rsp);
-
     }
 
     @Override
     public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
-        checkPermission(Hudson.ADMINISTER);
-
+        checkPermission(Job.CONFIGURE);
         Config config = getStore().getById(confgiId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
@@ -134,8 +131,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
     @Override
     public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
-
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(Job.CONFIGURE);
 
         FormValidation error = null;
         if (providerId == null || providerId.isEmpty()) {
@@ -146,7 +142,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
         }
         if (error != null) {
             req.setAttribute("error", error);
-            checkPermission(Hudson.ADMINISTER);
+            checkPermission(Job.CONFIGURE);
             req.setAttribute("providers", getProviders());
             req.setAttribute("configId", configId);
             req.getView(this, "selectprovider.jelly").forward(req, rsp);
@@ -173,8 +169,8 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
     }
 
     @Override
-    public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        checkPermission(Hudson.ADMINISTER);
+    public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {;
+            checkPermission(Job.CONFIGURE);
         req.setAttribute("providers", getProviders());
         req.setAttribute("configId", UUID.randomUUID().toString());
         req.getView(this, "selectprovider.jelly").forward(req, rsp);
@@ -182,7 +178,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
     @Override
     public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(Job.CONFIGURE);
 
         getStore().remove(configId);
 
@@ -217,7 +213,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
     }
 
     private void checkPermission(Permission permission) {
-        Hudson.getInstance().checkPermission(permission);
+        folder.checkPermission(permission);
     }
 
 }
