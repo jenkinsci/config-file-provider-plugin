@@ -97,9 +97,11 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
 
     @Override
     public Config getById(String id) {
-        for (Config c : configs) {
-            if (id.equals(c.id)) {
-                return c;
+        if (id != null) {
+            for (Config c : configs) {
+                if (id.equals(c.id)) {
+                    return c;
+                }
             }
         }
         return null;
