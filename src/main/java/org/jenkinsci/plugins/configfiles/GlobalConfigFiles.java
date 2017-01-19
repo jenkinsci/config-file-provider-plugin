@@ -54,7 +54,7 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
             }
         }
         if (configs.size() > 0) {
-            // in this case we migrated data from the ld format to the new store
+            // in this case we migrated data from the old format to the new store
             // this only happens once
             save();
             for (ConfigProvider p : allProviders) {

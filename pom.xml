@@ -35,6 +35,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <jenkins.version>1.642.3</jenkins.version>
+        <jenkins-test-harness.version>2.18</jenkins-test-harness.version>
         <java.level>7</java.level>
         <findbugs.failOnError>true</findbugs.failOnError>
     </properties>

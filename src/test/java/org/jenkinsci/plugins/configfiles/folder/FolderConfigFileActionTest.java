@@ -101,6 +101,32 @@ public class FolderConfigFileActionTest {
         r.assertLogContains("Hello Folder1", b1);
     }
 
+    @Test
+    public void testSaveFolderConfigFiles() throws Exception {
+
+        Folder f1 = createFolder();
+        ConfigFileStore store = getStore(f1);
+
+        CustomConfig config = new CustomConfig("myid", "name", "comment", "content");
+        store.save(config);
+
+        assertEquals(1, store.getConfigs().size());
+        Config savedConfig = store.getConfigs().iterator().next();
+        assertEquals("name", savedConfig.name);
+        assertEquals("comment", savedConfig.comment);
+        assertEquals("content", savedConfig.content);
+
+        config = new CustomConfig("myid", "new name", "new comment", "new content");
+        store.save(config);
+
+        savedConfig = store.getConfigs().iterator().next();
+        assertEquals(1, store.getConfigs().size());
+        assertEquals("new name", savedConfig.name);
+        assertEquals("new comment", savedConfig.comment);
+        assertEquals("new content", savedConfig.content);
+
+    }
+
     private CpsFlowDefinition getNewJobDefinition() {
         return new CpsFlowDefinition(""
                 + "node {\n" +

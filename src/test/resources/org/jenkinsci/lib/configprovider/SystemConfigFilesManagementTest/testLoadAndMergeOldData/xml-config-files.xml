@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.jenkinsci.plugins.configfiles.xml.XmlConfigProvider plugin="config-file-provider@2.12-SNAPSHOT">
+  <configs>
+    <entry>
+      <string>SIMPLE_POM</string>
+      <org.jenkinsci.lib.configprovider.model.Config>
+        <id>SIMPLE_POM</id>
+        <name>Simple pom.xml</name>
+        <comment></comment>
+        <content>&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&quot;&gt;
+
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;dummy&lt;/groupId&gt;
+    &lt;artifactId&gt;simple-pom&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+
+    &lt;packaging&gt;pom&lt;/packaging&gt;
+&lt;/project&gt;</content>
+        <providerId>org.jenkinsci.plugins.configfiles.xml.XmlConfig</providerId>
+      </org.jenkinsci.lib.configprovider.model.Config>
+    </entry>
+  </configs>
+</org.jenkinsci.plugins.configfiles.xml.XmlConfigProvider>
