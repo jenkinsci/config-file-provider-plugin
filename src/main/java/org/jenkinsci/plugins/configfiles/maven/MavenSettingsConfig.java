@@ -68,11 +68,6 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
         return isReplaceAll;
     }
 
-    @Override
-    public ConfigProvider getDescriptor() {
-        return Jenkins.getActiveInstance().getDescriptorByType(MavenSettingsConfigProvider.class);
-    }
-
     @Extension(ordinal = 190)
     public static class MavenSettingsConfigProvider extends AbstractMavenSettingsProvider {
 

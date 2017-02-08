@@ -51,11 +51,6 @@ public class MavenToolchainsConfig extends Config {
         super(id, name, comment, content, providerId);
     }
 
-    @Override
-    public ConfigProvider getDescriptor() {
-        return Jenkins.getActiveInstance().getDescriptorByType(MavenToolchainsConfigProvider.class);
-    }
-
     @Extension(ordinal = 180)
     public static class MavenToolchainsConfigProvider extends AbstractConfigProviderImpl {
 

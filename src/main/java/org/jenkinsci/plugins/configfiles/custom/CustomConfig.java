@@ -47,11 +47,6 @@ public class CustomConfig extends Config {
         super(id, name, comment, content, providerId);
     }
 
-    @Override
-    public ConfigProvider getDescriptor() {
-        return Jenkins.getActiveInstance().getDescriptorByType(CustomConfigProvider.class);
-    }
-
     @Extension(ordinal = 50)
     public static class CustomConfigProvider extends AbstractConfigProviderImpl {
 

@@ -47,11 +47,6 @@ public class XmlConfig extends Config {
         super(id, name, comment, content, providerId);
     }
 
-    @Override
-    public ConfigProvider getDescriptor() {
-        return Jenkins.getActiveInstance().getDescriptorByType(XmlConfigProvider.class);
-    }
-
     @Extension(ordinal = 150)
     public static class XmlConfigProvider extends AbstractConfigProviderImpl {
 

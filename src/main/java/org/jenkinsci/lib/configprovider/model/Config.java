@@ -25,6 +25,7 @@ package org.jenkinsci.lib.configprovider.model;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.*;
+import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -105,7 +106,7 @@ public class Config implements Serializable, Describable<Config> {
      * @return never null.
      */
     public ConfigProvider getDescriptor() {
-        throw new IllegalStateException(getClass() + " must override 'getDescriptor()' this method!");
+        return (ConfigProvider) Jenkins.getActiveInstance().getDescriptorOrDie(this.getClass());
     }
 
     /**
