@@ -96,10 +96,6 @@ public class JsonConfig extends Config {
             return new JsonConfig(id, "JsonConfig", "", "{}", getProviderId());
         }
 
-        @Override
-        public <T extends Config> T convert(Config config) {
-            return (T) new JsonConfig(config.id, config.name, config.comment, config.content, getProviderId());
-        }
     }
 
 }

@@ -70,11 +70,6 @@ public class XmlConfig extends Config {
             return new XmlConfig(id, "XmlConfig", "", "<root></root>", getProviderId());
         }
 
-        @Override
-        public <T extends Config> T convert(Config config) {
-            return (T) new XmlConfig(config.id, config.name, config.comment, config.content, getProviderId());
-        }
-
         // ======================
         // start stuff for backward compatibility
         protected transient String ID_PREFIX;

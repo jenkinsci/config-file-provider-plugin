@@ -65,11 +65,6 @@ public class GroovyScript extends Config {
             return Messages.groovy_provider_name();
         }
 
-        @Override
-        public <T extends Config> T convert(Config config) {
-            return (T) new GroovyScript(config.id, config.name, config.comment, config.content, getProviderId());
-        }
-
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {

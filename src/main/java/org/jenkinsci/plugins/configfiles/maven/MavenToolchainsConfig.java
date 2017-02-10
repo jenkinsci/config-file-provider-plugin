@@ -82,11 +82,6 @@ public class MavenToolchainsConfig extends Config {
             return new MavenToolchainsConfig(id, "MyToolchains", "", loadTemplateContent(), getProviderId());
         }
 
-        @Override
-        public <T extends Config> T convert(Config config) {
-            return (T) new MavenToolchainsConfig(config.id, config.name, config.comment, config.content, getProviderId());
-        }
-
         private String loadTemplateContent() {
             InputStream in = null;
             try {

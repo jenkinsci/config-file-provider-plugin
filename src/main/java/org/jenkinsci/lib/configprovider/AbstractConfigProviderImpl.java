@@ -43,6 +43,7 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
 
     /**
      * only used for data migration
+     *
      * @see org.jenkinsci.plugins.configfiles.ConfigFiles
      */
     @Deprecated
@@ -63,7 +64,9 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
      */
     @Deprecated
     public <T extends Config> T convert(Config config) {
-        return (T) config;
+        Config convertedConfig = this.newConfig(config.id, config.name, config.comment, config.content);
+        config.setProviderId(config.getProviderId());
+        return (T) convertedConfig;
     }
 
 
@@ -114,6 +117,7 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
 
     private static final class NameComparator implements Comparator<Config>, Serializable {
         private static final long serialVersionUID = -1L;
+
         public int compare(Config o1, Config o2) {
             String a = o1.name != null ? o1.name : "";
             String b = o2.name != null ? o2.name : "";
@@ -122,7 +126,7 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     }
 
     public void clearOldDataStorage() {
-        if(configs != null && !configs.isEmpty()) {
+        if (configs != null && !configs.isEmpty()) {
             configs = Collections.emptyMap();
             File file = getConfigXml().getFile();
             if (!file.delete()) {

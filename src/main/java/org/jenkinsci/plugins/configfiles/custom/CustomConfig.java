@@ -64,11 +64,6 @@ public class CustomConfig extends Config {
             return Messages.custom_provider_name();
         }
 
-        @Override
-        public <T extends Config> T convert(Config config) {
-            return (T) new CustomConfig(config.id, config.name, config.comment, config.content, getProviderId());
-        }
-
         @NonNull
         @Override
         public CustomConfig newConfig(@NonNull String id) {
@@ -84,7 +79,6 @@ public class CustomConfig extends Config {
         protected String getXmlFileName() {
             return "custom-config-files.xml";
         }
-
 
 
         static {
