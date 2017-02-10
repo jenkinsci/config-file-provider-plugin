@@ -90,12 +90,6 @@ public class JsonConfig extends Config {
             return Messages.json_provider_name();
         }
 
-        @Override
-        public Config newConfig() {
-            String id = getProviderId() + System.currentTimeMillis();
-            return new JsonConfig(id, "JsonConfig", "", "{}");
-        }
-
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {

@@ -30,11 +30,13 @@ import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Descriptor;
 import hudson.model.ItemGroup;
+import hudson.util.ReflectionUtils;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 
 /**
@@ -97,8 +99,11 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      * @return the new config object, ready for editing.
      * @deprecated use {@link #newConfig(String)}
      */
-    @Deprecated
-    public abstract Config newConfig();
+    @Deprecated // use org.jenkinsci.lib.configprovider.ConfigProvider.newConfig(java.lang.String)
+    public Config newConfig() {
+        String id = this.getProviderId() + "." + System.currentTimeMillis();
+        return newConfig(id);
+    }
 
     /**
      * Returns a new {@link Config} object.
@@ -113,8 +118,22 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
         throw new AbstractMethodError(getClass() + " MUST implement 'newConfig(String)'");
     }
 
-    public abstract void clearOldDataStorage();
+    public Config newConfig(@NonNull String id, String name, String comment, String content) {
+        Config config = newConfig(id);
+        setField("name", name, config);
+        setField("comment", comment, config);
+        setField("content", content, config);
+        config.setProviderId(this.getProviderId());
+        return config;
+    }
 
+    private void setField(String fieldName, String value, Config config) {
+        Field field = ReflectionUtils.findField(config.getClass(), fieldName);
+        field.setAccessible(true);
+        ReflectionUtils.setField(field, config, value);
+    }
+
+    public abstract void clearOldDataStorage();
 
     /**
      * Tells whether this provider is able to handle configuration files stored on folder level too, or if it only supports global confuguration files.

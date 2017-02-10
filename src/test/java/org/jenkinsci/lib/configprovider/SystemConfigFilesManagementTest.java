@@ -1,5 +1,6 @@
 package org.jenkinsci.lib.configprovider;
 
+import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -28,6 +29,20 @@ public class SystemConfigFilesManagementTest {
             AbstractConfigProviderImpl acp = (AbstractConfigProviderImpl) cp;
             Assert.assertTrue(acp.getConfigs().isEmpty());
             Assert.assertFalse(acp.getConfigXml().getFile().exists());
+        }
+    }
+
+
+    @Test
+    public void testDynamicCreationOfConfigs() {
+        for (ConfigProvider cp : ConfigProvider.all()) {
+            Config config = cp.newConfig("myid", "myname", "mycomment", "mycontent");
+            Assert.assertNotNull(config);
+            Assert.assertEquals(config.id,"myid");
+            Assert.assertEquals(config.name,"myname");
+            Assert.assertEquals(config.comment,"mycomment");
+            Assert.assertEquals(config.content,"mycontent");
+            Assert.assertNotNull(config.getProviderId());
         }
     }
 }

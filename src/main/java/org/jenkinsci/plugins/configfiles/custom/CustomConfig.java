@@ -69,12 +69,6 @@ public class CustomConfig extends Config {
             return (T) new CustomConfig(config.id, config.name, config.comment, config.content, getProviderId());
         }
 
-        @Override
-        public CustomConfig newConfig() {
-            String id = getProviderId() + System.currentTimeMillis();
-            return new CustomConfig(id, "MyCustom", "", "");
-        }
-
         @NonNull
         @Override
         public CustomConfig newConfig(@NonNull String id) {

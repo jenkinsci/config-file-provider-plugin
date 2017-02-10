@@ -8,6 +8,7 @@ import hudson.model.listeners.SaveableListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import hudson.util.ReflectionUtils;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -70,12 +72,6 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
         return getId();
     }
 
-    @Override
-    @Deprecated // use org.jenkinsci.lib.configprovider.ConfigProvider.newConfig(java.lang.String)
-    public Config newConfig() {
-        String id = this.getProviderId() + "." + System.currentTimeMillis();
-        return new Config(id, null, null, null);
-    }
 
     /**
      * Saves the configuration info to the disk.

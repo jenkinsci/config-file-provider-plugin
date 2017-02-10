@@ -70,12 +70,6 @@ public class GroovyScript extends Config {
             return (T) new GroovyScript(config.id, config.name, config.comment, config.content, getProviderId());
         }
 
-        @Override
-        public Config newConfig() {
-            String id = getProviderId() + System.currentTimeMillis();
-            return new GroovyScript(id, "GroovyConfig", "", "println('hello world')");
-        }
-
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {

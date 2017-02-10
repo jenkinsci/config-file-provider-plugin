@@ -85,12 +85,6 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
             return Messages.mvn_settings_provider_name();
         }
 
-        @Override
-        public Config newConfig() {
-            String id = getProviderId() + System.currentTimeMillis();
-            return new MavenSettingsConfig(id, "MySettings", "user settings", loadTemplateContent(), MavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
-        }
-
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {

@@ -64,12 +64,6 @@ public class XmlConfig extends Config {
             return Messages.xml_provider_name();
         }
 
-        @Override
-        public Config newConfig() {
-            String id = getProviderId() + System.currentTimeMillis();
-            return new XmlConfig(id, "XmlConfig", "", "<root></root>");
-        }
-
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {

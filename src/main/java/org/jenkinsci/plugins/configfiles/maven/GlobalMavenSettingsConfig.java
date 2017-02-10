@@ -87,12 +87,6 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
         public String getDisplayName() {
             return Messages.mvn_global_settings_provider_name();
         }
-        
-        @Override
-        public Config newConfig() {
-            String id = getProviderId() + System.currentTimeMillis();
-            return new GlobalMavenSettingsConfig(id, "MyGlobalSettings", "global settings", loadTemplateContent(), GlobalMavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
-        }
 
         @NonNull
         @Override

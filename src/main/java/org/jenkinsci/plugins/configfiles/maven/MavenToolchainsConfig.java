@@ -76,15 +76,6 @@ public class MavenToolchainsConfig extends Config {
             return "maven-toolchains-files.xml";
         }
 
-        /* (non-Javadoc)
-         * @see org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl#newConfig()
-         */
-        @Override
-        public Config newConfig() {
-            String id = this.getProviderId() + System.currentTimeMillis();
-            return new MavenToolchainsConfig(id, "MyToolchains", "", loadTemplateContent());
-        }
-
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {

@@ -38,12 +38,6 @@ import org.jenkinsci.lib.configprovider.model.ContentType;
 public abstract class AbstractMavenSettingsProvider extends AbstractConfigProviderImpl {
 
     @Override
-    public Config newConfig() {
-        String id = this.getProviderId() + System.currentTimeMillis();
-        return new Config(id, "MySettings", "", loadTemplateContent());
-    }
-
-    @Override
     public ContentType getContentType() {
         return ContentType.DefinedType.XML;
     }
