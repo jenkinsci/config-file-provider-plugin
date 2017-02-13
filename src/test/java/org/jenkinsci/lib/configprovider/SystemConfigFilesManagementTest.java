@@ -1,6 +1,5 @@
 package org.jenkinsci.lib.configprovider;
 
-import hudson.plugins.emailext.JellyTemplateConfig;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
