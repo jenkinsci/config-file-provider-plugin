@@ -39,6 +39,7 @@ public class SystemConfigFilesManagementTest {
         Assert.assertEquals(1, getProvider(XmlConfig.XmlConfigProvider.class).getAllConfigs().size());
         Assert.assertEquals(1, getProvider(GroovyScript.GroovyConfigProvider.class).getAllConfigs().size());
         Assert.assertEquals(1, getProvider(CustomConfig.CustomConfigProvider.class).getAllConfigs().size());
+//        Assert.assertEquals(1, getProvider(JellyTemplateConfig.JellyTemplateConfigProvider.class).getAllConfigs().size());
 
         Assert.assertEquals(5, GlobalConfigFiles.get().getConfigs().size());
     }
