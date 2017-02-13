@@ -147,8 +147,9 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
         return true;
     }
 
-
     /**
+     * This will only return configurations on top/global scope
+     *
      * @deprecated Use {@link org.jenkinsci.plugins.configfiles.ConfigFiles#getConfigsInContext(ItemGroup, Class)} instead.
      */
     @Deprecated

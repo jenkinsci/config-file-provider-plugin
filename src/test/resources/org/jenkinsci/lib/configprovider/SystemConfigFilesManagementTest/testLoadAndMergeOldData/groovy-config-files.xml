@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.jenkinsci.plugins.configfiles.groovy.GroovyConfigProvider plugin="config-file-provider@2.13">
+  <configs>
+    <entry>
+      <string>groovy____01AAA1</string>
+      <org.jenkinsci.lib.configprovider.model.Config>
+        <id>groovy____01AAA1</id>
+        <name>xml_name_01_2</name>
+        <comment>comment_01_2</comment>
+        <content>println &apos;urra&apos;</content>
+        <providerId>org.jenkinsci.plugins.configfiles.groovy.GroovyScript</providerId>
+      </org.jenkinsci.lib.configprovider.model.Config>
+    </entry>
+  </configs>
+</org.jenkinsci.plugins.configfiles.groovy.GroovyConfigProvider>

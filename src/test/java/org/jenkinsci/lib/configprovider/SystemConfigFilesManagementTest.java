@@ -1,7 +1,13 @@
 package org.jenkinsci.lib.configprovider;
 
+import hudson.plugins.emailext.JellyTemplateConfig;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
+import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
+import org.jenkinsci.plugins.configfiles.groovy.GroovyScript;
+import org.jenkinsci.plugins.configfiles.json.JsonConfig;
+import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
+import org.jenkinsci.plugins.configfiles.xml.XmlConfig;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,17 +25,26 @@ public class SystemConfigFilesManagementTest {
     @Test
     @LocalData
     public void testLoadAndMergeOldData() {
-        // testLoadAndMergeOldData.zip contains different configurations files (as used in the old storrage implementation)
-        // after starting, jenkins, all these have to be imported into GlobalConfigFiles
-        Assert.assertEquals(4, GlobalConfigFiles.get().getConfigs().size());
 
         for (ConfigProvider cp : ConfigProvider.all()) {
             // as all the config files have been moved to global config,
             // all providers must not hold any files any more
             AbstractConfigProviderImpl acp = (AbstractConfigProviderImpl) cp;
-            Assert.assertTrue(acp.getConfigs().isEmpty());
-            Assert.assertFalse(acp.getConfigXml().getFile().exists());
+            Assert.assertTrue("configs for " + acp.getProviderId() + " should be empty", acp.getConfigs().isEmpty());
+            Assert.assertFalse("file for " + acp.getProviderId() + " still exists", acp.getConfigXml().getFile().exists());
         }
+
+        Assert.assertEquals(1, getProvider(MavenSettingsConfig.MavenSettingsConfigProvider.class).getAllConfigs().size());
+        Assert.assertEquals(1, getProvider(JsonConfig.JsonConfigProvider.class).getAllConfigs().size());
+        Assert.assertEquals(1, getProvider(XmlConfig.XmlConfigProvider.class).getAllConfigs().size());
+        Assert.assertEquals(1, getProvider(GroovyScript.GroovyConfigProvider.class).getAllConfigs().size());
+        Assert.assertEquals(1, getProvider(CustomConfig.CustomConfigProvider.class).getAllConfigs().size());
+
+        Assert.assertEquals(5, GlobalConfigFiles.get().getConfigs().size());
+    }
+
+    private <T> T getProvider(Class<T> providerClass) {
+        return j.getInstance().getExtensionList(providerClass).get(providerClass);
     }
 
 
@@ -38,10 +53,10 @@ public class SystemConfigFilesManagementTest {
         for (ConfigProvider cp : ConfigProvider.all()) {
             Config config = cp.newConfig("myid", "myname", "mycomment", "mycontent");
             Assert.assertNotNull(config);
-            Assert.assertEquals(config.id,"myid");
-            Assert.assertEquals(config.name,"myname");
-            Assert.assertEquals(config.comment,"mycomment");
-            Assert.assertEquals(config.content,"mycontent");
+            Assert.assertEquals(config.id, "myid");
+            Assert.assertEquals(config.name, "myname");
+            Assert.assertEquals(config.comment, "mycomment");
+            Assert.assertEquals(config.content, "mycontent");
             Assert.assertNotNull(config.getProviderId());
         }
     }

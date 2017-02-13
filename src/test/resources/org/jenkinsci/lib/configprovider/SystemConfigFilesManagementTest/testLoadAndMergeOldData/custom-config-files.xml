@@ -2,9 +2,9 @@
 <org.jenkinsci.plugins.configfiles.custom.CustomConfigProvider plugin="config-file-provider@2.12-SNAPSHOT">
   <configs>
     <entry>
-      <string>my_file</string>
+      <string>my_file55</string>
       <org.jenkinsci.lib.configprovider.model.Config>
-        <id>my_file</id>
+        <id>my_file55</id>
         <name>my custom file</name>
         <comment></comment>
         <content>hello world</content>
