@@ -74,7 +74,7 @@ public class ManagedFileUtil {
     public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, Run<?, ?> build, FilePath workspace, TaskListener listener, List<String> tempFiles) throws IOException, InterruptedException {
 
         final Map<ManagedFile, FilePath> file2Path = new HashMap<ManagedFile, FilePath>();
-        listener.getLogger().println("provisoning config files...");
+        listener.getLogger().println("provisioning config files...");
 
         for (ManagedFile managedFile : managedFiles) {
 
