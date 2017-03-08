@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.configfiles.folder;
 
 import com.cloudbees.hudson.plugins.folder.Folder;
+import org.hamcrest.Matchers;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
@@ -125,6 +126,16 @@ public class FolderConfigFileActionTest {
         assertEquals("new comment", savedConfig.comment);
         assertEquals("new content", savedConfig.content);
 
+    }
+
+    @Test
+    public void sameFolderPropertyAfterConfiguration() throws Exception {
+        Folder f1 = createFolder();
+        ConfigFileStore store = getStore(f1);
+
+        r.configRoundtrip(f1);
+
+        assertThat(store, Matchers.is(getStore(f1)));
     }
 
     private CpsFlowDefinition getNewJobDefinition() {
