@@ -25,11 +25,19 @@ package org.jenkinsci.plugins.configfiles.maven;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
-import hudson.util.IOUtils;
+import hudson.FilePath;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
+import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
+import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
+
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 
 /**
  * @author Olivier Lamy
@@ -52,5 +60,22 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
         } finally {
             org.apache.commons.io.IOUtils.closeQuietly(in);
         }
+    }
+
+    @Override
+    public String supplyContent(Config configFile, Run<?, ?> build, FilePath workDir, TaskListener listener, List<String> tempFiles) throws IOException {
+        HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
+        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings());
+        final Boolean isReplaceAll = settings.getIsReplaceAll();
+
+        String fileContent = super.supplyContent(configFile, build, workDir, listener, tempFiles);
+        if (!resolvedCredentials.isEmpty()) {
+            try {
+                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+            } catch (Exception exception) {
+                throw new IOException("[ERROR] could not insert credentials into the settings file " + configFile, exception);
+            }
+        }
+        return fileContent;
     }
 }
