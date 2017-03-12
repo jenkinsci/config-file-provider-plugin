@@ -23,21 +23,27 @@
  */
 package org.jenkinsci.lib.configprovider;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.List;
+
+import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ContentType;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
+
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
+import hudson.FilePath;
 import hudson.model.Descriptor;
 import hudson.model.ItemGroup;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.util.ReflectionUtils;
 import jenkins.model.Jenkins;
-import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.lib.configprovider.model.ContentType;
-import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
-
-import java.lang.reflect.Field;
-import java.util.Collection;
 
 /**
  * A ConfigProvider represents a configuration file (such as Maven's settings.xml) where the user can choose its actual content among several {@linkplain Config concrete contents} that are
@@ -190,4 +196,21 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
         GlobalConfigFiles.get().save(config);
         this.save();
     }
+
+    /**
+     * Provide the given content file.
+     *
+     * @param configFile the file content to be provided
+     * @param workDir target workspace directory
+     * @param listener the listener
+     * @param tempFiles temp files created by this method, these files will
+     *                  be deleted by the caller
+     * @return file content
+     * @throws IOException in case an exception occurs when providing the content or other needed files
+     * @since 2.16
+     */
+    public String supplyContent(@NonNull Config configFile, Run<?, ?> build, FilePath workDir, TaskListener listener, @NonNull List<String> tempFiles) throws IOException {
+        return configFile.content;
+    }
+
 }

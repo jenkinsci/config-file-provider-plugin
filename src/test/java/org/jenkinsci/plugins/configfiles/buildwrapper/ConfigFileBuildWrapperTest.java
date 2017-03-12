@@ -92,7 +92,7 @@ public class ConfigFileBuildWrapperTest {
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mCustom));
         p.getBuildWrappersList().add(bw);
 
-        p.getBuildersList().add(new VerifyFileContentBuilder(mCustom.targetLocation, "echo free"));
+        p.getBuildersList().add(new VerifyFileContentBuilder(mCustom.getTargetLocation(), "echo free"));
 
         j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
     }
@@ -109,7 +109,7 @@ public class ConfigFileBuildWrapperTest {
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mCustom));
         p.getBuildWrappersList().add(bw);
 
-        p.getBuildersList().add(new VerifyFileContentBuilder(mCustom.targetLocation, "echo ${ENV, var=\"JOB_NAME\"}"));
+        p.getBuildersList().add(new VerifyFileContentBuilder(mCustom.getTargetLocation(), "echo ${ENV, var=\"JOB_NAME\"}"));
 
         j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
     }

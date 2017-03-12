@@ -33,6 +33,7 @@ import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ConfigFile;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -43,17 +44,9 @@ import java.io.Serializable;
 /**
  * @author domi
  */
-public class ManagedFile implements ExtensionPoint, Describable<ManagedFile>, Serializable {
+public class ManagedFile extends ConfigFile implements ExtensionPoint, Describable<ManagedFile>, Serializable {
 
-    public final String fileId;
-    public String targetLocation;
     public String variable;
-    /**
-     * whether tokens in the content of the file must be replaced by the TokenMacro plugin
-     *
-     * @since 2.10.2
-     */
-    private Boolean replaceTokens;
 
     /**
      * @param fileId the id of the file to be provided
@@ -62,30 +55,22 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile>, Se
      */
     @DataBoundConstructor
     public ManagedFile(String fileId) {
-        this.fileId = fileId;
+        super(fileId, null, false);
     }
 
     public ManagedFile(String fileId, String targetLocation, String variable, Boolean replaceTokens) {
-        this.fileId = fileId;
-        this.targetLocation = Util.fixEmpty(targetLocation);
-        this.variable = Util.fixEmpty(variable);
-        this.replaceTokens = replaceTokens;
+        super(fileId, targetLocation, replaceTokens);
+        this.variable = Util.fixEmptyAndTrim(variable);
     }
 
     public ManagedFile(String fileId, String targetLocation, String variable) {
-        this.fileId = fileId;
-        this.targetLocation = Util.fixEmpty(targetLocation);
-        this.variable = Util.fixEmpty(variable);
-        this.replaceTokens = false;
-    }
-
-    public String getTargetLocation() {
-        return this.targetLocation;
+        super(fileId, targetLocation, false);
+        this.variable = Util.fixEmptyAndTrim(variable);
     }
 
     @DataBoundSetter
     public void setTargetLocation(String targetLocation) {
-        this.targetLocation = Util.fixEmpty(targetLocation);
+        this.targetLocation = Util.fixEmptyAndTrim(targetLocation);
     }
 
     public String getVariable() {
@@ -94,21 +79,17 @@ public class ManagedFile implements ExtensionPoint, Describable<ManagedFile>, Se
 
     @DataBoundSetter
     public void setVariable(String variable) {
-        this.variable = Util.fixEmpty(variable);
+        this.variable = Util.fixEmptyAndTrim(variable);
     }
 
     @DataBoundSetter
     public void setReplaceTokens(Boolean replaceTokens) {
-        this.replaceTokens = replaceTokens;
+        this.replaceTokens = replaceTokens != null ? replaceTokens : false;
     }
 
     @Override
     public String toString() {
-        return "[ManagedFile: id=" + fileId + ", targetLocation=" + targetLocation + ", variable=" + variable + "]";
-    }
-
-    public Boolean getReplaceTokens() {
-        return replaceTokens != null ? replaceTokens : false;
+        return "[ManagedFile: id=" + getFileId() + ", targetLocation=" + getTargetLocation() + ", variable=" + variable + "]";
     }
 
     @Override
