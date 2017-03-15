@@ -6,14 +6,14 @@ import com.cloudbees.hudson.plugins.folder.AbstractFolderPropertyDescriptor;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.Extension;
-import hudson.model.Descriptor;
-import hudson.model.Item;
-import hudson.model.ItemGroup;
+import hudson.model.*;
+import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.ConfigProviderComparator;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
+import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
 import java.util.*;
@@ -113,6 +113,10 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
         return this;
     }
 
+    public FolderConfigFileProperty reconfigure(StaplerRequest req, JSONObject form) throws Descriptor.FormException {
+        return this;
+    }
+
     @Extension(optional = true)
     public static class DescriptorImpl extends AbstractFolderPropertyDescriptor {
 
@@ -122,4 +126,5 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
             return "";
         }
     }
+
 }
