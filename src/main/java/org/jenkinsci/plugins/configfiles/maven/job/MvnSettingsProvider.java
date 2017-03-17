@@ -2,7 +2,6 @@ package org.jenkinsci.plugins.configfiles.maven.job;
 
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
@@ -19,8 +18,8 @@ import jenkins.mvn.SettingsProviderDescriptor;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.util.ConfigFileManager;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
-import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFileUtil;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
@@ -90,7 +89,7 @@ public class MvnSettingsProvider extends SettingsProvider {
 
                         FilePath workspace = build.getWorkspace();
                         if (workspace != null) {
-                            FilePath workDir = ManagedFileUtil.tempDir(workspace);
+                            FilePath workDir = ConfigFileManager.tempDir(workspace);
                             String fileContent = config.content;
 
                             final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
