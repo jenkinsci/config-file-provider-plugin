@@ -40,6 +40,16 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
         return ConfigFilesManagement.ICON_PATH;
     }
 
+    /**
+     * used by configfiles.jelly to resolve the correct path to the icon (see JENKINS-24441)
+     */
+    public String getIconUrl(String rootUrl) {
+        if (rootUrl.endsWith("/")) {
+            return rootUrl + ConfigFilesManagement.ICON_PATH.substring(1);
+        }
+        return rootUrl + ConfigFilesManagement.ICON_PATH;
+    }
+
     @Override
     public String getDisplayName() {
         return "Config Files";

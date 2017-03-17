@@ -82,7 +82,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     }
 
     /**
-     * used by index.jelly to resolve the correct path to the icon (see JENKINS-24441)
+     * used by configfiles.jelly to resolve the correct path to the icon (see JENKINS-24441)
      */
     public String getIconUrl(String rootUrl) {
         if (rootUrl.endsWith("/")) {
