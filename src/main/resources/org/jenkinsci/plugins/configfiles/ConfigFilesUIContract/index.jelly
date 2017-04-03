@@ -22,15 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
-	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-					<j:set var="descriptor" value="${config.descriptor}"/>
-					<st:include page="id-name-and-comment"  class="${descriptor.clazz}"/>
+		 xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
 
-					<f:entry title="${%Content}">
-						<f:textarea id="config.content" name="config.content" value="${config.content}" /> 
-					</f:entry>
-					
+	<st:include page="configfiles.jelly" />
+
 </j:jelly>

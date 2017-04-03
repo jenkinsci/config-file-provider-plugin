@@ -92,6 +92,13 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     }
 
     /**
+     * used by configfiles.jelly to gather the class to be referenced when loading jelly files
+     */
+    public Class getJellyFilesClass() {
+        return ConfigFilesUIContract.class;
+    }
+
+    /**
      * @see hudson.model.ManagementLink#getUrlName()
      */
     @Override
@@ -145,7 +152,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         Config config = store.getById(confgiId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
-        req.getView(this, "show.jelly").forward(req, rsp);
+        req.getView(ConfigFilesUIContract.class, "show.jelly").forward(req, rsp);
 
     }
 
@@ -168,7 +175,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.setAttribute("provider", config.getProvider());
-        req.getView(this, "edit.jelly").forward(req, rsp);
+        req.getView(ConfigFilesUIContract.class, "edit.jelly").forward(req, rsp);
     }
 
     /**
@@ -198,7 +205,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
             checkPermission(Hudson.ADMINISTER);
             req.setAttribute("providers", ConfigProvider.all());
             req.setAttribute("configId", configId);
-            req.getView(this, "selectprovider.jelly").forward(req, rsp);
+            req.getView(ConfigFilesUIContract.class, "selectprovider.jelly").forward(req, rsp);
             return;
         }
 
@@ -218,14 +225,14 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         config.setProviderId(provider.getProviderId());
         req.setAttribute("config", config);
 
-        req.getView(this, "edit.jelly").forward(req, rsp);
+        req.getView(ConfigFilesUIContract.class, "edit.jelly").forward(req, rsp);
     }
 
     public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
         req.setAttribute("providers", ConfigProvider.all());
         req.setAttribute("configId", UUID.randomUUID().toString());
-        req.getView(this, "selectprovider.jelly").forward(req, rsp);
+        req.getView(ConfigFilesUIContract.class, "selectprovider.jelly").forward(req, rsp);
     }
 
     private void checkPermission(Permission permission) {
