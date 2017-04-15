@@ -54,7 +54,7 @@ public class ManagedFileUtil {
         listener.getLogger().println("provisioning config files...");
 
         for (ManagedFile managedFile : managedFiles) {
-            FilePath target = ConfigFileManager.provisionConfigFile(managedFile, build, workspace, listener, tempFiles);
+            FilePath target = ConfigFileManager.provisionConfigFile(managedFile, null, build, workspace, listener, tempFiles);
             file2Path.put(managedFile, target);
         }
 

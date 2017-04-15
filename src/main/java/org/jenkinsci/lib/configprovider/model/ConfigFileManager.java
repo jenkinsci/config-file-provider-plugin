@@ -23,26 +23,27 @@
  */
 package org.jenkinsci.lib.configprovider.model;
 
-import hudson.AbortException;
-import hudson.FilePath;
-import hudson.model.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
-import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.buildwrapper.Messages;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
+import hudson.AbortException;
+import hudson.EnvVars;
+import hudson.FilePath;
+import hudson.Util;
+import hudson.model.Build;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.slaves.WorkspaceList;
 
 public class ConfigFileManager {
@@ -61,7 +62,9 @@ public class ConfigFileManager {
     /**
      * Provisions (publishes) the given file to the workspace.
      *
-     * @param managedFile  the file to be provisioned
+     * @param configFile  the file to be provisioned
+     * @param env enhanced environment to use in the variable substitution
+     * @param build a build being run
      * @param workspace    target workspace
      * @param listener     the listener
      * @param tempFiles    temp files created by this method, these files should be deleted by the caller
@@ -70,11 +73,11 @@ public class ConfigFileManager {
      * @throws InterruptedException
      * @throws AbortException       config file has not been found
      */
-    public static FilePath provisionConfigFile(ConfigFile managedFile, Run<?, ?> build, FilePath workspace, TaskListener listener, List<String> tempFiles) throws IOException, InterruptedException {
-        Config configFile = ConfigFiles.getByIdOrNull(build, managedFile.getFileId());
+    public static FilePath provisionConfigFile(ConfigFile configFile, @Nullable EnvVars env, Run<?, ?> build, FilePath workspace, TaskListener listener, List<String> tempFiles) throws IOException, InterruptedException {
+        Config config = ConfigFiles.getByIdOrNull(build, configFile.getFileId());
 
-        if (configFile == null) {
-            String message = "not able to provide the file " + managedFile + ", can't be resolved by any provider - maybe it got deleted by an administrator?";
+        if (config == null) {
+            String message = "not able to provide the file " + configFile + ", can't be resolved by any provider - maybe it got deleted by an administrator?";
             listener.getLogger().println(message);
             throw new AbortException(message);
         }
@@ -82,19 +85,19 @@ public class ConfigFileManager {
         FilePath workDir = tempDir(workspace);
         workDir.mkdirs();
 
-        boolean createTempFile = StringUtils.isBlank(managedFile.getTargetLocation());
+        boolean createTempFile = StringUtils.isBlank(configFile.getTargetLocation());
 
         FilePath target;
         if (createTempFile) {
             target = workDir.createTempFile("config", "tmp");
         } else {
 
-            String expandedTargetLocation = managedFile.getTargetLocation();
+            String expandedTargetLocation = configFile.getTargetLocation();
             try {
-                expandedTargetLocation = TokenMacro.expandAll(build, workspace, listener, managedFile.getTargetLocation());
+                expandedTargetLocation = TokenMacro.expandAll(build, workspace, listener, configFile.getTargetLocation());
             } catch (MacroEvaluationException e) {
-                listener.getLogger().println("[ERROR] failed to expand variables in target location '" + managedFile.getTargetLocation() + "' : " + e.getMessage());
-                expandedTargetLocation = managedFile.getTargetLocation();
+                listener.getLogger().println("[ERROR] failed to expand variables in target location '" + configFile.getTargetLocation() + "' : " + e.getMessage());
+                expandedTargetLocation = configFile.getTargetLocation();
             }
 
             // Should treat given path as the actual filename unless it has a trailing slash (implying a
@@ -103,25 +106,31 @@ public class ConfigFileManager {
             String immediateFileName = expandedTargetLocation.substring(expandedTargetLocation.lastIndexOf("/") + 1);
 
             if (immediateFileName.length() == 0 || (target.exists() && target.isDirectory())) {
-                target = new FilePath(target, configFile.name.replace(" ", "_"));
+                target = new FilePath(target, config.name.replace(" ", "_"));
             }
         }
 
-        ConfigProvider provider = configFile.getDescriptor();
-        String fileContent = provider.supplyContent(configFile, build, workDir, listener, tempFiles);
+        ConfigProvider provider = config.getDescriptor();
+        String fileContent = provider.supplyContent(config, build, workDir, listener, tempFiles);
 
-        if (managedFile.isReplaceTokens()) {
+        if (configFile.isReplaceTokens()) {
             try {
                 fileContent = TokenMacro.expandAll(build, workspace, listener, fileContent);
+                if (env != null) {
+                    fileContent = Util.replaceMacro(fileContent, env);
+                }
             } catch (MacroEvaluationException e) {
-                listener.getLogger().println("[ERROR] failed to expand variables in content of " + configFile.name + " - " + e.getMessage());
+                listener.getLogger().println("[ERROR] failed to expand variables in content of " + config.name + " - " + e.getMessage());
             }
         }
 
-        LOGGER.log(Level.FINE, "Create file {0} for configuration {1} mapped as {2}", new Object[]{target.getRemote(), configFile, managedFile});
-        listener.getLogger().println(Messages.console_output(configFile.name, target.toURI()));
-        ByteArrayInputStream bs = new ByteArrayInputStream(fileContent.getBytes("UTF-8"));
-        target.copyFrom(bs);
+        LOGGER.log(Level.FINE, "Create file {0} for configuration {1} mapped as {2}", new Object[]{target.getRemote(), config, configFile});
+        listener.getLogger().println(Messages.console_output(config.name, target.toURI()));
+        // check if empty file
+        if (fileContent != null) {
+            ByteArrayInputStream bs = new ByteArrayInputStream(fileContent.getBytes("UTF-8"));
+            target.copyFrom(bs);
+        }
         target.chmod(0640);
 
         return target;

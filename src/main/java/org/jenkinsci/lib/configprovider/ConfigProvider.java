@@ -209,6 +209,7 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      * @throws IOException in case an exception occurs when providing the content or other needed files
      * @since 2.16
      */
+    @CheckForNull
     public String supplyContent(@NonNull Config configFile, Run<?, ?> build, FilePath workDir, TaskListener listener, @NonNull List<String> tempFiles) throws IOException {
         return configFile.content;
     }
