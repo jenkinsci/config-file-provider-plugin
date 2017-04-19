@@ -42,11 +42,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class JsonConfig extends Config {
     private static final long serialVersionUID = 1L;
 
+    @DataBoundConstructor
     public JsonConfig(String id, String name, String comment, String content) {
         super(id, name, comment, fixJsonContent(content));
     }
 
-    @DataBoundConstructor
     public JsonConfig(String id, String name, String comment, String content, String providerId) {
         super(id, name, comment, fixJsonContent(content), providerId);
     }
