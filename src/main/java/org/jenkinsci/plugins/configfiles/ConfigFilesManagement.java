@@ -38,6 +38,8 @@ import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
@@ -84,6 +86,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     /**
      * used by configfiles.jelly to resolve the correct path to the icon (see JENKINS-24441)
      */
+    @Restricted(NoExternalUse.class)
     public String getIconUrl(String rootUrl) {
         if (rootUrl.endsWith("/")) {
             return rootUrl + ICON_PATH.substring(1);
@@ -94,6 +97,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     /**
      * used by configfiles.jelly to gather the class to be referenced when loading jelly files
      */
+    @Restricted(NoExternalUse.class)
     public Class getJellyFilesClass() {
         return ConfigFilesUIContract.class;
     }

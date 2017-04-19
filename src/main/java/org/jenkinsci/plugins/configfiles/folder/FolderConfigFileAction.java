@@ -17,6 +17,8 @@ import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
 import org.jenkinsci.plugins.configfiles.ConfigFilesUIContract;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.*;
 
 import javax.servlet.ServletException;
@@ -43,6 +45,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
     /**
      * used by configfiles.jelly to resolve the correct path to the icon (see JENKINS-24441)
      */
+    @Restricted(NoExternalUse.class)
     public String getIconUrl(String rootUrl) {
         if (rootUrl.endsWith("/")) {
             return rootUrl + ConfigFilesManagement.ICON_PATH.substring(1);
@@ -53,6 +56,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
     /**
      * used by configfiles.jelly to gather the class to be referenced when loading jelly files
      */
+    @Restricted(NoExternalUse.class)
     public Class getJellyFilesClass() {
         return ConfigFilesUIContract.class;
     }
