@@ -4,7 +4,6 @@ import com.cloudbees.hudson.plugins.folder.Folder;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.Action;
-import hudson.model.Hudson;
 import hudson.model.Job;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
@@ -17,6 +16,7 @@ import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
 import org.jenkinsci.plugins.configfiles.ConfigFilesUIContract;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.jenkinsci.plugins.configfiles.ConfigFilesUI;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.*;
@@ -58,7 +58,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
      */
     @Restricted(NoExternalUse.class)
     public Class getJellyFilesClass() {
-        return ConfigFilesUIContract.class;
+        return ConfigFilesUI.class;
     }
 
     @Override
@@ -136,7 +136,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
         Config config = getStore().getById(confgiId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
-        req.getView(ConfigFilesUIContract.class, "show.jelly").forward(req, rsp);
+        req.getView(ConfigFilesUI.class, "show.jelly").forward(req, rsp);
     }
 
     @Override
@@ -146,7 +146,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.setAttribute("provider", config.getProvider());
-        req.getView(ConfigFilesUIContract.class, "edit.jelly").forward(req, rsp);
+        req.getView(ConfigFilesUI.class, "edit.jelly").forward(req, rsp);
     }
 
 
@@ -166,7 +166,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
             checkPermission(Job.CONFIGURE);
             req.setAttribute("providers", getProviders());
             req.setAttribute("configId", configId);
-            req.getView(ConfigFilesUIContract.class, "selectprovider.jelly").forward(req, rsp);
+            req.getView(ConfigFilesUI.class, "selectprovider.jelly").forward(req, rsp);
             return;
         }
 
@@ -186,7 +186,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
         config.setProviderId(provider.getProviderId());
         req.setAttribute("config", config);
 
-        req.getView(ConfigFilesUIContract.class, "edit.jelly").forward(req, rsp);
+        req.getView(ConfigFilesUI.class, "edit.jelly").forward(req, rsp);
     }
 
     @Override
@@ -194,7 +194,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
             checkPermission(Job.CONFIGURE);
         req.setAttribute("providers", getProviders());
         req.setAttribute("configId", UUID.randomUUID().toString());
-        req.getView(ConfigFilesUIContract.class, "selectprovider.jelly").forward(req, rsp);
+        req.getView(ConfigFilesUI.class, "selectprovider.jelly").forward(req, rsp);
     }
 
     @Override
