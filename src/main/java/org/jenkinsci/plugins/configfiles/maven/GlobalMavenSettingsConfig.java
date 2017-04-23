@@ -64,7 +64,7 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
     }
 
     public List<ServerCredentialMapping> getServerCredentialMappings() {
-        return serverCredentialMappings;
+        return serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
     }
 
     public Boolean getIsReplaceAll() {
