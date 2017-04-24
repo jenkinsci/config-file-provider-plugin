@@ -38,11 +38,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class CustomConfig extends Config {
     private static final long serialVersionUID = 1L;
 
+    @DataBoundConstructor
     public CustomConfig(String id, String name, String comment, String content) {
         super(id, name, comment, content);
     }
 
-    @DataBoundConstructor
     public CustomConfig(String id, String name, String comment, String content, String providerId) {
         super(id, name, comment, content, providerId);
     }

@@ -42,11 +42,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class MavenToolchainsConfig extends Config {
     private static final long serialVersionUID = 1L;
 
+    @DataBoundConstructor
     public MavenToolchainsConfig(String id, String name, String comment, String content) {
         super(id, name, comment, content);
     }
 
-    @DataBoundConstructor
     public MavenToolchainsConfig(String id, String name, String comment, String content, String providerId) {
         super(id, name, comment, content, providerId);
     }
