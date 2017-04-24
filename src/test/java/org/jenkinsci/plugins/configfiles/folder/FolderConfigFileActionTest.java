@@ -139,14 +139,21 @@ public class FolderConfigFileActionTest {
     }
 
     private CpsFlowDefinition getNewJobDefinition() {
-        return new CpsFlowDefinition(""
-                + "node {\n" +
-                "    configFileProvider([configFile(fileId: 'my-file-id', variable: 'MY_FILE')]) {\n" +
-                "       sh '''\n" +
-                "       ls -al $MY_FILE\n" +
-                "       cat $MY_FILE\n" +
-                "       '''\n" +
-                "   }\n" +
+        return new CpsFlowDefinition("" +
+                "node {\n" +
+                "  configFileProvider([configFile(fileId: 'my-file-id', variable: 'MY_FILE')]) {\n" +
+                "    if (isUnix()) {\n" +
+                "      sh '''\n" +
+                "      ls -al $MY_FILE\n" +
+                "      cat $MY_FILE\n" +
+                "      '''\n" +
+                "    } else {\n" +
+                "      bat '''\n" +
+                "      dir /a %MY_FILE%\n" +
+                "      type %MY_FILE%\n" +
+                "      '''\n" +
+                "    }\n" +
+                "  }\n" +
                 "}", true);
     }
 

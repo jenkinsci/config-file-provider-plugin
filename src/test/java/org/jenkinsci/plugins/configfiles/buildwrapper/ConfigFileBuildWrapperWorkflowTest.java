@@ -83,9 +83,10 @@ public class ConfigFileBuildWrapperWorkflowTest {
             @Override public void evaluate() throws Throwable {
                 WorkflowJob p = story.j.jenkins.createProject(WorkflowJob.class, "p");
                 p.setDefinition(new CpsFlowDefinition(""
+                        + "def xsh(file) { if (isUnix()) {sh \"cat $file\"} else {bat \"type $file\"} }\n"
                         + "node {\n"
                         + "  wrap([$class: 'ConfigFileBuildWrapper', managedFiles: [[fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt']]]) {\n"
-                        + "    sh 'cat myfile.txt'\n"
+                        + "    xsh 'myfile.txt'\n"
                         + "  }\n"
                         + "}", true));
                 WorkflowRun b = story.j.assertBuildStatusSuccess(p.scheduleBuild2(0));
@@ -100,8 +101,11 @@ public class ConfigFileBuildWrapperWorkflowTest {
             @Override public void evaluate() throws Throwable {
                 WorkflowJob p = story.j.jenkins.createProject(WorkflowJob.class, "p");
                 p.setDefinition(new CpsFlowDefinition(""
+                        + "def xsh(file) { if (isUnix()) {sh \"cat $file\"} else {bat \"type $file\"} }\n"
                         + "node {\n"
-                        + "  configFileProvider([configFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {sh 'cat myfile.txt'}\n"
+                        + "  configFileProvider([configFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {\n"
+                        + "    xsh 'myfile.txt'\n"
+                        + "  }\n"
                         + "}", true));
                 WorkflowRun b = story.j.assertBuildStatusSuccess(p.scheduleBuild2(0));
                 story.j.assertLogContains("some content", b);
@@ -115,8 +119,11 @@ public class ConfigFileBuildWrapperWorkflowTest {
             @Override public void evaluate() throws Throwable {
                 WorkflowJob p = story.j.jenkins.createProject(WorkflowJob.class, "p");
                 p.setDefinition(new CpsFlowDefinition(""
+                        + "def xsh(file) { if (isUnix()) {sh \"cat $file\"} else {bat \"type $file\"} }\n"
                         + "node {\n"
-                        + "  configFileProvider(managedFiles: [configFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {sh 'cat myfile.txt'}\n"
+                        + "  configFileProvider(managedFiles: [configFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {\n"
+                        + "    xsh 'myfile.txt'\n"
+                        + "  }\n"
                         + "}", true));
                 WorkflowRun b = story.j.assertBuildStatusSuccess(p.scheduleBuild2(0));
                 story.j.assertLogContains("some content", b);
@@ -133,7 +140,7 @@ public class ConfigFileBuildWrapperWorkflowTest {
                         + "node {\n"
                         + "  wrap([$class: 'ConfigFileBuildWrapper', managedFiles: [[fileId: '" + createConfig().id + "', variable: 'MYFILE']]]) {\n"
                         + "    semaphore 'withTempFilesAfterRestart'\n"
-                        + "    sh 'cat $MYFILE'\n"
+                        + "    if (isUnix()) {sh 'cat $MYFILE'} else {bat 'type %MYFILE%'}\n"
                         + "  }\n"
                         + "}", true));
                 WorkflowRun b = p.scheduleBuild2(0).waitForStart();
