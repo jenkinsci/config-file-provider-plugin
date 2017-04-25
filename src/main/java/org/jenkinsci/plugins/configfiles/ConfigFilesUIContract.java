@@ -41,6 +41,8 @@ import java.util.*;
  */
 public interface ConfigFilesUIContract {
 
+    public static final String JELLY_RESOURCES_PATH = "/org/jenkinsci/plugins/configfiles/ConfigFilesUI/";
+
     public static final String ICON_PATH = "/plugin/config-file-provider/images/cfg_logo.png";
 
 

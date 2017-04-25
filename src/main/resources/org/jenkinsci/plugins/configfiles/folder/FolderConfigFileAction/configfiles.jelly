@@ -26,6 +26,6 @@ THE SOFTWARE.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
     xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
 	<l:layout permission="${it.CONFIGURE}" norefresh="true">
-        <st:include page="configfiles.jelly" class="${it.getJellyFilesClass()}" />
+        <st:include page="/org/jenkinsci/plugins/configfiles/ConfigFilesUI/configfiles.jelly" />
 	</l:layout>
 </j:jelly>
