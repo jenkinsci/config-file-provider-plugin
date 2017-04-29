@@ -90,7 +90,7 @@ public class CleanTempFilesAction extends InvisibleAction implements Environment
     List<String> getTempFiles() {
         List<String> tempFiles = new ArrayList<String>();
         for (Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
-            boolean noTargetGiven = StringUtils.isBlank(entry.getKey().targetLocation);
+            boolean noTargetGiven = StringUtils.isBlank(entry.getKey().getTargetLocation());
             if (noTargetGiven) {
                 tempFiles.add(entry.getValue().getRemote());
             }

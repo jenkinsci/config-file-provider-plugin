@@ -70,7 +70,7 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
             if (!StringUtils.isBlank(mf.variable)) {
                 context.env(mf.variable, fp.getRemote());
             }
-            boolean noTargetGiven = StringUtils.isBlank(entry.getKey().targetLocation);
+            boolean noTargetGiven = StringUtils.isBlank(entry.getKey().getTargetLocation());
             if (noTargetGiven) {
                 tempFiles.add(entry.getValue().getRemote());
             }

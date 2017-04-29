@@ -1,26 +1,15 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
-import hudson.Extension;
-import hudson.FilePath;
-import hudson.model.Item;
-import hudson.model.ItemGroup;
-import hudson.model.TaskListener;
-import hudson.model.AbstractBuild;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import hudson.util.ListBoxModel;
-import jenkins.mvn.SettingsProvider;
-import jenkins.mvn.SettingsProviderDescriptor;
-
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ConfigFileManager;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
-import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFileUtil;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
@@ -30,6 +19,15 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.model.AbstractBuild;
+import hudson.model.ItemGroup;
+import hudson.model.TaskListener;
+import hudson.util.ListBoxModel;
+import jenkins.mvn.SettingsProvider;
+import jenkins.mvn.SettingsProviderDescriptor;
 
 /**
  * This provider delivers the settings.xml to the job during job/project execution. <br>
@@ -90,7 +88,7 @@ public class MvnSettingsProvider extends SettingsProvider {
 
                         FilePath workspace = build.getWorkspace();
                         if (workspace != null) {
-                            FilePath workDir = ManagedFileUtil.tempDir(workspace);
+                            FilePath workDir = ConfigFileManager.tempDir(workspace);
                             String fileContent = config.content;
 
                             final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();

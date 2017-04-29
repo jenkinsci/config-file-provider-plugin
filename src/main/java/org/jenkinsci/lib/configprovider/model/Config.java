@@ -31,7 +31,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
-import java.util.logging.Logger;
 
 /**
  * Represents a particular configuration file and its content.
@@ -40,9 +39,8 @@ import java.util.logging.Logger;
  *
  * @author domi
  */
+@SuppressWarnings("serial")
 public class Config implements Serializable, Describable<Config> {
-
-    private static final Logger LOGGER = Logger.getLogger(Config.class.getName());
 
     /**
      * a unique id along all providers!
@@ -105,6 +103,7 @@ public class Config implements Serializable, Describable<Config> {
      *
      * @return never null.
      */
+    @Override
     public ConfigProvider getDescriptor() {
         return (ConfigProvider) Jenkins.getActiveInstance().getDescriptorOrDie(this.getClass());
     }
