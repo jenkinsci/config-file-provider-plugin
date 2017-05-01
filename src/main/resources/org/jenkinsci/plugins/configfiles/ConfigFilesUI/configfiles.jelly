@@ -22,23 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
-	<l:layout norefresh="true">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+    xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
+    <cf:sitepanel />
 
-		<cf:sitepanel />
+    <l:main-panel>
+        <h1>
+            <img src="${it.getIconUrl(rootURL)}" alt="" />
+            <j:out value=" " />
+            ${%Config File Management}
+        </h1>
 
-		<l:main-panel>
-			<h1>
-				<img width="48" height="48" src="${imagesURL}/16x16/document_edit.gif" />
-				<img width="16" height="16" src="${imagesURL}/16x16/empty.gif" />
-				<j:out value="${%filetype}" />
-			</h1>
-			<j:out value="${%selectprovider}" />
+        <j:out value="${%intro}" />
 
-			<cf:selectprovider providers="${providers}"/>
-
-		</l:main-panel>
-	</l:layout>
+        <cf:configfiles groupedConfigs="${it.groupedConfigs}" />
+    </l:main-panel>
 </j:jelly>

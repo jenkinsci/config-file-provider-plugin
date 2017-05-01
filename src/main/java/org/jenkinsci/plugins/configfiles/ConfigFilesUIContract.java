@@ -23,13 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles;
 
-import hudson.Extension;
-import hudson.Util;
-import hudson.model.Hudson;
-import hudson.model.ManagementLink;
-import hudson.security.Permission;
 import hudson.util.FormValidation;
-import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -46,6 +40,8 @@ import java.util.*;
  *
  */
 public interface ConfigFilesUIContract {
+
+    public static final String JELLY_RESOURCES_PATH = "/org/jenkinsci/plugins/configfiles/ConfigFilesUI/";
 
     public static final String ICON_PATH = "/plugin/config-file-provider/images/cfg_logo.png";
 

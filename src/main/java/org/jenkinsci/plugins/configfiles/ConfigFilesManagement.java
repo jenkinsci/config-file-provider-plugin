@@ -38,6 +38,8 @@ import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
@@ -82,8 +84,9 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     }
 
     /**
-     * used by index.jelly to resolve the correct path to the icon (see JENKINS-24441)
+     * used by configfiles.jelly to resolve the correct path to the icon (see JENKINS-24441)
      */
+    @Restricted(NoExternalUse.class)
     public String getIconUrl(String rootUrl) {
         if (rootUrl.endsWith("/")) {
             return rootUrl + ICON_PATH.substring(1);
@@ -145,7 +148,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         Config config = store.getById(confgiId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
-        req.getView(this, "show.jelly").forward(req, rsp);
+        req.getView(this, JELLY_RESOURCES_PATH + "show.jelly").forward(req, rsp);
 
     }
 
@@ -168,7 +171,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.setAttribute("provider", config.getProvider());
-        req.getView(this, "edit.jelly").forward(req, rsp);
+        req.getView(this, JELLY_RESOURCES_PATH + "edit.jelly").forward(req, rsp);
     }
 
     /**
@@ -198,7 +201,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
             checkPermission(Hudson.ADMINISTER);
             req.setAttribute("providers", ConfigProvider.all());
             req.setAttribute("configId", configId);
-            req.getView(this, "selectprovider.jelly").forward(req, rsp);
+            req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);
             return;
         }
 
@@ -218,14 +221,14 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         config.setProviderId(provider.getProviderId());
         req.setAttribute("config", config);
 
-        req.getView(this, "edit.jelly").forward(req, rsp);
+        req.getView(this, JELLY_RESOURCES_PATH + "edit.jelly").forward(req, rsp);
     }
 
     public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
         req.setAttribute("providers", ConfigProvider.all());
         req.setAttribute("configId", UUID.randomUUID().toString());
-        req.getView(this, "selectprovider.jelly").forward(req, rsp);
+        req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);
     }
 
     private void checkPermission(Permission permission) {
