@@ -145,6 +145,8 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
 
     public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
 
+        checkPermission(Hudson.READ);
+
         Config config = store.getById(confgiId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
