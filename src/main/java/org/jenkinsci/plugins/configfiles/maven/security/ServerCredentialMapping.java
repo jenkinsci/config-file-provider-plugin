@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
+import hudson.model.*;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -14,11 +15,6 @@ import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 
 import hudson.Extension;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.Computer;
-import hudson.model.Descriptor;
-import hudson.model.ItemGroup;
-import hudson.model.Queue;
 import hudson.model.queue.Tasks;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
@@ -55,7 +51,7 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @QueryParameter String serverId) {
             AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.getActiveInstance());
-            if (_context == null || !_context.hasPermission(Computer.CONFIGURE)) {
+            if (_context == null || !_context.hasPermission(Item.CONFIGURE)) {
                 return new StandardUsernameListBoxModel().includeCurrentValue(serverId);
             }
 
