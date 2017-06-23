@@ -96,24 +96,6 @@ public class ConfigFileBuildWrapperWorkflowTest {
         });
     }
 
-    @Test public void symbolWithTargetLocation_Pipeline_short() throws Exception {
-        story.addStep(new Statement() {
-            @Override public void evaluate() throws Throwable {
-                WorkflowJob p = story.j.jenkins.createProject(WorkflowJob.class, "p");
-                p.setDefinition(new CpsFlowDefinition(""
-                        + "def xsh(file) { if (isUnix()) {sh \"cat $file\"} else {bat \"type $file\"} }\n"
-                        + "node {\n"
-                        + "  configFileProvider([configFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {\n"
-                        + "    xsh 'myfile.txt'\n"
-                        + "  }\n"
-                        + "}", true));
-                WorkflowRun b = story.j.assertBuildStatusSuccess(p.scheduleBuild2(0));
-                story.j.assertLogContains("some content", b);
-                story.j.assertLogNotContains("temporary files", b);
-            }
-        });
-    }
-
     @Test public void symbolWithTargetLocation() throws Exception {
         story.addStep(new Statement() {
             @Override public void evaluate() throws Throwable {
@@ -121,7 +103,7 @@ public class ConfigFileBuildWrapperWorkflowTest {
                 p.setDefinition(new CpsFlowDefinition(""
                         + "def xsh(file) { if (isUnix()) {sh \"cat $file\"} else {bat \"type $file\"} }\n"
                         + "node {\n"
-                        + "  configFileProvider(managedFiles: [configFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {\n"
+                        + "  configFileProvider([configFile(fileId: '" + createConfig().id + "', targetLocation: 'myfile.txt')]) {\n"
                         + "    xsh 'myfile.txt'\n"
                         + "  }\n"
                         + "}", true));
