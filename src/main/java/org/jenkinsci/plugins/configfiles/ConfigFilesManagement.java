@@ -31,6 +31,7 @@ import javax.servlet.ServletException;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.Hudson;
+import hudson.model.Item;
 import hudson.model.ManagementLink;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
@@ -43,6 +44,7 @@ import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -53,7 +55,7 @@ import org.kohsuke.stapler.StaplerResponse;
  * 
  */
 @Extension
-public class ConfigFilesManagement extends ManagementLink implements ConfigFilesUIContract {
+public class ConfigFilesManagement extends ManagementLink implements ConfigFilesUIContract, StaplerProxy {
 
     public static final String ICON_PATH = "/plugin/config-file-provider/images/cfg_logo.png";
 
@@ -145,7 +147,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
 
     public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
 
-        checkPermission(Hudson.READ);
+        checkPermission(Hudson.ADMINISTER);
 
         Config config = store.getById(confgiId);
         req.setAttribute("contentType", config.getProvider().getContentType());
@@ -268,5 +270,12 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         } else {
             return FormValidation.warning(Messages.ConfigFilesManagement_configIdAlreadyUsed(config.name, config.id));
         }
+    }
+
+
+    @Override
+    public Object getTarget() {
+        checkPermission(Item.EXTENDED_READ);
+        return this;
     }
 }

@@ -4,9 +4,12 @@ import com.cloudbees.hudson.plugins.folder.Folder;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.Action;
+import hudson.model.Item;
 import hudson.model.Job;
+import hudson.model.TopLevelItem;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
@@ -24,7 +27,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.*;
 
-public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
+public class FolderConfigFileAction implements Action, ConfigFilesUIContract, StaplerProxy {
 
     private Folder folder;
 
@@ -38,7 +41,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
     @Override
     public String getIconFileName() {
-        return ConfigFilesManagement.ICON_PATH;
+        return folder.hasPermission(Item.EXTENDED_READ) ? ConfigFilesManagement.ICON_PATH : null;
     }
 
     /**
@@ -54,12 +57,12 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
     @Override
     public String getDisplayName() {
-        return "Config Files";
+        return folder.hasPermission(Item.EXTENDED_READ) ? "Config Files" : null;
     }
 
     @Override
     public String getUrlName() {
-        return "configfiles";
+        return folder.hasPermission(Item.EXTENDED_READ) ? "configfiles" : null;
     }
 
     @Override
@@ -124,6 +127,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
 
     @Override
     public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
+        folder.checkPermission(Item.EXTENDED_READ);
         Config config = getStore().getById(confgiId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
@@ -228,4 +232,9 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract {
         folder.checkPermission(permission);
     }
 
+    @Override
+    public Object getTarget() {
+        checkPermission(Item.EXTENDED_READ);
+        return this;
+    }
 }
