@@ -18,6 +18,7 @@ import java.util.List;
 
 public class ConfigFilesAction implements Action, StaplerProxy {
     private Job item;
+
     public ConfigFilesAction(Job item) {
         this.item = item;
     }
@@ -44,14 +45,11 @@ public class ConfigFilesAction implements Action, StaplerProxy {
     }
 
     public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String fileId, @AncestorInPath ItemGroup group) throws IOException, ServletException {
-        List<Config> configs = ConfigFiles.getConfigsInContext(group, null);
-        for (Config config : configs) {
-            if (config.id.equals(fileId)) {
-                req.setAttribute("contentType", config.getProvider().getContentType());
-                req.setAttribute("config", config);
-                req.getView(this, JELLY_RESOURCES_PATH + "show.jelly").forward(req, rsp);
-                break;
-            }
+        Config config = ConfigFiles.getByIdOrNull(group, fileId);
+        if (config != null) {
+            req.setAttribute("contentType", config.getProvider().getContentType());
+            req.setAttribute("config", config);
+            req.getView(this, JELLY_RESOURCES_PATH + "show.jelly").forward(req, rsp);
         }
         throw HttpResponses.notFound();
     }

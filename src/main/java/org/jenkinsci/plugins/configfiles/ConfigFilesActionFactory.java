@@ -18,13 +18,10 @@ public class ConfigFilesActionFactory extends TransientActionFactory<Job> {
     public Class<Job> type() {
         return Job.class;
     }
-    
+
     @Nonnull
     @Override
     public Collection<? extends Action> createFor(@Nonnull Job job) {
-        if (job instanceof FreeStyleProject) {
-            return Collections.singletonList(new ConfigFilesAction(job));
-        }
-        return Collections.emptyList();
+        return Collections.singletonList(new ConfigFilesAction(job));
     }
 }
