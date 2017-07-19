@@ -3,9 +3,7 @@ package org.jenkinsci.plugins.configfiles;
 import hudson.Extension;
 import hudson.model.Action;
 import hudson.model.FreeStyleProject;
-import hudson.model.Item;
 import hudson.model.Job;
-import hudson.model.TopLevelItem;
 import jenkins.model.TransientActionFactory;
 
 import javax.annotation.Nonnull;
@@ -22,6 +20,18 @@ public class ConfigFilesActionFactory extends TransientActionFactory<Job> {
     @Nonnull
     @Override
     public Collection<? extends Action> createFor(@Nonnull Job job) {
-        return Collections.singletonList(new ConfigFilesAction(job));
+        if (job instanceof FreeStyleProject || isMavenJob(job)) {
+            return Collections.singletonList(new ConfigFilesAction(job));
+        }
+        return Collections.emptyList();
+    }
+
+    private boolean isMavenJob(Job job) {
+        try {
+            Class<?> mvnJobClass = Class.forName("hudson.maven.MavenModuleSet", false, job.getClass().getClassLoader());
+            return mvnJobClass.isAssignableFrom(job.getClass());
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }
