@@ -46,14 +46,14 @@
         <script type="text/javascript">
 
             function fp_updateDetailLink(event) {
-                fp_initDetailLink('<j:out value="${rootURL}" />', event.currentTarget, '_.fileId');
+                fp_initDetailLink('<j:out value="${rootURL}/${it.url}" />', event.currentTarget, '_.fileId');
             }
 
             function fp_initAllDetailLinks() {
                 var all = new Array();
                 all = document.getElementsByName('_.fileId');
                 for(var i = 0; i &lt; all.length; i++) {
-                    fp_initDetailLink('<j:out value="${rootURL}" />', all.item(i), '_.fileId');
+                    fp_initDetailLink('<j:out value="${rootURL}/${it.url}" />', all.item(i), '_.fileId');
                     Event.stopObserving(all.item(i), 'change', fp_updateDetailLink);
                     Event.observe(all.item(i), 'change', fp_updateDetailLink);
                 }
