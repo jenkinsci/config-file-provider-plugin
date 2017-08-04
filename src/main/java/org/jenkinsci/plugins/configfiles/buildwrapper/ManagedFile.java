@@ -28,16 +28,17 @@ import hudson.ExtensionPoint;
 import hudson.Util;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
+import hudson.model.Item;
 import hudson.model.ItemGroup;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ConfigFile;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
-import org.kohsuke.stapler.AncestorInPath;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
+import org.jenkinsci.plugins.configfiles.utils.ConfigFileDetailLinkDescription;
+import org.kohsuke.stapler.*;
 
 import java.io.Serializable;
 
@@ -50,7 +51,6 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
 
     /**
      * @param fileId the id of the file to be provided
-     *
      * @since 2.12
      */
     @DataBoundConstructor
@@ -113,6 +113,22 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
                 items.add(config.name, config.id);
             }
             return items;
+        }
+
+        /**
+         * validate that an existing config was chosen
+         *
+         * @param context the context this file is configured in
+         * @param fileId  the id of the config file
+         * @return a validation result / description
+         */
+        public HttpResponse doCheckFileId(StaplerRequest req, @AncestorInPath Item context, @QueryParameter String fileId) {
+            final Config config = ConfigFiles.getByIdOrNull(context, fileId);
+            if (config != null) {
+                return ConfigFileDetailLinkDescription.getDescription(req, context, fileId);
+            } else {
+                return FormValidation.error("you must select a valid file");
+            }
         }
 
     }

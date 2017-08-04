@@ -9,19 +9,9 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-        <st:once>
-            <script type="text/javascript" src="${rootURL}/plugin/config-file-provider/js/fileprovider.js" />
-        </st:once>
-
         <f:entry title="File" field="fileId">
             <f:select />
         </f:entry>
-
-        <tr><td></td>
-            <td></td>
-            <td><a target="_blank" name="showFileDetailLink" style="display:none;" href="" onclick="window.open(this.href,'window','width=900,height=640,resizable,scrollbars,toolbar,menubar') ;return false;">view selected file</a></td>
-            <td></td>
-        </tr>
 
         <f:entry title="Target" field="targetLocation">
             <f:textbox />
@@ -41,26 +31,5 @@
             <input type="button" value="${%Delete}" class="repeatable-delete show-if-not-only" style="margin-left: 1em;" />
         </div>
     </f:entry>
-
-    <st:once>
-        <script type="text/javascript">
-
-            function fp_updateDetailLink(event) {
-                fp_initDetailLink('<j:out value="${rootURL}/${it.url}" />', event.currentTarget, '_.fileId');
-            }
-
-            function fp_initAllDetailLinks() {
-                var all = new Array();
-                all = document.getElementsByName('_.fileId');
-                for(var i = 0; i &lt; all.length; i++) {
-                    fp_initDetailLink('<j:out value="${rootURL}/${it.url}" />', all.item(i), '_.fileId');
-                    Event.stopObserving(all.item(i), 'change', fp_updateDetailLink);
-                    Event.observe(all.item(i), 'change', fp_updateDetailLink);
-                }
-            }
-
-            Event.observe(window, 'load', fp_initAllDetailLinks);
-        </script>
-    </st:once>
 
 </j:jelly>
