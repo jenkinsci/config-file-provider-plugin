@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>config-file-provider</artifactId>
-    <version>2.16.3-SNAPSHOT</version>
+    <version>2.16.3</version>
 
     <packaging>hpi</packaging>
 
@@ -19,7 +19,7 @@
         <connection>scm:git:git://github.com/jenkinsci/config-file-provider-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/config-file-provider-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/config-file-provider-plugin</url>
-        <tag>HEAD</tag>
+        <tag>config-file-provider-2.16.3</tag>
     </scm>
     <distributionManagement>
         <repository>
