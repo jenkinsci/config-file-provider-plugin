@@ -34,20 +34,20 @@ import hudson.model.Job;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
 
-import com.cloudbees.hudson.plugins.folder.Folder;
+import com.cloudbees.hudson.plugins.folder.AbstractFolder;
 
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
 
 public class FolderConfigFileAction implements Action, ConfigFilesUIContract, StaplerProxy {
 
-    private Folder folder;
+    private AbstractFolder<?> folder;
 
-    FolderConfigFileAction(Folder folder) {
+    FolderConfigFileAction(AbstractFolder<?> folder) {
         this.folder = folder;
     }
 
-    public Folder getFolder() {
+    public AbstractFolder<?> getFolder() {
         return folder;
     }
 
@@ -108,7 +108,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public HttpResponse doSaveConfig(StaplerRequest req) throws IOException, ServletException {
-        checkPermission(Job.CONFIGURE);
+        checkPermission(Item.CONFIGURE);
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
@@ -159,7 +159,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
-        checkPermission(Job.CONFIGURE);
+        checkPermission(Item.CONFIGURE);
 
         FormValidation error = null;
         if (providerId == null || providerId.isEmpty()) {
@@ -228,14 +228,15 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     }
 
     @Extension(optional = true)
-    public static class ActionFactory extends TransientActionFactory<Folder> {
+    @SuppressWarnings("rawtypes")
+    public static class ActionFactory extends TransientActionFactory<AbstractFolder> {
         @Override
-        public Class<Folder> type() {
-            return Folder.class;
+        public Class<AbstractFolder> type() {
+            return AbstractFolder.class;
         }
 
         @Override
-        public Collection<? extends Action> createFor(Folder target) {
+        public Collection<? extends Action> createFor(AbstractFolder target) {
             return Collections.singleton(new FolderConfigFileAction(target));
         }
     }
