@@ -1,17 +1,15 @@
 package org.jenkinsci.plugins.configfiles.folder;
 
-import com.cloudbees.hudson.plugins.folder.Folder;
-import hudson.Extension;
-import hudson.Util;
-import hudson.model.Action;
-import hudson.model.Item;
-import hudson.model.Job;
-import hudson.model.TopLevelItem;
-import hudson.security.Permission;
-import hudson.util.FormValidation;
-import jenkins.model.Jenkins;
-import jenkins.model.TransientActionFactory;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.ServletException;
+
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -21,11 +19,25 @@ import org.jenkinsci.plugins.configfiles.ConfigFilesUIContract;
 import org.jenkinsci.plugins.configfiles.Messages;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
-import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.HttpRedirect;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerProxy;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.util.*;
+import hudson.Extension;
+import hudson.Util;
+import hudson.model.Action;
+import hudson.model.Item;
+import hudson.model.Job;
+import hudson.security.Permission;
+import hudson.util.FormValidation;
+
+import com.cloudbees.hudson.plugins.folder.Folder;
+
+import jenkins.model.TransientActionFactory;
+import net.sf.json.JSONObject;
 
 public class FolderConfigFileAction implements Action, ConfigFilesUIContract, StaplerProxy {
 
