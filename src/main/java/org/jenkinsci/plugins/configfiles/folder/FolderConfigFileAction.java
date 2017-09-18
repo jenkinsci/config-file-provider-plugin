@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import org.acegisecurity.context.SecurityContext;
+import org.acegisecurity.context.SecurityContextHolder;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -31,6 +33,7 @@ import hudson.Util;
 import hudson.model.Action;
 import hudson.model.Item;
 import hudson.model.Job;
+import hudson.security.ACL;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
 
@@ -53,7 +56,22 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public String getIconFileName() {
-        return folder.hasPermission(Item.EXTENDED_READ) ? ConfigFilesManagement.ICON_PATH : null;
+        // whilst you may be able to read configuration of a ComputedFolder they are not configurable, so the link should never be shown.
+        boolean hasPerm = folder.hasPermission(Item.EXTENDED_READ);
+        if (hasPerm) {
+            // check that the thing can store configuration (ie it is ultimately configurable)
+            // need to do this as System as a user with EXTENDED_READ but not configure should still see this.
+            // TODO use ACL.as when baseline is 2.14+
+            final SecurityContext impersonate = ACL.impersonate(ACL.SYSTEM);
+            try {
+                hasPerm = folder.hasPermission(Item.CONFIGURE);
+            }
+            finally {
+                SecurityContextHolder.setContext(impersonate);
+            }
+        }
+        
+        return hasPerm ? ConfigFilesManagement.ICON_PATH : null;
     }
 
     /**
