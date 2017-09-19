@@ -56,21 +56,12 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public String getIconFileName() {
-        // whilst you may be able to read configuration of a ComputedFolder they are not configurable, so the link should never be shown.
-        boolean hasPerm = folder.hasPermission(Item.EXTENDED_READ);
-        if (hasPerm) {
-            // check that the thing can store configuration (ie it is ultimately configurable)
-            // need to do this as System as a user with EXTENDED_READ but not configure should still see this.
-            // TODO use ACL.as when baseline is 2.14+
-            final SecurityContext impersonate = ACL.impersonate(ACL.SYSTEM);
-            try {
-                hasPerm = folder.hasPermission(Item.CONFIGURE);
-            }
-            finally {
-                SecurityContextHolder.setContext(impersonate);
-            }
-        }
-        
+        /*
+         * only show the action if you can either
+         * a) add a new entry
+         * b) there is an existing entry
+         */
+        boolean hasPerm = folder.hasPermission(Item.CONFIGURE) || (folder.hasPermission(Item.EXTENDED_READ) && hasStore());
         return hasPerm ? ConfigFilesManagement.ICON_PATH : null;
     }
 
@@ -139,6 +130,10 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
             e.printStackTrace();
         }
         return new HttpRedirect("index");
+    }
+
+    private boolean hasStore() {
+        return folder.getProperties().get(FolderConfigFileProperty.class) != null;
     }
 
     ConfigFileStore getStore() {
