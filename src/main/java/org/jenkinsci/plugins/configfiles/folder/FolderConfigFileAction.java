@@ -1,17 +1,17 @@
 package org.jenkinsci.plugins.configfiles.folder;
 
-import com.cloudbees.hudson.plugins.folder.Folder;
-import hudson.Extension;
-import hudson.Util;
-import hudson.model.Action;
-import hudson.model.Item;
-import hudson.model.Job;
-import hudson.model.TopLevelItem;
-import hudson.security.Permission;
-import hudson.util.FormValidation;
-import jenkins.model.Jenkins;
-import jenkins.model.TransientActionFactory;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.ServletException;
+
+import org.acegisecurity.context.SecurityContext;
+import org.acegisecurity.context.SecurityContextHolder;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -21,27 +21,48 @@ import org.jenkinsci.plugins.configfiles.ConfigFilesUIContract;
 import org.jenkinsci.plugins.configfiles.Messages;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
-import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.HttpRedirect;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerProxy;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.util.*;
+import hudson.Extension;
+import hudson.Util;
+import hudson.model.Action;
+import hudson.model.Item;
+import hudson.model.Job;
+import hudson.security.ACL;
+import hudson.security.Permission;
+import hudson.util.FormValidation;
+
+import com.cloudbees.hudson.plugins.folder.AbstractFolder;
+
+import jenkins.model.TransientActionFactory;
+import net.sf.json.JSONObject;
 
 public class FolderConfigFileAction implements Action, ConfigFilesUIContract, StaplerProxy {
 
-    private Folder folder;
+    private AbstractFolder<?> folder;
 
-    FolderConfigFileAction(Folder folder) {
+    FolderConfigFileAction(AbstractFolder<?> folder) {
         this.folder = folder;
     }
 
-    public Folder getFolder() {
+    public AbstractFolder<?> getFolder() {
         return folder;
     }
 
     @Override
     public String getIconFileName() {
-        return folder.hasPermission(Item.EXTENDED_READ) ? ConfigFilesManagement.ICON_PATH : null;
+        /*
+         * only show the action if you can either
+         * a) add a new entry
+         * b) there is an existing entry
+         */
+        boolean hasPerm = folder.hasPermission(Item.CONFIGURE) || (folder.hasPermission(Item.EXTENDED_READ) && hasStore());
+        return hasPerm ? ConfigFilesManagement.ICON_PATH : null;
     }
 
     /**
@@ -96,7 +117,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public HttpResponse doSaveConfig(StaplerRequest req) throws IOException, ServletException {
-        checkPermission(Job.CONFIGURE);
+        checkPermission(Item.CONFIGURE);
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
@@ -109,6 +130,10 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
             e.printStackTrace();
         }
         return new HttpRedirect("index");
+    }
+
+    private boolean hasStore() {
+        return folder.getProperties().get(FolderConfigFileProperty.class) != null;
     }
 
     ConfigFileStore getStore() {
@@ -147,7 +172,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
-        checkPermission(Job.CONFIGURE);
+        checkPermission(Item.CONFIGURE);
 
         FormValidation error = null;
         if (providerId == null || providerId.isEmpty()) {
@@ -216,14 +241,15 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     }
 
     @Extension(optional = true)
-    public static class ActionFactory extends TransientActionFactory<Folder> {
+    @SuppressWarnings("rawtypes")
+    public static class ActionFactory extends TransientActionFactory<AbstractFolder> {
         @Override
-        public Class<Folder> type() {
-            return Folder.class;
+        public Class<AbstractFolder> type() {
+            return AbstractFolder.class;
         }
 
         @Override
-        public Collection<? extends Action> createFor(Folder target) {
+        public Collection<? extends Action> createFor(AbstractFolder target) {
             return Collections.singleton(new FolderConfigFileAction(target));
         }
     }
