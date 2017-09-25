@@ -92,7 +92,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                             FilePath workDir = ConfigFileManager.tempDir(workspace);
                             String fileContent = config.content;
 
-                            final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, config.getServerCredentialMappings());
+                            final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, config.getServerCredentialMappings(), listener);
                             final Boolean isReplaceAll = config.getIsReplaceAll();
 
                             if (resolvedCredentials != null && !resolvedCredentials.isEmpty()) {

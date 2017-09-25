@@ -40,6 +40,7 @@ import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 
 import hudson.FilePath;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.util.Secret;
 
 public class CredentialsHelper {
@@ -62,7 +63,7 @@ public class CredentialsHelper {
      *            the mappings to be resolved
      * @return map of serverId - credential
      */
-    public static Map<String, StandardUsernameCredentials> resolveCredentials(Run<?,?> build, final List<ServerCredentialMapping> serverCredentialMappings) {
+    public static Map<String, StandardUsernameCredentials> resolveCredentials(Run<?,?> build, final List<ServerCredentialMapping> serverCredentialMappings, TaskListener listener) {
         Map<String, StandardUsernameCredentials> serverId2credential = new HashMap<String, StandardUsernameCredentials>();
         for (ServerCredentialMapping serverCredentialMapping : serverCredentialMappings) {
             final String credentialsId = serverCredentialMapping.getCredentialsId();
@@ -77,9 +78,16 @@ public class CredentialsHelper {
 
             if (c != null) {
                 serverId2credential.put(serverId, c);
+            } else {
+                listener.getLogger().println("Could not find credentials ‘" + credentialsId + "’ for " + build);
             }
         }
         return serverId2credential;
+    }
+
+    @Deprecated
+    public static Map<String, StandardUsernameCredentials> resolveCredentials(Run<?,?> build, final List<ServerCredentialMapping> serverCredentialMappings) {
+        return resolveCredentials(build, serverCredentialMappings, TaskListener.NULL);
     }
 
     /**
