@@ -60,4 +60,26 @@ public class SystemConfigFilesManagementTest {
             Assert.assertNotNull(config.getProviderId());
         }
     }
+
+    @Test
+    public void testDynamicCreationOfConfigs2() {
+        final String id = "ExtensionPointTestConfigProvider-file-id";
+
+        ExtensionPointTestConfig.ExtensionPointTestConfigProvider configProvider = getProvider(ExtensionPointTestConfig.ExtensionPointTestConfigProvider.class);
+        Config newConfig = configProvider.newConfig(id);
+        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(newConfig);
+
+        Assert.assertEquals(1, GlobalConfigFiles.get().getConfigs(ExtensionPointTestConfig.ExtensionPointTestConfigProvider.class).size());
+
+        ExtensionPointTestConfig savedConfig = (ExtensionPointTestConfig) GlobalConfigFiles.get().getConfigs(ExtensionPointTestConfig.ExtensionPointTestConfigProvider.class).iterator().next();
+        Assert.assertEquals(savedConfig.id, id);
+        Assert.assertEquals(savedConfig.name, ExtensionPointTestConfig.TEST_NAME_VALUE);
+        Assert.assertEquals(savedConfig.comment, ExtensionPointTestConfig.TEST_COMMENT_VALUE);
+        Assert.assertEquals(savedConfig.content, ExtensionPointTestConfig.TEST_CONTENT_VALUE);
+        Assert.assertEquals(savedConfig.newParam1, ExtensionPointTestConfig.TEST_PARAM_VALUE);
+        Assert.assertEquals(savedConfig.newParam2, ExtensionPointTestConfig.TEST_PARAM_VALUE);
+        Assert.assertEquals(savedConfig.newParam3, ExtensionPointTestConfig.TEST_PARAM_VALUE);
+        Assert.assertNotNull(savedConfig.getProviderId());
+    }
 }
