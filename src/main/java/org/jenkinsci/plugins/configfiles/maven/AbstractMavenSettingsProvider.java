@@ -66,7 +66,7 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
     @Override
     public String supplyContent(Config configFile, Run<?, ?> build, FilePath workDir, TaskListener listener, List<String> tempFiles) throws IOException {
         HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
-        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings());
+        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings(), listener);
         final Boolean isReplaceAll = settings.getIsReplaceAll();
 
         String fileContent = super.supplyContent(configFile, build, workDir, listener, tempFiles);
