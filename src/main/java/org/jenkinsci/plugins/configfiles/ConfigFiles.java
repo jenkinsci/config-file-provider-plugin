@@ -14,6 +14,7 @@ import org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,6 +50,7 @@ public class ConfigFiles {
         List<Config> configs = new ArrayList<Config>();
 
         while (itemGroup != null) {
+            itemGroup = resolveItemGroup(itemGroup);
             if (folderPluginInstalled() && itemGroup instanceof AbstractFolder) {
 
                 final AbstractFolder<?> folder = AbstractFolder.class.cast(itemGroup);
@@ -91,6 +93,7 @@ public class ConfigFiles {
     public static <T extends Config> T getByIdOrNull(@Nullable ItemGroup itemGroup, @NonNull String configId) {
 
         while (itemGroup != null) {
+            itemGroup = resolveItemGroup(itemGroup);
             if (folderPluginInstalled() && itemGroup instanceof AbstractFolder) {
                 final AbstractFolder<?> folder = AbstractFolder.class.cast(itemGroup);
                 ConfigFileStore store = folder.getProperties().get(FolderConfigFileProperty.class);
@@ -165,5 +168,15 @@ public class ConfigFiles {
         }
 
         return (T) configFile;
+    }
+
+    private static ItemGroup resolveItemGroup(ItemGroup itemGroup) {
+        for (ConfigContextResolver resolver : ConfigContextResolver.all()) {
+            ItemGroup resolvedItemGroup = resolver.getConfigContext(itemGroup);
+            if (resolvedItemGroup != null) {
+                return resolvedItemGroup;
+            }
+        }
+        return itemGroup;
     }
 }
