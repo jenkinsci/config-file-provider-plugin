@@ -5,6 +5,7 @@ import org.hamcrest.Matchers;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
+import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
@@ -18,6 +19,7 @@ import org.jvnet.hudson.test.JenkinsRule;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -47,6 +49,65 @@ public class FolderConfigFileActionTest {
         assertNotEquals(groupedConfigs1, groupedConfigs2);
     }
 
+    @Test
+    public void foldersConfigListIsOrderedByName() throws Exception {
+        Folder f1 = createFolder();
+        getStore(f1).save(newCustomFileWithName("aaaa1", "zzzz"));
+        getStore(f1).save(newCustomFileWithName("bbbb1", "yyyy"));
+        getStore(f1).save(newCustomFileWithName("zzzz1", "aaaa"));
+        getStore(f1).save(newCustomFileWithName("yyyy1", "bbbb"));
+
+        Map<ConfigProvider, Collection<Config>> groupedConfigs1 = getStore(f1).getGroupedConfigs();
+        assertNotNull(groupedConfigs1);
+
+        assertEquals(1, groupedConfigs1.entrySet().size());
+        // casting to ease test case, List is not in the public API
+        List<Config> configs = (List<Config>) groupedConfigs1.entrySet().iterator().next().getValue();
+        assertEquals("aaaa", configs.get(0).name);
+        assertEquals("bbbb", configs.get(1).name);
+        assertEquals("yyyy", configs.get(2).name);
+        assertEquals("zzzz", configs.get(3).name);
+    }
+
+    @Test
+    public void globalConfigListIsOrderedByName() throws Exception {
+
+        GlobalConfigFiles globalConfigFiles = r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
+
+        globalConfigFiles.save(newCustomFileWithName("aaaa1", "zzzz"));
+        globalConfigFiles.save(newCustomFileWithName("bbbb1", "yyyy"));
+        globalConfigFiles.save(newCustomFileWithName("zzzz1", "aaaa"));
+        globalConfigFiles.save(newCustomFileWithName("yyyy1", "bbbb"));
+
+        Map<ConfigProvider, Collection<Config>> groupedConfigs1 = globalConfigFiles.getGroupedConfigs();
+        assertNotNull(groupedConfigs1);
+
+        assertEquals(1, groupedConfigs1.entrySet().size());
+        // casting to ease test case, List is not in the public API
+        List<Config> configs = (List<Config>) groupedConfigs1.entrySet().iterator().next().getValue();
+        assertEquals("aaaa", configs.get(0).name);
+        assertEquals("bbbb", configs.get(1).name);
+        assertEquals("yyyy", configs.get(2).name);
+        assertEquals("zzzz", configs.get(3).name);
+    }
+
+    @Test
+    public void configsInContextAreOrderedByName() throws Exception {
+
+        GlobalConfigFiles globalConfigFiles = r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
+
+        globalConfigFiles.save(newCustomFileWithName("aaaa1", "zzzz"));
+        globalConfigFiles.save(newCustomFileWithName("bbbb1", "yyyy"));
+        globalConfigFiles.save(newCustomFileWithName("zzzz1", "aaaa"));
+        globalConfigFiles.save(newCustomFileWithName("yyyy1", "bbbb"));
+
+        List<Config> configsInContext = ConfigFiles.getConfigsInContext(r.jenkins, CustomConfig.CustomConfigProvider.class);
+
+        assertEquals("aaaa", configsInContext.get(0).name);
+        assertEquals("bbbb", configsInContext.get(1).name);
+        assertEquals("yyyy", configsInContext.get(2).name);
+        assertEquals("zzzz", configsInContext.get(3).name);
+    }
 
     /*
      * see details to this test: https://gist.github.com/cyrille-leclerc/5571fdc443d6f7bff4e5ec10d614a15d
@@ -175,6 +236,11 @@ public class FolderConfigFileActionTest {
     private Config newCustomFile(String id, String content) {
         CustomConfig.CustomConfigProvider configProvider = r.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
         return new CustomConfig(id, "custom.txt", "custom file", content, configProvider.getProviderId());
+    }
+
+    private Config newCustomFileWithName(String id, String name) {
+        CustomConfig.CustomConfigProvider configProvider = r.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
+        return new CustomConfig(id, name, "custom file", "dummy content", configProvider.getProviderId());
     }
 
     private Config newMvnSettings(String settingsId) {

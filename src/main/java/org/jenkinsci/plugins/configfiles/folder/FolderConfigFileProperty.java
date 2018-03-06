@@ -10,6 +10,7 @@ import hudson.model.*;
 import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.ConfigByNameComparator;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.ConfigProviderComparator;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
@@ -96,10 +97,15 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
         for (Config c : configs) {
             Collection<Config> configs = grouped.get(c.getProvider());
             if (configs == null) {
-                configs = new ArrayList<Config>();
+                configs = new ArrayList<>();
                 grouped.put(c.getProvider(), configs);
             }
             configs.add(c);
+        }
+        for (Map.Entry<ConfigProvider, Collection<Config>> entry :
+                grouped.entrySet()) {
+            List<Config> value = (List<Config>) entry.getValue();
+            Collections.sort(value, ConfigByNameComparator.INSTANCE);
         }
         return grouped;
     }

@@ -10,7 +10,14 @@ import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * ConfigFileStore holding config files saved on top level (Jenkins instance).
@@ -71,10 +78,15 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
         for (Config c : configs) {
             Collection<Config> configs = grouped.get(c.getProvider());
             if (configs == null) {
-                configs = new ArrayList<Config>();
+                configs = new ArrayList<>();
                 grouped.put(c.getProvider(), configs);
             }
             configs.add(c);
+        }
+        for (Map.Entry<ConfigProvider, Collection<Config>> entry :
+                grouped.entrySet()) {
+            List<Config> value = (List<Config>) entry.getValue();
+            Collections.sort(value, ConfigByNameComparator.INSTANCE);
         }
         return grouped;
     }

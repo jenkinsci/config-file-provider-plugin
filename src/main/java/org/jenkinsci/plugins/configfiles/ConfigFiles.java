@@ -13,6 +13,7 @@ import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -34,7 +35,7 @@ public class ConfigFiles {
     }
 
     /**
-     * Lists all configurations of the given type which are visible in the context of the provided item gourp.
+     * Lists all configurations of the given type which are visible in the context of the provided item group.
      * e.g. if itemGroup is of type {@link AbstractFolder} or within an {@link AbstractFolder}, then this method
      * will list all configurations in that folder and in all parent folders up (and including) all configurations on jenkins top level.
      * <p>
@@ -76,6 +77,8 @@ public class ConfigFiles {
                 itemGroup = null;
             }
         }
+
+        Collections.sort(configs, ConfigByNameComparator.INSTANCE);
         return configs;
     }
 
