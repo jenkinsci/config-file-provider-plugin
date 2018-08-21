@@ -30,7 +30,7 @@ THE SOFTWARE.
 
     <f:form name="addConfig" method="post" action="addConfig">
         <j:if test="${error != null}">
-            ${error.renderHtml()}
+            <j:out value="${error.renderHtml()}" />
         </j:if>
         <f:entry>
             <table width="100%">

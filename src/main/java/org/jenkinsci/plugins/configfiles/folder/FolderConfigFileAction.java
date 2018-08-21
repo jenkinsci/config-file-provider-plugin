@@ -122,6 +122,10 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
 
+            if(!ID_PATTERN.matcher(config.id).matches()){
+                return FormValidation.error(Messages.ConfigFilesManagement_configIdContainsInvalidCharacters());
+            }
+
             ConfigFileStore store = getStore();
             // potentially replace existing
             store.save(config);
@@ -181,6 +185,10 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
         if (configId == null || configId.isEmpty()) {
             error = FormValidation.errorWithMarkup(Messages._ConfigFilesManagement_configIdCannotBeEmpty().toString(req.getLocale()));
         }
+        if (!ID_PATTERN.matcher(configId).matches()) {
+            error = FormValidation.error(Messages.ConfigFilesManagement_configIdContainsInvalidCharacters());
+        }
+
         if (error != null) {
             req.setAttribute("error", error);
             checkPermission(Job.CONFIGURE);
@@ -230,6 +238,10 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     public FormValidation doCheckConfigId(@QueryParameter("configId") String configId) {
         if (configId == null || configId.isEmpty()) {
             return FormValidation.warning(Messages.ConfigFilesManagement_configIdCannotBeEmpty());
+        }
+
+        if(!ID_PATTERN.matcher(configId).matches()){
+            return FormValidation.error(Messages.ConfigFilesManagement_configIdContainsInvalidCharacters());
         }
 
         Config config = getStore().getById(configId);
