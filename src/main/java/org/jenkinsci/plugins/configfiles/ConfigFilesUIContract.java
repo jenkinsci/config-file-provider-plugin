@@ -32,6 +32,7 @@ import org.kohsuke.stapler.*;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Defines the contract for actions called by jelly
@@ -45,6 +46,7 @@ public interface ConfigFilesUIContract {
 
     public static final String ICON_PATH = "/plugin/config-file-provider/images/cfg_logo.png";
 
+    public static Pattern ID_PATTERN = Pattern.compile("^[a-zA-Z0-9_.-]*$");
 
     public ContentType getContentTypeForProvider(String providerId);
 

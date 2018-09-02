@@ -127,6 +127,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
 
     /**
      * Insert or update
+     *
      * @param req
      * @return
      */
@@ -135,6 +136,10 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
+
+            if (!ID_PATTERN.matcher(config.id).matches()) {
+                return FormValidation.error(Messages.ConfigFilesManagement_configIdContainsInvalidCharacters());
+            }
 
             // potentially replace existing
             store.save(config);
@@ -158,13 +163,10 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
 
     /**
      * Loads the config by its id and forwards the request to "edit.jelly".
-     * 
-     * @param req
-     *            request
-     * @param rsp
-     *            response
-     * @param confgiId
-     *            the id of the config to be loaded in to the edit view.
+     *
+     * @param req      request
+     * @param rsp      response
+     * @param confgiId the id of the config to be loaded in to the edit view.
      * @throws IOException
      * @throws ServletException
      */
@@ -180,13 +182,10 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
 
     /**
      * Requests a new config object from provider (defined by the given id) and forwards the request to "edit.jelly".
-     * 
-     * @param req
-     *            request
-     * @param rsp
-     *            response
-     * @param providerId
-     *            the id of the provider to create a new config instance with
+     *
+     * @param req        request
+     * @param rsp        response
+     * @param providerId the id of the provider to create a new config instance with
      * @throws IOException
      * @throws ServletException
      */
@@ -200,6 +199,10 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         if (configId == null || configId.isEmpty()) {
             error = FormValidation.errorWithMarkup(Messages._ConfigFilesManagement_configIdCannotBeEmpty().toString(req.getLocale()));
         }
+        if (!ID_PATTERN.matcher(configId).matches()) {
+            error = FormValidation.error(Messages.ConfigFilesManagement_configIdContainsInvalidCharacters());
+        }
+
         if (error != null) {
             req.setAttribute("error", error);
             checkPermission(Hudson.ADMINISTER);
@@ -241,13 +244,10 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
 
     /**
      * Removes a script from the config and filesystem.
-     * 
-     * @param res
-     *            response
-     * @param rsp
-     *            request
-     * @param configId
-     *            the id of the config to be removed
+     *
+     * @param res      response
+     * @param rsp      request
+     * @param configId the id of the config to be removed
      * @return forward to 'index'
      * @throws IOException
      */
@@ -262,6 +262,10 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     public FormValidation doCheckConfigId(@QueryParameter("configId") String configId) {
         if (configId == null || configId.isEmpty()) {
             return FormValidation.warning(Messages.ConfigFilesManagement_configIdCannotBeEmpty());
+        }
+
+        if (!ID_PATTERN.matcher(configId).matches()) {
+            return FormValidation.error(Messages.ConfigFilesManagement_configIdContainsInvalidCharacters());
         }
 
         Config config = store.getById(configId);
