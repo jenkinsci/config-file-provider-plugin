@@ -27,12 +27,7 @@ import java.util.TreeSet;
 @Extension(ordinal = 5)
 public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements ConfigFileStore, ExtensionPoint, Describable<GlobalConfigFiles> {
 
-    private static Comparator<Config> COMPARATOR = new Comparator<Config>() {
-        @Override
-        public int compare(Config o1, Config o2) {
-            return o1.id.compareTo(o2.id);
-        }
-    };
+    private static Comparator<Config> COMPARATOR = new ConfigComparator();
 
     private static ConfigProviderComparator CONFIGPROVIDER_COMPARATOR = new ConfigProviderComparator();
 
@@ -148,4 +143,5 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
         }
         return this;
     }
+
 }
