@@ -6,6 +6,7 @@ import hudson.ExtensionPoint;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import jenkins.model.Jenkins;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -25,6 +26,7 @@ import java.util.TreeSet;
  * Created by domi on 17/09/16.
  */
 @Extension(ordinal = 5)
+@Symbol("globalConfigFiles")
 public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements ConfigFileStore, ExtensionPoint, Describable<GlobalConfigFiles> {
 
     private static Comparator<Config> COMPARATOR = new ConfigComparator();
@@ -89,6 +91,11 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
     @Override
     public Collection<Config> getConfigs() {
         return configs;
+    }
+
+    /* only for CasC (Configuration as Code Plugin) */
+    public void setConfigs(Collection<Config> configs) {
+        this.configs = configs;
     }
 
     @Override
