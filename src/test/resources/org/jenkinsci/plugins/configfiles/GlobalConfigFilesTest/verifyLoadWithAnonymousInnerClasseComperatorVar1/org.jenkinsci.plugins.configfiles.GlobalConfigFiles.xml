@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.jenkinsci.plugins.configfiles.GlobalConfigFiles plugin="config-file-provider@2.18">
+  <configs class="sorted-set">
+    <comparator class="org.jenkinsci.plugins.configfiles.GlobalConfigFiles$1"/>
+    <org.jenkinsci.plugins.configfiles.custom.CustomConfig>
+      <id>e61a40f3-9d03-4448-bca1-e874f3fb1c45</id>
+      <name>dummyCustomConfig1</name>
+      <comment>Dummy Custom Config 1</comment>
+      <content>dummy content</content>
+      <providerId>org.jenkinsci.plugins.configfiles.custom.CustomConfig</providerId>
+    </org.jenkinsci.plugins.configfiles.custom.CustomConfig>
+    <org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig>
+      <id>89b04074-c461-41d8-907c-a624f63c621f</id>
+      <name>global-maven-settings</name>
+      <comment>Dummy global Maven settings</comment>
+      <content>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;settings&gt;
+    &lt;interactiveMode&gt;false&lt;/interactiveMode&gt;
+    &lt;localRepository&gt;${env.WORKSPACE}/.repository&lt;/localRepository&gt;
+    &lt;!-- 
+    &lt;proxies&gt;
+        &lt;proxy&gt;
+          &lt;id&gt;dummy-proxy&lt;/id&gt;
+            &lt;active&gt;true&lt;/active&gt;
+            &lt;protocol&gt;http&lt;/protocol&gt;
+            &lt;port&gt;8888&lt;/port&gt;
+            &lt;nonProxyHosts&gt;localhost&lt;/nonProxyHosts&gt;
+        &lt;/proxy&gt;
+    &lt;/proxies&gt;
+    --&gt;
+&lt;/settings&gt;</content>
+      <providerId>org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig</providerId>
+      <serverCredentialMappings/>
+      <isReplaceAll>true</isReplaceAll>
+    </org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig>
+  </configs>
+</org.jenkinsci.plugins.configfiles.GlobalConfigFiles>
