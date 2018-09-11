@@ -2,9 +2,10 @@ package org.jenkinsci.plugins.configfiles;
 
 import hudson.Extension;
 import hudson.ExtensionList;
-import hudson.ExtensionPoint;
-import hudson.model.Describable;
+import hudson.init.InitMilestone;
+import hudson.init.Initializer;
 import hudson.model.Descriptor;
+import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
@@ -27,7 +28,7 @@ import java.util.TreeSet;
  */
 @Extension(ordinal = 5)
 @Symbol("globalConfigFiles")
-public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements ConfigFileStore, ExtensionPoint, Describable<GlobalConfigFiles> {
+public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFileStore {
 
     private static Comparator<Config> COMPARATOR = new Comparator<Config>() {
         @Override
@@ -40,10 +41,6 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
 
     private Collection<Config> configs = new TreeSet<>(COMPARATOR);
 
-    public final Descriptor<GlobalConfigFiles> getDescriptor() {
-        return this;
-    }
-
     public static GlobalConfigFiles get() {
         GlobalConfigFiles instance = Jenkins.getActiveInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         if (instance == null) { // TODO would be useful to have an ExtensionList.getOrFail
@@ -52,8 +49,9 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
         return instance;
     }
 
-    public GlobalConfigFiles() {
-        super(self());
+
+    @Initializer(after = InitMilestone.EXTENSIONS_AUGMENTED)
+    public void migrate() {
         // migrate old data storage (file per provider) into new storage (one file per scope - global scope)
         ExtensionList<ConfigProvider> allProviders = ConfigProvider.all();
         for (ConfigProvider p : allProviders) {
