@@ -36,7 +36,7 @@ THE SOFTWARE.
             <table class="pane">
                 <tr valign="center" style="border-top: 0px;">
                     <td class="pane-header" colspan="2">
-                        <i><j:out value="${p.displayName}" /></i>
+                        <i>${p.displayName}</i>
                     </td>
                 </tr>
                 <j:forEach var="t" items="${p.allConfigs}">
@@ -53,12 +53,12 @@ THE SOFTWARE.
                             </a>
                         </td>
                         <td >
-                            <i><j:out value="${t.name}" /></i>
+                            <i>${t.name}</i>
                         </td>
                     </tr>
                     <tr>
-                        <td><j:out value="${t.contentType}" /></td>
-                        <td><j:out value="${t.comment}" /></td>
+                        <td>${t.contentType}</td>
+                        <td>${t.comment}</td>
                     </tr>
                 </j:forEach>
             </table>
