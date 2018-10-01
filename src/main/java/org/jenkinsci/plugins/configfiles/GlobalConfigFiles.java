@@ -52,6 +52,11 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
         return instance;
     }
 
+    @Override
+    public String getGlobalConfigPage() {
+        return null;
+    }
+
     public GlobalConfigFiles() {
         super(self());
         // migrate old data storage (file per provider) into new storage (one file per scope - global scope)
