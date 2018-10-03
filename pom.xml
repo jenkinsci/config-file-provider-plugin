@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>config-file-provider</artifactId>
-    <version>3.2</version>
+    <version>3.3-SNAPSHOT</version>
 
     <packaging>hpi</packaging>
 
