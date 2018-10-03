@@ -44,12 +44,22 @@ public class GlobalConfigFiles extends Descriptor<GlobalConfigFiles> implements 
         return this;
     }
 
+    @Override
+    public String getId() {
+        return "configfiles";
+    }
+
     public static GlobalConfigFiles get() {
         GlobalConfigFiles instance = Jenkins.getActiveInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         if (instance == null) { // TODO would be useful to have an ExtensionList.getOrFail
             throw new IllegalStateException();
         }
         return instance;
+    }
+
+    @Override
+    public String getGlobalConfigPage() {
+        return null;
     }
 
     public GlobalConfigFiles() {
