@@ -24,6 +24,7 @@ import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
+import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.jenkinsci.plugins.configfiles.json.JsonConfig;
 
 /**
@@ -108,6 +109,10 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     @Deprecated
     protected XmlFile getConfigXml() {
         return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getActiveInstance().getRootDir(), this.getXmlFileName()));
+    }
+
+    static {
+        Jenkins.XSTREAM.alias("org.jenkinsci.lib.configprovider.model.Config", CustomConfig.class);
     }
 
     @Deprecated

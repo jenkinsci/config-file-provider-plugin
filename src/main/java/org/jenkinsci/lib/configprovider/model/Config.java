@@ -40,7 +40,7 @@ import java.io.Serializable;
  * @author domi
  */
 @SuppressWarnings("serial")
-public class Config implements Serializable, Describable<Config> {
+public abstract class Config implements Serializable, Describable<Config> {
 
     /**
      * a unique id along all providers!
@@ -72,7 +72,6 @@ public class Config implements Serializable, Describable<Config> {
      */
     private String providerId;
 
-    @DataBoundConstructor
     public Config(String id, String name, String comment, String content) {
         this.id = id == null ? String.valueOf(System.currentTimeMillis()) : id;
         this.name = name;
