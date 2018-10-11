@@ -49,6 +49,10 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
         return instance;
     }
 
+    @Override
+    public String getGlobalConfigPage() {
+        return null;
+    }
 
     @Initializer(after = InitMilestone.EXTENSIONS_AUGMENTED)
     public void migrate() {
