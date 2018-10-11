@@ -41,6 +41,7 @@ import com.cloudbees.hudson.plugins.folder.AbstractFolder;
 
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
+import org.kohsuke.stapler.verb.POST;
 
 public class FolderConfigFileAction implements Action, ConfigFilesUIContract, StaplerProxy {
 
@@ -116,6 +117,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     }
 
     @Override
+    @POST
     public HttpResponse doSaveConfig(StaplerRequest req) throws IOException, ServletException {
         checkPermission(Item.CONFIGURE);
         try {
@@ -175,6 +177,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
 
     @Override
+    @POST
     public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
         checkPermission(Item.CONFIGURE);
 

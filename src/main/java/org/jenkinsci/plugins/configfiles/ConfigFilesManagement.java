@@ -47,6 +47,7 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.verb.POST;
 
 /**
  * Provides a new link in the "Manage Jenkins" view and builds the UI to manage the configfiles.
@@ -131,6 +132,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      * @param req
      * @return
      */
+    @POST
     public HttpResponse doSaveConfig(StaplerRequest req) {
         checkPermission(Hudson.ADMINISTER);
         try {
@@ -189,6 +191,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      * @throws IOException
      * @throws ServletException
      */
+    @POST
     public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
 

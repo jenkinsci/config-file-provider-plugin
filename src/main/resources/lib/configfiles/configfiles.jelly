@@ -37,7 +37,7 @@ THE SOFTWARE.
                 <tr valign="center" style="border-top: 0px;">
                     <td class="pane-header" colspan="2">
                         <i>
-                            <j:out value="${pEntry.key.displayName}"/>
+                            ${pEntry.key.displayName}
                         </i>
                     </td>
                 </tr>
@@ -56,16 +56,16 @@ THE SOFTWARE.
                         </td>
                         <td>
                             <i>
-                                <j:out value="${t.name}"/>
+                                ${t.name}
                             </i>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <j:out value="${t.contentType}"/>
+                            ${t.contentType}
                         </td>
                         <td>
-                            <j:out value="${t.comment}"/>
+                            ${t.comment}
                         </td>
                     </tr>
                 </j:forEach>
