@@ -55,7 +55,9 @@ public class ManagedFileUtil {
 
         for (ManagedFile managedFile : managedFiles) {
             FilePath target = ConfigFileManager.provisionConfigFile(managedFile, null, build, workspace, listener, tempFiles);
-            file2Path.put(managedFile, target);
+            if (target != null) {
+                file2Path.put(managedFile, target);
+            }
         }
 
         return file2Path;

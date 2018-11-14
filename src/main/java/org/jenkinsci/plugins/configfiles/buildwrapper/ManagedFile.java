@@ -55,16 +55,21 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
      */
     @DataBoundConstructor
     public ManagedFile(String fileId) {
-        super(fileId, null, false);
+        super(fileId, null, false, false);
+    }
+
+    public ManagedFile(String fileId, String targetLocation, String variable, Boolean replaceTokens, boolean allowEmpty) {
+        super(fileId, targetLocation, replaceTokens, allowEmpty);
+        this.variable = Util.fixEmptyAndTrim(variable);
     }
 
     public ManagedFile(String fileId, String targetLocation, String variable, Boolean replaceTokens) {
-        super(fileId, targetLocation, replaceTokens);
+        super(fileId, targetLocation, replaceTokens, false);
         this.variable = Util.fixEmptyAndTrim(variable);
     }
 
     public ManagedFile(String fileId, String targetLocation, String variable) {
-        super(fileId, targetLocation, false);
+        super(fileId, targetLocation, false, false);
         this.variable = Util.fixEmptyAndTrim(variable);
     }
 
@@ -85,6 +90,11 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
     @DataBoundSetter
     public void setReplaceTokens(Boolean replaceTokens) {
         this.replaceTokens = replaceTokens != null ? replaceTokens : false;
+    }
+
+    @DataBoundSetter
+    public void setAllowEmpty(Boolean allowEmpty) {
+        this.allowEmpty = allowEmpty != null ? allowEmpty : false;
     }
 
     @Override

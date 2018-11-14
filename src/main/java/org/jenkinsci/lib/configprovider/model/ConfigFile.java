@@ -33,11 +33,20 @@ public class ConfigFile implements Serializable {
     private final String fileId;
     protected String targetLocation;
     protected boolean replaceTokens;
+    protected boolean allowEmpty;
 
+    @Deprecated
     public ConfigFile(String fileId, String targetLocation, boolean replaceTokens) {
         this.fileId = fileId;
         this.targetLocation = Util.fixEmptyAndTrim(targetLocation);
         this.replaceTokens = replaceTokens;
+    }
+
+    public ConfigFile(String fileId, String targetLocation, boolean replaceTokens, boolean allowEmpty) {
+        this.fileId = fileId;
+        this.targetLocation = Util.fixEmptyAndTrim(targetLocation);
+        this.replaceTokens = replaceTokens;
+        this.allowEmpty = allowEmpty;
     }
 
     public String getFileId() {
@@ -50,6 +59,10 @@ public class ConfigFile implements Serializable {
 
     public boolean isReplaceTokens() {
         return replaceTokens;
+    }
+
+    public boolean getAllowEmpty() {
+        return allowEmpty;
     }
 
 }

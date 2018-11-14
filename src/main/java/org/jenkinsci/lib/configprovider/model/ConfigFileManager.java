@@ -79,6 +79,9 @@ public class ConfigFileManager {
         if (config == null) {
             String message = "not able to provide the file " + configFile + ", can't be resolved by any provider - maybe it got deleted by an administrator?";
             listener.getLogger().println(message);
+            if (configFile.getAllowEmpty()) {
+                return null;
+            }
             throw new AbortException(message);
         }
 
