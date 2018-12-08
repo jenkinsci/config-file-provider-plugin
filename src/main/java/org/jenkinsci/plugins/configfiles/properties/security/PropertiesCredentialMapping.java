@@ -11,7 +11,6 @@ import hudson.security.AccessControlled;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.configfiles.maven.security.MavenServerIdRequirement;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -22,20 +21,20 @@ import java.util.List;
 
 public class PropertiesCredentialMapping extends AbstractDescribableImpl<PropertiesCredentialMapping> implements Serializable {
 
-    private final String propertyName;
+    private final String propertyKey;
     private final String credentialsId;
 
     @DataBoundConstructor
-    public PropertiesCredentialMapping(String propertyName, String credentialsId) {
-        this.propertyName = propertyName;
+    public PropertiesCredentialMapping(String propertyKey, String credentialsId) {
+        this.propertyKey = propertyKey;
         this.credentialsId = credentialsId;
     }
 
-    public String getPropertyName() {
-        return propertyName;
+    String getPropertyKey() {
+        return propertyKey;
     }
 
-    public String getCredentialsId() {
+    String getCredentialsId() {
         return credentialsId;
     }
 
@@ -56,16 +55,16 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
 
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (StringUtils.isNotBlank(propertyName)) {
-                domainRequirements = Collections.singletonList(new MavenServerIdRequirement(propertyName));
+                domainRequirements = Collections.singletonList(new PropertiesRequirement(propertyName));
             }
 
             // @formatter:off
             return new StandardUsernameListBoxModel().includeAs(
-                        context instanceof Queue.Task ? Tasks.getDefaultAuthenticationOf((Queue.Task)context) : ACL.SYSTEM, 
-                        context, 
-                        StandardUsernameCredentials.class, 
-                        domainRequirements
-                    )
+                    context instanceof Queue.Task ? Tasks.getDefaultAuthenticationOf((Queue.Task) context) : ACL.SYSTEM,
+                    context,
+                    StandardUsernameCredentials.class,
+                    domainRequirements
+            )
                     .includeCurrentValue(propertyName);
             // @formatter:on
         }

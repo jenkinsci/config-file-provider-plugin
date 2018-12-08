@@ -2,10 +2,10 @@ package org.jenkinsci.plugins.configfiles.properties;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
-import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.jenkinsci.plugins.configfiles.properties.security.HasPropertiesCredentialMappings;
 import org.jenkinsci.plugins.configfiles.properties.security.PropertiesCredentialMapping;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PropertiesConfig extends Config {
+public class PropertiesConfig extends Config implements HasPropertiesCredentialMappings {
     private static final long serialVersionUID = 1L;
 
     private List<PropertiesCredentialMapping> propertiesCredentialMappings;
@@ -38,7 +38,7 @@ public class PropertiesConfig extends Config {
     }
 
     @Extension(ordinal = 180)
-    public static class PropertiesConfigProvider extends AbstractConfigProviderImpl {
+    public static class PropertiesConfigProvider extends AbstractPropertiesProvider {
 
         public PropertiesConfigProvider() {
             load();

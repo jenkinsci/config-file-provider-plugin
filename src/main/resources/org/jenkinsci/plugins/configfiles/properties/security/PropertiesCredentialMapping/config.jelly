@@ -25,24 +25,20 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
-	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" >
+    xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+    <div class="credentialssection">
+        <f:entry title="${%Property Key}" field="propertyKey">
+            <f:textbox />
+        </f:entry>
 
-    <j:set var="instance" value="${config}"/>
-    <p>${%description}</p>
+        <f:entry title="${%Credentials}" field="credentialsId" >
+            <c:select />
+        </f:entry>
 
-    <j:set var="descriptor" value="${config.descriptor}"/>
-    <st:include page="id-name-and-comment"  class="${descriptor.clazz}"/>
-
-    <f:entry title="${%Replace All}" field="isReplaceAll">
-        <f:checkbox default="true" value="${config.isReplaceAll}"/>
-    </f:entry>
-
-    <f:entry title="${%Properties Credentials}">
-        <f:repeatableProperty field="propertiesCredentialMappings" />
-    </f:entry>
-
-    <f:entry title="${%Content}">
-        <f:textarea id="config.content" name="config.content" value="${config.content}" />
-    </f:entry>
-
+        <f:entry title="" >
+            <div align="right">
+                <input type="button" value="${%Delete}" class="repeatable-delete" style="margin-left: 1em;" />
+            </div>
+        </f:entry>
+    </div>
 </j:jelly>
