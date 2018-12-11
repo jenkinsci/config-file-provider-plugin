@@ -26,8 +26,6 @@ public class ConfigFilesSEC1253Test {
     @Rule
     public JenkinsRule j = new JenkinsRule();
 
-    {j.timeout = 0;}
-
     @Test
     @Issue("SECURITY-1253")
     public void regularCaseStillWorking() throws Exception {
