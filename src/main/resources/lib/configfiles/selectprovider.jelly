@@ -34,12 +34,12 @@ THE SOFTWARE.
         </j:if>
         <f:entry>
             <table width="100%">
-                <j:forEach var="provider" items="${providers}" varStatus="loop">
+                <j:forEach var="provider" items="${providers}" varStatus="loop" indexVar="index">
                     <tr>
                         <td colspan="2">
-                            <f:radio name="providerId" value="${provider.id}" />
+                            <f:radio name="providerId" value="${provider.id}" id="provider-${index}" />
                             <b>
-                                <label class="attach-previous">${provider.displayName}</label>
+                                <label class="attach-previous" for="provider-${index}">${provider.displayName}</label>
                             </b>
                         </td>
                     </tr>
