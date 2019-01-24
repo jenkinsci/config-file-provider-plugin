@@ -4,11 +4,11 @@ import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 
 import javax.annotation.CheckForNull;
 
-public class PropertiesRequirement extends DomainRequirement {
+public class PropertyKeyRequirement extends DomainRequirement {
 
     private String propertyKey;
 
-    PropertiesRequirement(String propertyKey) {
+    public PropertyKeyRequirement(String propertyKey) {
         this.propertyKey = propertyKey;
     }
 

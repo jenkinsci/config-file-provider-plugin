@@ -30,11 +30,11 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
         this.credentialsId = credentialsId;
     }
 
-    String getPropertyKey() {
+    public String getPropertyKey() {
         return propertyKey;
     }
 
-    String getCredentialsId() {
+    public String getCredentialsId() {
         return credentialsId;
     }
 
@@ -47,15 +47,15 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
     @Extension
     public static class DescriptorImpl extends Descriptor<PropertiesCredentialMapping> {
 
-        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @QueryParameter String propertyName) {
+        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @QueryParameter String propertyKey) {
             AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.getActiveInstance());
             if (_context == null || !_context.hasPermission(Item.CONFIGURE)) {
-                return new StandardUsernameListBoxModel().includeCurrentValue(propertyName);
+                return new StandardUsernameListBoxModel().includeCurrentValue(propertyKey);
             }
 
             List<DomainRequirement> domainRequirements = Collections.emptyList();
-            if (StringUtils.isNotBlank(propertyName)) {
-                domainRequirements = Collections.singletonList(new PropertiesRequirement(propertyName));
+            if (StringUtils.isNotBlank(propertyKey)) {
+                domainRequirements = Collections.<DomainRequirement>singletonList(new PropertyKeyRequirement(propertyKey));
             }
 
             // @formatter:off
@@ -65,14 +65,10 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
                     StandardUsernameCredentials.class,
                     domainRequirements
             )
-                    .includeCurrentValue(propertyName);
+                    .includeCurrentValue(propertyKey);
             // @formatter:on
         }
 
-        @Override
-        public String getDisplayName() {
-            return "";
-        }
     }
 
 }

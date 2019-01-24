@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.jenkinsci.plugins.configfiles.GlobalConfigFiles plugin="config-file-provider@3.5-SNAPSHOT">
+  <configs>
+    <entry>
+      <string>MY_PROPERTIES</string>
+      <org.jenkinsci.plugins.configfiles.properties.PropertiesConfig>
+        <id>c040cdb9-e6ad-4d07-8fd7-33f9532c410b</id>
+        <name>PropertiesConfig</name>
+        <comment>comment</comment>
+        <content>myprop=myvalue</content>
+        <providerId>org.jenkinsci.plugins.configfiles.properties.PropertiesConfig</providerId>
+        <propertiesCredentialMappings/>
+        <isReplaceAll>true</isReplaceAll>
+      </org.jenkinsci.plugins.configfiles.properties.PropertiesConfig>
+    </entry>
+  </configs>
+</org.jenkinsci.plugins.configfiles.GlobalConfigFiles>

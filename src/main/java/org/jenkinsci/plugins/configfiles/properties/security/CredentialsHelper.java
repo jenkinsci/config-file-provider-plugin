@@ -1,4 +1,3 @@
-
 package org.jenkinsci.plugins.configfiles.properties.security;
 
 import com.cloudbees.jenkins.plugins.sshcredentials.SSHUserPrivateKey;
@@ -33,7 +32,7 @@ public class CredentialsHelper {
 
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (StringUtils.isNotBlank(propertyKey)) {
-                domainRequirements = Collections.singletonList(new PropertiesRequirement(propertyKey));
+                domainRequirements = Collections.singletonList(new PropertyKeyRequirement(propertyKey));
             }
 
             final StandardUsernameCredentials c = CredentialsProvider.findCredentialById(credentialsId, StandardUsernameCredentials.class, build, domainRequirements);
@@ -72,9 +71,7 @@ public class CredentialsHelper {
             }
         }
 
-        for (String propertyKey : propertiesCredentialsMap.keySet()) {
-            propertiesArray.add(createCredentialBasedProperty(propertyKey, propertiesCredentialsMap.get(propertyKey)));
-        }
+        propertiesCredentialsMap.forEach((key, value) -> propertiesArray.add(createCredentialBasedProperty(key, value)));
 
         content = String.join("\r\n", propertiesArray);
 
