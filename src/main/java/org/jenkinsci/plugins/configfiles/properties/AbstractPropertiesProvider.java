@@ -11,7 +11,6 @@ import org.jenkinsci.plugins.configfiles.properties.security.CredentialsHelper;
 import org.jenkinsci.plugins.configfiles.properties.security.HasPropertyCredentialMappings;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -20,18 +19,6 @@ public abstract class AbstractPropertiesProvider extends AbstractConfigProviderI
     @Override
     public ContentType getContentType() {
         return ContentType.DefinedType.PROPERTIES;
-    }
-
-    protected String loadTemplateContent() {
-        InputStream in = null;
-        try {
-            in = AbstractPropertiesProvider.class.getResourceAsStream("settings-tpl.xml");
-            return org.apache.commons.io.IOUtils.toString(in, "UTF-8");
-        } catch (Exception e) {
-            return "myProp=myValue";
-        } finally {
-            org.apache.commons.io.IOUtils.closeQuietly(in);
-        }
     }
 
     @Override

@@ -4,8 +4,8 @@ import java.util.List;
 
 public interface HasPropertyCredentialMappings {
 
-    public abstract List<PropertiesCredentialMapping> getPropertiesCredentialMappings();
+    List<PropertiesCredentialMapping> getPropertiesCredentialMappings();
 
-    public abstract Boolean getIsReplaceAll();
+    Boolean getIsReplaceAll();
 
 }
