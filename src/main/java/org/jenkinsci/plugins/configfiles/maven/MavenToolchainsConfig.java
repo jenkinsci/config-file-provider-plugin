@@ -79,7 +79,11 @@ public class MavenToolchainsConfig extends Config {
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new MavenToolchainsConfig(id, "MyToolchains", "", loadTemplateContent(), getProviderId());
+            return new MavenToolchainsConfig(id,
+                Messages.MavenToolchains_SettingsName(),
+                Messages.MavenToolchains_SettingsComment(),
+                loadTemplateContent(),
+                getProviderId());
         }
 
         private String loadTemplateContent() {

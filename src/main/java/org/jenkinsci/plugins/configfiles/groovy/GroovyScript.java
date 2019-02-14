@@ -68,7 +68,11 @@ public class GroovyScript extends Config {
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new GroovyScript(id, "GroovyConfig", "", "println('hello world')", getProviderId());
+            return new GroovyScript(id,
+                Messages.GroovyScript_SettingsName(),
+                Messages.GroovyScript_SettingsComment(),
+                "println('hello world')",
+                getProviderId());
         }
 
         // ======================
