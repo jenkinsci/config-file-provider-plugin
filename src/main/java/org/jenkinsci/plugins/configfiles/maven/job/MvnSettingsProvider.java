@@ -129,12 +129,12 @@ public class MvnSettingsProvider extends SettingsProvider {
 
         @Override
         public String getDisplayName() {
-            return "provided settings.xml";
+            return Messages.MvnSettingsProvider_ProvidedSettings();
         }
 
         public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context) {
             ListBoxModel items = new ListBoxModel();
-            items.add("please select", "");
+            items.add(Messages.MvnSettingsProvider_PleaseSelect(), "");
             for (Config config : ConfigFiles.getConfigsInContext(context, MavenSettingsConfigProvider.class)) {
                 items.add(config.name, config.id);
             }

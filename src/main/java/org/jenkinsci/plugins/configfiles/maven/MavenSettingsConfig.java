@@ -88,7 +88,12 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new MavenSettingsConfig(id, "MySettings", "user settings", loadTemplateContent(), MavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
+            return new MavenSettingsConfig(id,
+                Messages.MavenSettings_SettingsName(),
+                Messages.MavenSettings_SettingsComment(),
+                loadTemplateContent(),
+                MavenSettingsConfig.isReplaceAllDefault,
+                Collections.<ServerCredentialMapping>emptyList());
         }
 
         // ======================

@@ -93,7 +93,11 @@ public class JsonConfig extends Config {
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new JsonConfig(id, "JsonConfig", "", "{}", getProviderId());
+            return new JsonConfig(id,
+                Messages.JsonConfig_SettingsName(),
+                Messages.JsonConfig_SettingsComment(),
+                "{}",
+                getProviderId());
         }
 
     }

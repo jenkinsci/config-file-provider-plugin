@@ -67,7 +67,11 @@ public class XmlConfig extends Config {
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new XmlConfig(id, "XmlConfig", "", "<root></root>", getProviderId());
+            return new XmlConfig(id,
+                Messages.XmlConfig_SettingsName(),
+                Messages.XmlConfig_SettingsComment(),
+                "<root></root>",
+                getProviderId());
         }
 
         // ======================
