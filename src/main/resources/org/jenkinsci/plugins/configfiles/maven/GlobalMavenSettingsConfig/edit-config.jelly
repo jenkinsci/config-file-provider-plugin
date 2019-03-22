@@ -39,8 +39,8 @@ div.credentialssection {
             <j:set var="descriptor" value="${config.descriptor}"/>
             <st:include page="id-name-and-comment"  class="${descriptor.clazz}"/>
 
-            <f:entry title="${%Replace All}" field="isReplaceAll">
-                <f:checkbox default="true" value="${config.isReplaceAll}"/>
+            <f:entry>
+                <f:checkbox title="${%Replace All}" field="isReplaceAll" default="true" value="${config.isReplaceAll}"/>
             </f:entry>
 
 			<f:entry title="${%Server Credentials}" field="serverCredentialMappings">
