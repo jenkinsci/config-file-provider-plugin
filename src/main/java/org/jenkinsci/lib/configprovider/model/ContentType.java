@@ -70,7 +70,7 @@ public interface ContentType {
 
 	public enum DefinedType implements ContentType {
 		XML("xml", "application/xml"), HTML("htmlmixed", "text/html"), GROOVY(
-				"clike", "text/x-groovy");
+				"clike", "text/x-groovy"), PROPERTIES("properties", "text/x-properties");
 
 		public final String cmMode;
 		public final String mime;
