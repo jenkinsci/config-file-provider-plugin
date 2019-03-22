@@ -58,7 +58,12 @@ public class PropertiesConfig extends Config implements HasPropertyCredentialMap
         @Nonnull
         @Override
         public Config newConfig(@Nonnull String id) {
-            return new PropertiesConfig(id, "MyPropertiesConfig", "user properties settings", "", PropertiesConfig.isReplaceAllDefault, Collections.<PropertiesCredentialMapping>emptyList());
+            return new PropertiesConfig(id,
+                    Messages.PropertiesConfig_SettingsName(),
+                    Messages.PropertiesConfig_SettingsComment(),
+                    "",
+                    PropertiesConfig.isReplaceAllDefault,
+                    Collections.<PropertiesCredentialMapping>emptyList());
         }
 
     }
