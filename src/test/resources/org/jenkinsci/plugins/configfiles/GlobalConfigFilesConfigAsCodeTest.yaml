@@ -12,6 +12,11 @@ unclassified:
         comment: dummy json config
         content: |
           { "dummydata": {"dummyKey": "dummyValue"} }
+    - properties:
+        id: properties-test
+        name: PropertiesSettings
+        comment: PropertiesComment
+        content: myPropertyKey=myPropertyVal
     - xml:
         id: xml-test
         name: DummyXmlConfig

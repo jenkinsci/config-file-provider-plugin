@@ -23,6 +23,9 @@ public class GlobalConfigFilesConfigAsCodeTest {
         final Config json = cfg.getById("json-test");
         Assert.assertNotNull(json);
         Assert.assertEquals("{ \"dummydata\": {\"dummyKey\": \"dummyValue\"} }", json.content);
+        final Config properties = cfg.getById("properties-test");
+        Assert.assertNotNull(properties);
+        Assert.assertEquals("myPropertyKey=myPropertyVal", properties.content);
         final Config xml = cfg.getById("xml-test");
         Assert.assertNotNull(xml);
         Assert.assertEquals("<root><dummy test=\"abc\"></dummy></root>", xml.content);
