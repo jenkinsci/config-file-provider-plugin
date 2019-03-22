@@ -67,7 +67,11 @@ public class CustomConfig extends Config {
         @NonNull
         @Override
         public CustomConfig newConfig(@NonNull String id) {
-            return new CustomConfig(id, "MyCustom", "", "", getProviderId());
+            return new CustomConfig(id,
+                Messages.CustomConfig_SettingsName(),
+                Messages.CustomConfig_SettingsComment(),
+                "",
+                getProviderId());
         }
 
         // ======================

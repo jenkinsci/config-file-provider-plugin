@@ -91,7 +91,12 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
         @NonNull
         @Override
         public Config newConfig(@NonNull String id) {
-            return new GlobalMavenSettingsConfig(id, "MyGlobalSettings", "global settings", loadTemplateContent(), GlobalMavenSettingsConfig.isReplaceAllDefault, Collections.<ServerCredentialMapping>emptyList());
+            return new GlobalMavenSettingsConfig(id,
+                Messages.GlobalMavenSettingsConfig_MyGlobalSettingsName(),
+                Messages.GlobalMavenSettingsConfig_MyGlobalSettingsComment(),
+                loadTemplateContent(),
+                GlobalMavenSettingsConfig.isReplaceAllDefault,
+                Collections.<ServerCredentialMapping>emptyList());
         }
 
         // ======================
