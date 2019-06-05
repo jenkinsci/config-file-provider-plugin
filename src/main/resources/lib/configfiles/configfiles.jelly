@@ -60,9 +60,9 @@ THE SOFTWARE.
                             </i>
                         </td>
                         <td>
-                            <i>
+                            <code>
                                 ${t.id}
-                            </i>
+                            </code>
                         </td>
                     </tr>
                     <tr>
