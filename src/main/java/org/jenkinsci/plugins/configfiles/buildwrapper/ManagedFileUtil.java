@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
+import hudson.EnvVars;
 import org.jenkinsci.lib.configprovider.model.ConfigFileManager;
 
 import hudson.AbortException;
@@ -36,6 +38,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 
 public class ManagedFileUtil {
+
     /**
      * provisions (publishes) the given files to the workspace.
      *
@@ -47,14 +50,34 @@ public class ManagedFileUtil {
      * @throws IOException
      * @throws InterruptedException
      * @throws AbortException       config file has not been found
+     *
+     * @deprecated Use method that provides 'env' instead.
      */
+    @Deprecated
     public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, Run<?, ?> build, FilePath workspace, TaskListener listener, List<String> tempFiles) throws IOException, InterruptedException {
+        return provisionConfigFiles(managedFiles, null, build, workspace, listener, tempFiles);
+    }
+
+    /**
+     * provisions (publishes) the given files to the workspace.
+     *
+     * @param managedFiles the files to be provisioned
+     * @param env          enhanced environment to use in the variable substitution
+     * @param workspace    target workspace
+     * @param listener     the listener
+     * @param tempFiles    temp files created by this method, these files should be deleted by the caller
+     * @return a map of all the files copied, mapped to the path of the remote location, never <code>null</code>.
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws AbortException       config file has not been found
+     */
+    public static Map<ManagedFile, FilePath> provisionConfigFiles(List<ManagedFile> managedFiles, @Nullable EnvVars env, Run<?, ?> build, FilePath workspace, TaskListener listener, List<String> tempFiles) throws IOException, InterruptedException {
 
         final Map<ManagedFile, FilePath> file2Path = new HashMap<ManagedFile, FilePath>();
         listener.getLogger().println("provisioning config files...");
 
         for (ManagedFile managedFile : managedFiles) {
-            FilePath target = ConfigFileManager.provisionConfigFile(managedFile, null, build, workspace, listener, tempFiles);
+            FilePath target = ConfigFileManager.provisionConfigFile(managedFile, env, build, workspace, listener, tempFiles);
             file2Path.put(managedFile, target);
         }
 

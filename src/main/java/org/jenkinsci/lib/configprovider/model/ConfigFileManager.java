@@ -115,10 +115,14 @@ public class ConfigFileManager {
 
         if (configFile.isReplaceTokens()) {
             try {
-                fileContent = TokenMacro.expandAll(build, workspace, listener, fileContent);
+                // JENKINS-57417: 'env' must be processed first, as ${x} is ambiguous between simple variable
+                // references, as expected by EnvVar.expand() / Util.replaceMacro(), and parameterized token macros,
+                // as expected by TokenMacro.expandAll(). Processing with expandAll() first will result in in
+                // MacroEvaluationException being thrown, preventing both types of expansion.
                 if (env != null) {
-                    fileContent = Util.replaceMacro(fileContent, env);
+                    fileContent = env.expand(fileContent);
                 }
+                fileContent = TokenMacro.expandAll(build, workspace, listener, fileContent);
             } catch (MacroEvaluationException e) {
                 listener.getLogger().println("[ERROR] failed to expand variables in content of " + config.name + " - " + e.getMessage());
             }

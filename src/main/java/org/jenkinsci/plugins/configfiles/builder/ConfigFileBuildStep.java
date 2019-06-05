@@ -58,7 +58,7 @@ public class ConfigFileBuildStep extends Builder implements Serializable {
 
         List<String> tempFiles = new ArrayList<String>();
 
-        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, build.getWorkspace(), listener, tempFiles);
+        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, null, build, build.getWorkspace(), listener, tempFiles);
 
         for (String tempFile:tempFiles) {
             build.addAction(new CleanTempFilesAction(tempFile));

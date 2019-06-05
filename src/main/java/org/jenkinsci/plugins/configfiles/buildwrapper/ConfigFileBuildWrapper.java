@@ -63,7 +63,7 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
     public void setUp(Context context, Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
         List<String> tempFiles = new ArrayList<String>();
 
-        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, build, workspace, listener, tempFiles);
+        final Map<ManagedFile, FilePath> file2Path = ManagedFileUtil.provisionConfigFiles(managedFiles, initialEnvironment, build, workspace, listener, tempFiles);
         for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
             ManagedFile mf = entry.getKey();
             FilePath fp = entry.getValue();
