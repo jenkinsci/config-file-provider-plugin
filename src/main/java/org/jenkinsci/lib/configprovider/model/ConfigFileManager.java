@@ -25,10 +25,12 @@ package org.jenkinsci.lib.configprovider.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
@@ -133,7 +135,14 @@ public class ConfigFileManager {
         // check if empty file
         if (fileContent != null) {
             ByteArrayInputStream bs = new ByteArrayInputStream(fileContent.getBytes("UTF-8"));
-            target.copyFrom(bs);
+            OutputStream os = target.write();
+            try {
+                IOUtils.copy(bs, os);
+                os.flush();
+            } finally {
+                IOUtils.closeQuietly(bs);
+                IOUtils.closeQuietly(os);
+            }
         }
         target.chmod(0640);
 
