@@ -221,8 +221,8 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     }
 
     @Override
-    public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {;
-            checkPermission(Job.CONFIGURE);
+    public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
+        checkPermission(Job.CONFIGURE);
         req.setAttribute("providers", getProviders());
         req.setAttribute("configId", UUID.randomUUID().toString());
         req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);
