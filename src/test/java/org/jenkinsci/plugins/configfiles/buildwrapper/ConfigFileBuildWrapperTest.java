@@ -68,7 +68,7 @@ public class ConfigFileBuildWrapperTest {
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
         p.setGoals("initialize"); // -s ${MVN_SETTING}
 
-        final Config settings = createSetting(xmlProvider);
+        final Config settings = createSetting("config-id", xmlProvider);
         final ManagedFile mSettings = new ManagedFile(settings.id, "/tmp/new_settings.xml", "MY_SETTINGS");
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mSettings));
         p.getBuildWrappersList().add(bw);
@@ -84,7 +84,7 @@ public class ConfigFileBuildWrapperTest {
     public void envVariableMustBeReplacedInFileContent() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final Config customFile = createCustomFile(customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
+        final Config customFile = createCustomFile("config-id", customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
 
         final FreeStyleProject p = j.createFreeStyleProject("free");
 
@@ -101,7 +101,7 @@ public class ConfigFileBuildWrapperTest {
     public void envVariableMustNotBeReplacedInFileContentIfNotRequested() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final Config customFile = createCustomFile(customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
+        final Config customFile = createCustomFile("config-id", customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
 
         final FreeStyleProject p = j.createFreeStyleProject("free");
 
@@ -151,15 +151,15 @@ public class ConfigFileBuildWrapperTest {
         }
     }
 
-    private Config createSetting(ConfigProvider provider) {
-        Config c1 = provider.newConfig();
+    private Config createSetting(String configId, ConfigProvider provider) {
+        Config c1 = provider.newConfig(configId);
         GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
         return c1;
     }
 
-    private Config createCustomFile(CustomConfigProvider provider, String content) {
-        Config c1 = provider.newConfig();
+    private Config createCustomFile(String configId, CustomConfigProvider provider, String content) {
+        Config c1 = provider.newConfig(configId);
         c1 = new CustomConfig(c1.id, c1.name, c1.comment, content);
         GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
@@ -172,8 +172,8 @@ public class ConfigFileBuildWrapperTest {
 
         FreeStyleProject p = j.createFreeStyleProject("someJob");
 
-        final Config activeConfig = createSetting(xmlProvider);
-        final Config secondConfig = createSetting(xmlProvider);
+        final Config activeConfig = createSetting("config-id-1", xmlProvider);
+        final Config secondConfig = createSetting("config-id-2", xmlProvider);
         final ManagedFile mSettings = new ManagedFile(activeConfig.id, "/tmp/new_settings.xml", "MY_SETTINGS");
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mSettings));
         p.getBuildWrappersList().add(bw);
