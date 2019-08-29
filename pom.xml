@@ -21,12 +21,6 @@
         <url>https://github.com/jenkinsci/config-file-provider-plugin</url>
         <tag>HEAD</tag>
     </scm>
-    <distributionManagement>
-        <repository>
-            <id>maven.jenkins-ci.org</id>
-            <url>https://repo.jenkins-ci.org/releases</url>
-        </repository>
-    </distributionManagement>
 
     <name>Config File Provider Plugin</name>
     <description>Ability to provide configuration files (e.g. settings.xml for maven, XML, groovy, custom files,...) loaded through the UI which will be copied to the job workspace</description>
