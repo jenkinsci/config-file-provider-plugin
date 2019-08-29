@@ -53,18 +53,18 @@ public class CleanTempFilesAction extends InvisibleAction implements Environment
     private transient Map<ManagedFile, FilePath> file2Path = new HashMap<ManagedFile, FilePath>();
 
     public CleanTempFilesAction(Map<ManagedFile, FilePath> file2Path) {
-        this.file2Path = file2Path == null ? Collections.<ManagedFile, FilePath> emptyMap() : file2Path;
+        this.file2Path = file2Path == null ? Collections.emptyMap() : file2Path;
         this.explicitTempFiles = Collections.emptyList();
     }
 
     public CleanTempFilesAction(String tempfile) {
-        this.file2Path = Collections.<ManagedFile, FilePath> emptyMap();
+        this.file2Path = Collections.emptyMap();
         this.explicitTempFiles = new ArrayList<String>();
         this.explicitTempFiles.add(tempfile);
     }
 
     private Object readResolve() {
-        this.file2Path = Collections.<ManagedFile, FilePath> emptyMap();
+        this.file2Path = Collections.emptyMap();
         this.explicitTempFiles = Collections.emptyList();
         return this;
     }

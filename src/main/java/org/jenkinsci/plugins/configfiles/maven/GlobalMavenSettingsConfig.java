@@ -94,7 +94,7 @@ public class GlobalMavenSettingsConfig extends Config implements HasServerCreden
                 Messages.GlobalMavenSettingsConfig_MyGlobalSettingsComment(),
                 loadTemplateContent(),
                 GlobalMavenSettingsConfig.isReplaceAllDefault,
-                Collections.<ServerCredentialMapping>emptyList());
+                Collections.emptyList());
         }
 
         // ======================

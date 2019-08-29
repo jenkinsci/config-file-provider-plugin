@@ -91,7 +91,7 @@ public class MavenSettingsConfig extends Config implements HasServerCredentialMa
                 Messages.MavenSettings_SettingsComment(),
                 loadTemplateContent(),
                 MavenSettingsConfig.isReplaceAllDefault,
-                Collections.<ServerCredentialMapping>emptyList());
+                Collections.emptyList());
         }
 
         // ======================

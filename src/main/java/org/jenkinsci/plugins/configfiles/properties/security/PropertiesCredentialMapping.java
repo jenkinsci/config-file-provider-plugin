@@ -59,7 +59,7 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
 
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (StringUtils.isNotBlank(propertyKey)) {
-                domainRequirements = Collections.<DomainRequirement>singletonList(new PropertyKeyRequirement(propertyKey));
+                domainRequirements = Collections.singletonList(new PropertyKeyRequirement(propertyKey));
             }
 
             // @formatter:off
