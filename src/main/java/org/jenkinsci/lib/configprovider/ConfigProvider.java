@@ -49,7 +49,6 @@ import jenkins.model.Jenkins;
  * A ConfigProvider represents a configuration file (such as Maven's settings.xml) where the user can choose its actual content among several {@linkplain Config concrete contents} that are
  * pre-configured.
  * <p>
- * <p>
  * {@link ConfigProvider} is an extension point, and should be implemented and instantiated by each kind of configuration. This abstraction doesn't define where the configuration is placed, or
  * how/when it's used &mdash; those semantics should be introduced by a specific instance of {@link ConfigProvider}.
  *

@@ -60,8 +60,11 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     }
 
     /**
-     * Only used to convert data from the old (< 1.5) storage format to the new >= 1.5.
-     * New implementations of this extension point do not need to implement this
+     * Only used to convert data from the old (&lt; 1.5) to the new (&ge; 1.5) storage format.
+     * New implementations of this extension point do not need to implement this.
+     *
+     * @param config the configuration to convert
+     * @param <T> expected type of the returned configuration item.
      */
     @Deprecated
     public <T extends Config> T convert(Config config) {

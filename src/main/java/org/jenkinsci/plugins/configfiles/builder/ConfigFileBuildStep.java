@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.jenkinsci.plugins.configfiles.builder;
 
 import com.cloudbees.hudson.plugins.folder.AbstractFolder;

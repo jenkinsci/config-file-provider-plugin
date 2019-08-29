@@ -69,9 +69,7 @@ public class CleanTempFilesAction extends InvisibleAction implements Environment
         return this;
     }
 
-    /**
-     * @Override
-     */
+    @Override
     public void buildEnvVars(AbstractBuild<?, ?> build, EnvVars env) {
         for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
             ManagedFile mf = entry.getKey();

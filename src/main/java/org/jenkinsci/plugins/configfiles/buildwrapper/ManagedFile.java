@@ -118,6 +118,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
         /**
          * validate that an existing config was chosen
          *
+         * @param req the request
          * @param context the context this file is configured in
          * @param fileId  the id of the config file
          * @return a validation result / description

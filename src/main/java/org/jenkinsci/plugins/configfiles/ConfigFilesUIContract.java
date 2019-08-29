@@ -56,7 +56,8 @@ public interface ConfigFilesUIContract {
 
     /**
      * Insert or update
-     * @param req
+     *
+     * @param req request
      * @return
      */
     public HttpResponse doSaveConfig(StaplerRequest req) throws IOException, ServletException ;
@@ -86,6 +87,8 @@ public interface ConfigFilesUIContract {
      *            response
      * @param providerId
      *            the id of the provider to create a new config instance with
+     * @param configId
+     *            the id of the new config instance
      * @throws IOException
      * @throws ServletException
      */

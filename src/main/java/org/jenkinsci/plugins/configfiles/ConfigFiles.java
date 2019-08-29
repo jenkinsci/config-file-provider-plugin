@@ -127,10 +127,10 @@ public class ConfigFiles {
 
     /**
      * Used to get hold on a single configuration in the given context.
-     * The configuration will be looked up for from the current context (itemGroup, e.g. {@link AbstractFolder} or {@link Jenkins}
+     * The configuration will be looked up for from the current context (item, e.g. {@link AbstractFolder} or {@link Jenkins}
      * if not within a folder) until a configuration with the given id was found.
      *
-     * @param itemGroup context to start the lookup from
+     * @param item context to start the lookup from
      * @param configId  id of the configuration to search for
      * @param <T>       expected type of the returned configuration item.
      * @return <code>null</code> if no configuration was found

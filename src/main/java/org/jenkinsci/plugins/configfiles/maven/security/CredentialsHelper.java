@@ -56,11 +56,13 @@ public class CredentialsHelper {
 
     /**
      * Resolves the given serverCredential mappings and returns a map paring serverId to credential
-     * 
-     * @param item
+     *
+     * @param build
      *            authentication scope
      * @param serverCredentialMappings
      *            the mappings to be resolved
+     * @param listener
+     *            the listener
      * @return map of serverId - credential
      */
     public static Map<String, StandardUsernameCredentials> resolveCredentials(Run<?,?> build, final List<ServerCredentialMapping> serverCredentialMappings, TaskListener listener) {

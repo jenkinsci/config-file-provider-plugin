@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.jenkinsci.plugins.configfiles.maven.security;
 
 import javax.annotation.CheckForNull;
