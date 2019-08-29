@@ -96,7 +96,7 @@ public class MvnSettingsProviderTest {
 
     @Test
     @Bug(20403)
-    public void configMustBeVisbleFromConfigPage() throws Exception {
+    public void configMustBeVisibleFromConfigPage() throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
         final WebClient client = jenkins.createWebClient();

@@ -46,7 +46,7 @@ import hudson.util.Secret;
 public class CredentialsHelper {
 
     private static final Logger LOGGER = Logger.getLogger(CredentialsHelper.class.getName());
-    private static final Collection<String> ATTRIBUTES_TO_KEEPT = Arrays.asList("filePermissions", "directoryPermissions", "configuration");
+    private static final Collection<String> ATTRIBUTES_TO_KEEP = Arrays.asList("filePermissions", "directoryPermissions", "configuration");
 
     /**
      * hide constructor
@@ -234,7 +234,7 @@ public class CredentialsHelper {
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             String name = StringUtils.trimToNull(node.getNodeName());
-            if (ATTRIBUTES_TO_KEEPT.contains(name)) {
+            if (ATTRIBUTES_TO_KEEP.contains(name)) {
                 to.appendChild(node);
             }
         }

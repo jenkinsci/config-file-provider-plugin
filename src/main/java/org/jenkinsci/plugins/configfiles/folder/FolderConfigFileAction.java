@@ -157,18 +157,18 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     }
 
     @Override
-    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
+    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         folder.checkPermission(Item.EXTENDED_READ);
-        Config config = getStore().getById(confgiId);
+        Config config = getStore().getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.getView(this, JELLY_RESOURCES_PATH + "show.jelly").forward(req, rsp);
     }
 
     @Override
-    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
+    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         checkPermission(Job.CONFIGURE);
-        Config config = getStore().getById(confgiId);
+        Config config = getStore().getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.setAttribute("provider", config.getProvider());

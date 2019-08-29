@@ -62,7 +62,7 @@ public interface ConfigFilesUIContract {
      */
     public HttpResponse doSaveConfig(StaplerRequest req) throws IOException, ServletException ;
 
-    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException;
+    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException;
 
     /**
      * Loads the config by its id and forwards the request to "edit.jelly".
@@ -71,12 +71,12 @@ public interface ConfigFilesUIContract {
      *            request
      * @param rsp
      *            response
-     * @param confgiId
+     * @param configId
      *            the id of the config to be loaded in to the edit view.
      * @throws IOException
      * @throws ServletException
      */
-    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException;
+    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException;
 
     /**
      * Requests a new config object from provider (defined by the given id) and forwards the request to "edit.jelly".

@@ -152,15 +152,13 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         return new HttpRedirect("index");
     }
 
-    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
-
+    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
 
-        Config config = store.getById(confgiId);
+        Config config = store.getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.getView(this, JELLY_RESOURCES_PATH + "show.jelly").forward(req, rsp);
-
     }
 
     /**
@@ -168,14 +166,14 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      *
      * @param req      request
      * @param rsp      response
-     * @param confgiId the id of the config to be loaded in to the edit view.
+     * @param configId the id of the config to be loaded in to the edit view.
      * @throws IOException
      * @throws ServletException
      */
-    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
+    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         checkPermission(Hudson.ADMINISTER);
 
-        Config config = store.getById(confgiId);
+        Config config = store.getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.setAttribute("provider", config.getProvider());

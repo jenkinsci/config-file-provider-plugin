@@ -86,7 +86,7 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     /**
      * The content type of the configs this provider manages. e.g. can be used to display the content in the UI (editor).
      *
-     * @return the type. <code>null</code> if no specific formating should be supported.
+     * @return the type. <code>null</code> if no specific formatting should be supported.
      */
     public abstract ContentType getContentType();
 
@@ -141,7 +141,7 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     public abstract void clearOldDataStorage();
 
     /**
-     * Tells whether this provider is able to handle configuration files stored on folder level too, or if it only supports global confuguration files.
+     * Tells whether this provider is able to handle configuration files stored on folder level too, or if it only supports global configuration files.
      * This flag will tell the web UI whether a file can be created on a folder.
      * Defaults to <code>true</code>, overwrite if your configfiles are not support on folders.
      *

@@ -54,14 +54,14 @@ public class MvnSettingsCredentialsTest {
 
         final MavenSettingsConfig settings = createSettings(mavenSettingProvider);
         final MvnSettingsProvider mvnSettingsProvider = new MvnSettingsProvider(settings.id);
-        DelegatingMvnSettingsProvider delegater = new DelegatingMvnSettingsProvider(mvnSettingsProvider);
+        DelegatingMvnSettingsProvider delegator = new DelegatingMvnSettingsProvider(mvnSettingsProvider);
 
         final GlobalMavenSettingsConfig globalSettings = createGlobalSettings(globalMavenSettingsConfigProvider);
         final MvnGlobalSettingsProvider mvnGlobalSettingsProvider = new MvnGlobalSettingsProvider(globalSettings.id);
-        DelegatingGlobalMvnSettingsProvider delegater2 = new DelegatingGlobalMvnSettingsProvider(mvnGlobalSettingsProvider);
+        DelegatingGlobalMvnSettingsProvider delegator2 = new DelegatingGlobalMvnSettingsProvider(mvnGlobalSettingsProvider);
 
-        p.setSettings(delegater);
-        p.setGlobalSettings(delegater2);
+        p.setSettings(delegator);
+        p.setGlobalSettings(delegator2);
 
         j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
     }

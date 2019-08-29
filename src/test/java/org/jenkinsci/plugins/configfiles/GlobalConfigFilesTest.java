@@ -27,7 +27,7 @@ public class GlobalConfigFilesTest {
      */
     @LocalData
     @Test
-    public void verifyLoadWithAnonymousInnerClasseComperatorVar1() {
+    public void verifyLoadWithAnonymousInnerClassComparatorVar1() {
         GlobalConfigFiles store = j.getInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         Collection<Config> configs = store.getConfigs();
         assertThat(configs, hasSize(2));
