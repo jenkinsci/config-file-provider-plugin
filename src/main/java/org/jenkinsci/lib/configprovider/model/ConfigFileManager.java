@@ -42,7 +42,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.AbortException;
 import hudson.EnvVars;
 import hudson.FilePath;
-import hudson.Util;
 import hudson.model.Build;
 import hudson.model.Run;
 import hudson.model.TaskListener;

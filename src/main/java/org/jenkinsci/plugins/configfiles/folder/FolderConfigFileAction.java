@@ -10,8 +10,6 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
-import org.acegisecurity.context.SecurityContext;
-import org.acegisecurity.context.SecurityContextHolder;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -33,7 +31,6 @@ import hudson.Util;
 import hudson.model.Action;
 import hudson.model.Item;
 import hudson.model.Job;
-import hudson.security.ACL;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
 

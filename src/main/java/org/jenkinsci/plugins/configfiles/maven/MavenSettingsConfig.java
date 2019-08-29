@@ -32,11 +32,9 @@ import java.util.List;
 
 import jenkins.model.Jenkins;
 
-import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
-import org.jenkinsci.plugins.configfiles.json.JsonConfig;
 import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
 import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
 import org.kohsuke.stapler.DataBoundConstructor;

@@ -28,12 +28,10 @@ import hudson.Extension;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.lib.configprovider.model.ContentType.DefinedType;
 import org.jenkinsci.plugins.configfiles.Messages;
-import org.jenkinsci.plugins.configfiles.json.JsonConfig;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class GroovyScript extends Config {
