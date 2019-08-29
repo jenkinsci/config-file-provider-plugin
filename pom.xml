@@ -26,11 +26,9 @@
     <description>Ability to provide configuration files (e.g. settings.xml for maven, XML, groovy, custom files,...) loaded through the UI which will be copied to the job workspace</description>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <jenkins.version>2.60.3</jenkins.version>
         <java.level>8</java.level>
-        <findbugs.failOnError>true</findbugs.failOnError>
         <workflow-step-api-plugin.version>2.13</workflow-step-api-plugin.version>
         <workflow-support-plugin.version>2.16</workflow-support-plugin.version>
     </properties>
