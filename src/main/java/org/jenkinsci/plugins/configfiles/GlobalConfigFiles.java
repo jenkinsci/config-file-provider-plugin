@@ -30,12 +30,7 @@ import java.util.TreeSet;
 @Symbol("globalConfigFiles")
 public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFileStore {
 
-    private static Comparator<Config> COMPARATOR = new Comparator<Config>() {
-        @Override
-        public int compare(Config o1, Config o2) {
-            return o1.id.compareTo(o2.id);
-        }
-    };
+    private static Comparator<Config> COMPARATOR = new ConfigByIdComparator();
 
     private static ConfigProviderComparator CONFIGPROVIDER_COMPARATOR = new ConfigProviderComparator();
 
