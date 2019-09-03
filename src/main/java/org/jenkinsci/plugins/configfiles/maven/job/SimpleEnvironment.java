@@ -11,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
  * 
  * @author Dominik Bartholdi (imod)
  */
-/** package **/
 class SimpleEnvironment extends Environment {
 
     private final String var;
@@ -22,8 +21,8 @@ class SimpleEnvironment extends Environment {
      * 
      * @param var
      *            the variable name
-     * @param the
-     *            value
+     * @param value
+     *            the variable value
      */
     public SimpleEnvironment(String var, String value) {
         this.value = value;

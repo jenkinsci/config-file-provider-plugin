@@ -63,7 +63,7 @@ public class PropertiesConfig extends Config implements HasPropertyCredentialMap
                     Messages.PropertiesConfig_SettingsComment(),
                     "",
                     PropertiesConfig.isReplaceAllDefault,
-                    Collections.<PropertiesCredentialMapping>emptyList());
+                    Collections.emptyList());
         }
 
     }

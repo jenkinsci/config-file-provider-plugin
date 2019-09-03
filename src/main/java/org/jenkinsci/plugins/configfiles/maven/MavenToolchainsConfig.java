@@ -27,13 +27,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
 
-import jenkins.model.Jenkins;
 import org.apache.commons.io.IOUtils;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;

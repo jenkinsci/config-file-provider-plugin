@@ -43,6 +43,7 @@ public class ManagedFileUtil {
      * provisions (publishes) the given files to the workspace.
      *
      * @param managedFiles the files to be provisioned
+     * @param build        the build
      * @param workspace    target workspace
      * @param listener     the listener
      * @param tempFiles    temp files created by this method, these files should be deleted by the caller
@@ -63,6 +64,7 @@ public class ManagedFileUtil {
      *
      * @param managedFiles the files to be provisioned
      * @param env          enhanced environment to use in the variable substitution
+     * @param build        the build
      * @param workspace    target workspace
      * @param listener     the listener
      * @param tempFiles    temp files created by this method, these files should be deleted by the caller

@@ -112,7 +112,7 @@ public class MvnSettingsProvider extends SettingsProvider {
                             build.addAction(new CleanTempFilesAction(f.getRemote()));
                             return f;
                         } else {
-                            listener.getLogger().println("ERROR: can't supply maven settings, workspace is null / slave seems not contected...");
+                            listener.getLogger().println("ERROR: can't supply maven settings, workspace is null / slave seems not connected...");
                         }
                     } catch (Exception e) {
                         throw new IllegalStateException("the settings.xml could not be supplied for the current build: " + e.getMessage(), e);

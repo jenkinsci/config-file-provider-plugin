@@ -23,10 +23,8 @@
  */
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
-import com.cloudbees.hudson.plugins.folder.AbstractFolder;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.ExtensionList;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractProject;
@@ -36,7 +34,6 @@ import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -46,8 +43,6 @@ import jenkins.tasks.SimpleBuildWrapper;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
-import org.jenkinsci.lib.configprovider.model.Config;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class ConfigFileBuildWrapper extends SimpleBuildWrapper {

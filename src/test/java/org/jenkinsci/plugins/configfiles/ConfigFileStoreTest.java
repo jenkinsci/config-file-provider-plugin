@@ -50,7 +50,7 @@ public class ConfigFileStoreTest {
         // Remove config. Check the correct one is removed
         store.remove(savedConfig.id);
         Assert.assertEquals(1, store.getConfigs().size());
-        Assert.assertThat(store.getById(anotherConfig.id), Matchers.<Config>is(anotherConfig));
+        Assert.assertThat(store.getById(anotherConfig.id), Matchers.is(anotherConfig));
         Assert.assertNull(store.getById(savedConfig.id));
 
         store.remove(anotherConfig.id);
