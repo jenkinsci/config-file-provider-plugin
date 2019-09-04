@@ -122,7 +122,7 @@ public class ConfigFileBuildWrapperWorkflowTest {
                         + "node {\n"
                         + "  wrap([$class: 'ConfigFileBuildWrapper', managedFiles: [[fileId: '" + createConfig().id + "', variable: 'MYFILE']]]) {\n"
                         + "    semaphore 'withTempFilesAfterRestart'\n"
-                        + "    if (isUnix()) {sh 'cat $MYFILE'} else {bat 'type %MYFILE%'}\n"
+                        + "    if (isUnix()) {sh 'cat \"$MYFILE\"'} else {bat 'type \"%MYFILE%\"'}\n"
                         + "  }\n"
                         + "}", true));
                 WorkflowRun b = p.scheduleBuild2(0).waitForStart();
