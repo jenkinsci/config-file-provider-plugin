@@ -41,10 +41,10 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     }
 
     public Descriptor<ServerCredentialMapping> getDescriptor() {
-        return DESCIPTOR;
+        return DESCRIPTOR;
     }
 
-    private static final DescriptorImpl DESCIPTOR = new DescriptorImpl();
+    private static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     @Extension
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
@@ -57,7 +57,7 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
 
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (StringUtils.isNotBlank(serverId)) {
-                domainRequirements = Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId));
+                domainRequirements = Collections.singletonList(new MavenServerIdRequirement(serverId));
             }
 
             // @formatter:off

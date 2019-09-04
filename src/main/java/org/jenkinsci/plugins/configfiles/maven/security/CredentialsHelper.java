@@ -46,7 +46,7 @@ import hudson.util.Secret;
 public class CredentialsHelper {
 
     private static final Logger LOGGER = Logger.getLogger(CredentialsHelper.class.getName());
-    private static final Collection<String> ATTRIBUTES_TO_KEEPT = Arrays.asList("filePermissions", "directoryPermissions", "configuration");
+    private static final Collection<String> ATTRIBUTES_TO_KEEP = Arrays.asList("filePermissions", "directoryPermissions", "configuration");
 
     /**
      * hide constructor
@@ -56,11 +56,13 @@ public class CredentialsHelper {
 
     /**
      * Resolves the given serverCredential mappings and returns a map paring serverId to credential
-     * 
-     * @param item
+     *
+     * @param build
      *            authentication scope
      * @param serverCredentialMappings
      *            the mappings to be resolved
+     * @param listener
+     *            the listener
      * @return map of serverId - credential
      */
     public static Map<String, StandardUsernameCredentials> resolveCredentials(Run<?,?> build, final List<ServerCredentialMapping> serverCredentialMappings, TaskListener listener) {
@@ -71,7 +73,7 @@ public class CredentialsHelper {
             
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (StringUtils.isNotBlank(serverId)) {
-                domainRequirements = Collections.<DomainRequirement> singletonList(new MavenServerIdRequirement(serverId));
+                domainRequirements = Collections.singletonList(new MavenServerIdRequirement(serverId));
             }
 
             final StandardUsernameCredentials c = CredentialsProvider.findCredentialById(credentialsId, StandardUsernameCredentials.class, build, domainRequirements);
@@ -232,7 +234,7 @@ public class CredentialsHelper {
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             String name = StringUtils.trimToNull(node.getNodeName());
-            if (ATTRIBUTES_TO_KEEPT.contains(name)) {
+            if (ATTRIBUTES_TO_KEEP.contains(name)) {
                 to.appendChild(node);
             }
         }

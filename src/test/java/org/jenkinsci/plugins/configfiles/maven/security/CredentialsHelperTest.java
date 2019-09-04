@@ -119,18 +119,18 @@ public class CredentialsHelperTest {
 
     @Issue("JENKINS-39991")
     @Test
-    public void testIfServerElementAreKeeptWhenMatchCredentialsWhenReplaceFalse() throws Exception {
-        testIfServerElementAreKeeptWhenMatchCredentials(false);
+    public void testIfServerElementAreKeptWhenMatchCredentialsWhenReplaceFalse() throws Exception {
+        testIfServerElementAreKeptWhenMatchCredentials(false);
 
     }
 
     @Issue("JENKINS-39991")
     @Test
-    public void testIfServerElementAreKeeptWhenMatchCredentialsWhenReplaceTrue() throws Exception {
-        testIfServerElementAreKeeptWhenMatchCredentials(true);
+    public void testIfServerElementAreKeptWhenMatchCredentialsWhenReplaceTrue() throws Exception {
+        testIfServerElementAreKeptWhenMatchCredentials(true);
     }
 
-    private void testIfServerElementAreKeeptWhenMatchCredentials(boolean replaceAll) throws Exception {
+    private void testIfServerElementAreKeptWhenMatchCredentials(boolean replaceAll) throws Exception {
         final String serverId = "jenkins-39991";
 
         Map<String, StandardUsernameCredentials> serverId2Credentials = new HashMap<String, StandardUsernameCredentials>();

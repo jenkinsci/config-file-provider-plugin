@@ -2,30 +2,22 @@ package org.jenkinsci.lib.configprovider;
 
 import hudson.BulkChange;
 import hudson.XmlFile;
-import hudson.model.ItemGroup;
 import hudson.model.listeners.SaveableListener;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import hudson.util.ReflectionUtils;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
-import org.jenkinsci.plugins.configfiles.json.JsonConfig;
 
 /**
  * Partial default implementation of {@link ConfigProvider}.
@@ -60,8 +52,11 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     }
 
     /**
-     * Only used to convert data from the old (< 1.5) storage format to the new >= 1.5.
-     * New implementations of this extension point do not need to implement this
+     * Only used to convert data from the old (&lt; 1.5) to the new (&ge; 1.5) storage format.
+     * New implementations of this extension point do not need to implement this.
+     *
+     * @param config the configuration to convert
+     * @param <T> expected type of the returned configuration item.
      */
     @Deprecated
     public <T extends Config> T convert(Config config) {

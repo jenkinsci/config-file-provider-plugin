@@ -10,8 +10,6 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
-import org.acegisecurity.context.SecurityContext;
-import org.acegisecurity.context.SecurityContextHolder;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -33,7 +31,6 @@ import hudson.Util;
 import hudson.model.Action;
 import hudson.model.Item;
 import hudson.model.Job;
-import hudson.security.ACL;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
 
@@ -157,18 +154,18 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     }
 
     @Override
-    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
+    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         folder.checkPermission(Item.EXTENDED_READ);
-        Config config = getStore().getById(confgiId);
+        Config config = getStore().getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.getView(this, JELLY_RESOURCES_PATH + "show.jelly").forward(req, rsp);
     }
 
     @Override
-    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String confgiId) throws IOException, ServletException {
+    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         checkPermission(Job.CONFIGURE);
-        Config config = getStore().getById(confgiId);
+        Config config = getStore().getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
         req.setAttribute("provider", config.getProvider());
@@ -221,8 +218,8 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     }
 
     @Override
-    public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {;
-            checkPermission(Job.CONFIGURE);
+    public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
+        checkPermission(Job.CONFIGURE);
         req.setAttribute("providers", getProviders());
         req.setAttribute("configId", UUID.randomUUID().toString());
         req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);

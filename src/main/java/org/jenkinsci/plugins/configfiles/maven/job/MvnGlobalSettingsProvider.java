@@ -2,7 +2,6 @@ package org.jenkinsci.plugins.configfiles.maven.job;
 
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
@@ -21,7 +20,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ConfigFileManager;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
-import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFileUtil;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
@@ -112,7 +110,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                             build.addAction(new CleanTempFilesAction(configurationFile.getRemote()));
                             return configurationFile;
                         } else {
-                            listener.getLogger().println("ERROR: can't supply maven settings, workspace is null / slave seems not contected...");
+                            listener.getLogger().println("ERROR: can't supply maven settings, workspace is null / slave seems not connected...");
                         }
                     } catch (Exception e) {
                         throw new IllegalStateException("the global settings.xml could not be supplied for the current build: " + e.getMessage());

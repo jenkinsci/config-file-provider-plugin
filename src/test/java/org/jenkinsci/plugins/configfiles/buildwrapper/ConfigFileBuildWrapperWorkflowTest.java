@@ -65,7 +65,7 @@ public class ConfigFileBuildWrapperWorkflowTest {
                 ConfigFileBuildWrapper w = (ConfigFileBuildWrapper) delegate;
                 assertEquals("[[ManagedFile: id=" + id + ", targetLocation=myfile.txt, variable=MYFILE]]", w.getManagedFiles().toString());
 
-                // test pipeline snipet generator
+                // test pipeline snippet generator
                 List<ManagedFile> managedFiles = new ArrayList<ManagedFile>();
                 managedFiles.add(new ManagedFile("myid"));
                 w = new ConfigFileBuildWrapper(managedFiles);

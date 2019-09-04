@@ -43,10 +43,10 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
     }
 
     public Descriptor<PropertiesCredentialMapping> getDescriptor() {
-        return DESCIPTOR;
+        return DESCRIPTOR;
     }
 
-    private static final DescriptorImpl DESCIPTOR = new DescriptorImpl();
+    private static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     @Extension
     public static class DescriptorImpl extends Descriptor<PropertiesCredentialMapping> {
@@ -59,7 +59,7 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
 
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (StringUtils.isNotBlank(propertyKey)) {
-                domainRequirements = Collections.<DomainRequirement>singletonList(new PropertyKeyRequirement(propertyKey));
+                domainRequirements = Collections.singletonList(new PropertyKeyRequirement(propertyKey));
             }
 
             // @formatter:off

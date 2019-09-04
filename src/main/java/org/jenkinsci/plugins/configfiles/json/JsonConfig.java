@@ -26,9 +26,7 @@ package org.jenkinsci.plugins.configfiles.json;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 
-import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
@@ -52,10 +50,10 @@ public class JsonConfig extends Config {
     }
 
     /**
-     * as the form submission with stapler is done in json too, we have to do "deescape" the formated content of the json file.
+     * as the form submission with stapler is done in json too, we have to do "unescape" the formatted content of the json file.
      *
      * @param content the json body of the file
-     * @return deescaped json
+     * @return unescaped json
      */
     private static String fixJsonContent(String content) {
         final String c = content.trim();
