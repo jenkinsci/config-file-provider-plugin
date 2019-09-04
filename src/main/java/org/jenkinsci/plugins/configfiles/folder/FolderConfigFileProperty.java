@@ -8,6 +8,7 @@ import hudson.model.*;
 import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.ConfigByIdComparator;
 import org.jenkinsci.plugins.configfiles.ConfigByNameComparator;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.ConfigProviderComparator;
@@ -16,15 +17,9 @@ import org.kohsuke.stapler.StaplerRequest;
 import java.io.IOException;
 import java.util.*;
 
-
 public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFolder<?>> implements ConfigFileStore {
 
-    private static Comparator<Config> COMPARATOR = new Comparator<Config>() {
-        @Override
-        public int compare(Config o1, Config o2) {
-            return o1.id.compareTo(o2.id);
-        }
-    };
+    private static Comparator<Config> COMPARATOR = new ConfigByIdComparator();
 
     private static ConfigProviderComparator CONFIGPROVIDER_COMPARATOR = new ConfigProviderComparator();
 

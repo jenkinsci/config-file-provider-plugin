@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<com.cloudbees.hudson.plugins.folder.Folder plugin="cloudbees-folder@5.12">
+  <actions/>
+  <description/>
+  <properties>
+    <org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty plugin="config-file-provider@2.18">
+      <configs class="sorted-set">
+        <comparator class="org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty$1"/>
+        <org.jenkinsci.plugins.configfiles.custom.CustomConfig>
+          <id>e47beadf-b379-4d8a-9db9-ea373600d8eb</id>
+          <name>custom-config</name>
+          <comment>Dummy Custom Config</comment>
+          <content>dummy content</content>
+          <providerId>org.jenkinsci.plugins.configfiles.custom.CustomConfig</providerId>
+        </org.jenkinsci.plugins.configfiles.custom.CustomConfig>
+        <org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig>
+          <id>de351ee6-bf92-43e1-b0af-0c31f5819b68</id>
+          <name>global-maven-settings</name>
+          <comment>Dummy global Maven settings</comment>
+          <content>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;settings&gt;
+    &lt;interactiveMode&gt;false&lt;/interactiveMode&gt;
+    &lt;localRepository&gt;${env.WORKSPACE}/.repository&lt;/localRepository&gt;
+&lt;/settings&gt;</content>
+          <providerId>org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig</providerId>
+          <serverCredentialMappings/>
+          <isReplaceAll>true</isReplaceAll>
+        </org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig>
+      </configs>
+    </org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty>
+  </properties>
+  <views>
+    <hudson.model.AllView>
+      <owner class="com.cloudbees.hudson.plugins.folder.Folder" reference="../../.."/>
+      <name>All</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+    </hudson.model.AllView>
+  </views>
+  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+  <healthMetrics/>
+  <icon class="com.cloudbees.hudson.plugins.folder.icons.StockFolderIcon"/>
+</com.cloudbees.hudson.plugins.folder.Folder>
