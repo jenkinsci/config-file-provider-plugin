@@ -38,7 +38,7 @@ public class PropertiesConfigTest {
         String log = r.getLog(b2);
         System.out.println("####>"+ log);
         System.out.println("<####");
-        r.assertLogContains("Could not find credentials ‘creds’ for p #2", b2);
+        r.assertLogContains("Could not find credentials [creds] for p #2", b2);
         r.assertLogNotContains("myprop=s3cr3t", b2);
     }
 }
