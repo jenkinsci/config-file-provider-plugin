@@ -13,7 +13,7 @@
 
     <packaging>hpi</packaging>
 
-    <url>https://wiki.jenkins.io/display/JENKINS/Config+File+Provider+Plugin</url>
+    <url>https://github.com/jenkinsci/config-file-provider-plugin</url>
 
     <scm>
         <connection>scm:git:git://github.com/jenkinsci/config-file-provider-plugin.git</connection>
