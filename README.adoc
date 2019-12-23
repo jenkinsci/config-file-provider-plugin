@@ -19,14 +19,12 @@ Site Scripting vulnerability]
 
 Adds the ability to provide configuration files (i.e., settings.xml for maven, XML, groovy, custom files, etc.) loaded through the Jenkins UI which will be copied to the job's workspace.
 
-[[ConfigFileProviderPlugin-Howitworks]]
 == How it works
 
 It will allow you to copy various similar configuration files to all
 your nodes. It also adds the ability to edit those files through the
 Jenkins UI.
 
-[[ConfigFileProviderPlugin-FileTypes]]
 === File Types
 
 In general, you can manage whatever file format you like with this
@@ -39,7 +37,6 @@ support for the following file types:
 * JSON
 * Custom (plain text)
 
-[[ConfigFileProviderPlugin-Loadyourconfigurationfilecontent.]]
 === Load your configuration file content.
 
 Choose the "Managed files" in the administration home:
@@ -66,7 +63,6 @@ Provide any config file to a project
 
 [.confluence-embedded-file-wrapper]#image:docs/images/add_file.jpg[image]#
 
-[[ConfigFileProviderPlugin-MavenServerCredentials(since2.7)]]
 === Maven Server Credentials (since 2.7)
 
 The file types '_Global Maven settings.xml_' and '_Maven settings.xml_'
@@ -114,7 +110,6 @@ repo.
 
 [.confluence-embedded-file-wrapper]#image:docs/images/Screen_Shot_2013-07-28_at_16.23.32.png[image]#
 
-[[ConfigFileProviderPlugin-UsingtheconfigurationfilesinJenkinsPipelines]]
 == Using the configuration files in Jenkins Pipelines
 
 The configuration files can be used in Jenkins pipeline.
@@ -148,7 +143,6 @@ version 2.13, the build wrapper syntax
 
 [.confluence-embedded-file-wrapper]#image:docs/images/pipeline-syntax-screenshot.png[image]#
 
-[[ConfigFileProviderPlugin-Pluginsaddingsupportfornewfiletypes]]
 == Plugins adding support for new file types
 
 * {blank}
@@ -160,7 +154,6 @@ Script Plugin] [.smalltext]#— Managed scripts are shell scripts which
 are managed centrally by an administrator and can be referenced as a
 build step within jobs.#
 
-[[ConfigFileProviderPlugin-ExtensionPoint]]
 == Extension Point
 
 This plugin makes use of the
