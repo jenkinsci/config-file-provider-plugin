@@ -158,7 +158,7 @@ public class CredentialsHelperTest {
         Assert.assertEquals("username is not set correct", "peter", xpath.evaluate("username", server));
         Assert.assertEquals("filePermissions is not set correct", filePermissions, xpath.evaluate("filePermissions", server));
         Assert.assertEquals("directoryPermissions is not set correct", directoryPermissions, xpath.evaluate("directoryPermissions", server));
-        Assert.assertEquals("configuration is not set correct", configuration, xpath.evaluate("configuration", server));
+        Assert.assertEquals("configuration is not set correct", configuration.trim(), xpath.evaluate("configuration", server).trim());
     }
 
 }

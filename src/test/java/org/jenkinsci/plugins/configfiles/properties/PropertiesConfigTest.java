@@ -35,7 +35,7 @@ public class PropertiesConfigTest {
         // Missing credentials. Currently treated as nonfatal:
         SystemCredentialsProvider.getInstance().getCredentials().set(0, new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "creds", "", "bot", "s3cr3t"));
         WorkflowRun b2 = r.buildAndAssertSuccess(p);
-        r.assertLogContains("Could not find credentials ‘creds’ for p #2", b2);
+        r.assertLogContains("Could not find credentials [creds] for p #2", b2);
         r.assertLogNotContains("myprop=s3cr3t", b2);
     }
 }

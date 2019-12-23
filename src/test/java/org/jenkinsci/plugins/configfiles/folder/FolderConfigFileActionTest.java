@@ -205,13 +205,13 @@ public class FolderConfigFileActionTest {
                 "  configFileProvider([configFile(fileId: 'my-file-id', variable: 'MY_FILE')]) {\n" +
                 "    if (isUnix()) {\n" +
                 "      sh '''\n" +
-                "      ls -al $MY_FILE\n" +
-                "      cat $MY_FILE\n" +
+                "      ls -al \"$MY_FILE\"\n" +
+                "      cat \"$MY_FILE\"\n" +
                 "      '''\n" +
                 "    } else {\n" +
                 "      bat '''\n" +
-                "      dir /a %MY_FILE%\n" +
-                "      type %MY_FILE%\n" +
+                "      dir /a \"%MY_FILE%\"\n" +
+                "      type \"%MY_FILE%\"\n" +
                 "      '''\n" +
                 "    }\n" +
                 "  }\n" +

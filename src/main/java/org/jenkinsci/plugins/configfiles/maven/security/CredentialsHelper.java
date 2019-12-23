@@ -81,7 +81,7 @@ public class CredentialsHelper {
             if (c != null) {
                 serverId2credential.put(serverId, c);
             } else {
-                listener.getLogger().println("Could not find credentials ‘" + credentialsId + "’ for " + build);
+                listener.getLogger().println("Could not find credentials [" + credentialsId + "] for " + build);
             }
         }
         return serverId2credential;
