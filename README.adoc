@@ -2,7 +2,7 @@ Config File Provider plugin for Jenkins
 =======================================
 
 image:https://img.shields.io/jenkins/plugin/v/config-file-provider.svg[link="https://plugins.jenkins.io/config-file-provider"]
-image:https://img.shields.io/github/release/jenkinsci/config-file-provider.svg?label=changelog[link="https://github.com/jenkinsci/config-file-provider/releases/latest"]
+image:https://img.shields.io/github/release/jenkinsci/config-file-provider-plugin.svg?label=changelog[link="https://github.com/jenkinsci/config-file-provider-plugin/releases/latest"]
 image:https://img.shields.io/jenkins/plugin/i/config-file-provider.svg?color=blue[link="https://plugins.jenkins.io/config-file-provider"]
 
 Older versions of this plugin may not be safe to use. Please review the
@@ -170,5 +170,3 @@ look at
 #### builds are currently executed on:
 
 * [jenkins ci](https://ci.jenkins.io/blue/organizations/jenkins/Plugins%2Fconfig-file-provider-plugin/)
-
-
