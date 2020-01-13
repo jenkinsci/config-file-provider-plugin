@@ -1,9 +1,9 @@
 package org.jenkinsci.plugins.configfiles;
 
 import hudson.Extension;
+import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.FreeStyleProject;
-import hudson.model.Job;
 import jenkins.model.TransientActionFactory;
 
 import javax.annotation.Nonnull;
@@ -11,25 +11,25 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Extension
-public class ConfigFilesActionFactory extends TransientActionFactory<Job> {
+public class ConfigFilesActionFactory extends TransientActionFactory<AbstractProject> {
     @Override
-    public Class<Job> type() {
-        return Job.class;
+    public Class<AbstractProject> type() {
+        return AbstractProject.class;
     }
 
     @Nonnull
     @Override
-    public Collection<? extends Action> createFor(@Nonnull Job job) {
-        if (job instanceof FreeStyleProject || isMavenJob(job)) {
-            return Collections.singletonList(new ConfigFilesAction(job));
+    public Collection<? extends Action> createFor(@Nonnull AbstractProject project) {
+        if (project instanceof FreeStyleProject || isMavenJob(project)) {
+            return Collections.singletonList(new ConfigFilesAction(project));
         }
         return Collections.emptyList();
     }
 
-    private boolean isMavenJob(Job job) {
+    private boolean isMavenJob(AbstractProject project) {
         try {
-            Class<?> mvnJobClass = Class.forName("hudson.maven.MavenModuleSet", false, job.getClass().getClassLoader());
-            return mvnJobClass.isAssignableFrom(job.getClass());
+            Class<?> mvnJobClass = Class.forName("hudson.maven.MavenModuleSet", false, project.getClass().getClassLoader());
+            return mvnJobClass.isAssignableFrom(project.getClass());
         } catch (ClassNotFoundException e) {
             return false;
         }
