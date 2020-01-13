@@ -15,6 +15,10 @@ import org.kohsuke.stapler.StaplerResponse;
 import javax.servlet.ServletException;
 import java.io.IOException;
 
+/**
+ * handles a request like `http://localhost:8080/jenkins/job/myjob/configfiles/show?id=MY_FILE_ID`
+ * to allow the preview of a config file with the ID 'MY_FILE_ID' from a config screen.
+ */
 public class ConfigFilesAction implements Action, StaplerProxy {
     private Job item;
 
