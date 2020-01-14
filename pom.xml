@@ -225,12 +225,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
-            <version>3.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>io.jenkins</groupId>
             <artifactId>configuration-as-code</artifactId>
             <version>1.35</version>
