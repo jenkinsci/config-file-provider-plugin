@@ -103,7 +103,7 @@ public abstract class Config implements Serializable, Describable<Config> {
      */
     @Override
     public ConfigProvider getDescriptor() {
-        return (ConfigProvider) Jenkins.getActiveInstance().getDescriptorOrDie(this.getClass());
+        return (ConfigProvider) Jenkins.get().getDescriptorOrDie(this.getClass());
     }
 
     /**

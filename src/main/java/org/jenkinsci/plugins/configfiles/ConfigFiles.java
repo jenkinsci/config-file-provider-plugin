@@ -29,7 +29,7 @@ public class ConfigFiles {
     }
 
     private static final boolean folderPluginInstalled() {
-        Plugin folderPlugin = Jenkins.getActiveInstance().getPlugin("cloudbees-folder");
+        Plugin folderPlugin = Jenkins.get().getPlugin("cloudbees-folder");
         return (folderPlugin != null);
     }
 

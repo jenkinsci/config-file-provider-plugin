@@ -8,7 +8,7 @@ import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.FilePath;
 import hudson.maven.MavenModuleSet;
 import hudson.model.AbstractBuild;
-import hudson.model.Cause.UserCause;
+import hudson.model.Cause.UserIdCause;
 import hudson.model.Result;
 import hudson.model.TaskListener;
 import org.apache.commons.io.FileUtils;
@@ -63,7 +63,7 @@ public class MvnSettingsCredentialsTest {
         p.setSettings(delegator);
         p.setGlobalSettings(delegator2);
 
-        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
+        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
     }
 
     private static final class DelegatingMvnSettingsProvider extends MvnSettingsProvider {

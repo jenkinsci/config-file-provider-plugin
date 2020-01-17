@@ -42,23 +42,12 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.AbortException;
 import hudson.EnvVars;
 import hudson.FilePath;
-import hudson.model.Build;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.slaves.WorkspaceList;
 
 public class ConfigFileManager {
     private final static Logger LOGGER = Logger.getLogger(ConfigFileManager.class.getName());
-
-    /**
-     * TODO use 1.652 use WorkspaceList.tempDir
-     *
-     * @param ws workspace of the {@link hudson.model.Build}. See {@link Build#getWorkspace()}
-     * @return temporary directory, may not have been created so far
-     */
-    public static FilePath tempDir(FilePath ws) {
-        return ws.sibling(ws.getName() + System.getProperty(WorkspaceList.class.getName(), "@") + "tmp");
-    }
 
     /**
      * Provisions (publishes) the given file to the workspace.
@@ -83,7 +72,7 @@ public class ConfigFileManager {
             throw new AbortException(message);
         }
 
-        FilePath workDir = tempDir(workspace);
+        FilePath workDir = WorkspaceList.tempDir(workspace);
         workDir.mkdirs();
 
         boolean createTempFile = StringUtils.isBlank(configFile.getTargetLocation());

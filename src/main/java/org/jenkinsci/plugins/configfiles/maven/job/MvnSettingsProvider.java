@@ -25,6 +25,7 @@ import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.ItemGroup;
 import hudson.model.TaskListener;
+import hudson.slaves.WorkspaceList;
 import hudson.util.ListBoxModel;
 import jenkins.mvn.SettingsProvider;
 import jenkins.mvn.SettingsProviderDescriptor;
@@ -88,7 +89,7 @@ public class MvnSettingsProvider extends SettingsProvider {
 
                         FilePath workspace = build.getWorkspace();
                         if (workspace != null) {
-                            FilePath workDir = ConfigFileManager.tempDir(workspace);
+                            FilePath workDir = WorkspaceList.tempDir(workspace);
                             String fileContent = config.content;
 
                             final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();

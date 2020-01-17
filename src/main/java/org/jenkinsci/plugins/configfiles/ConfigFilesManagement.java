@@ -30,11 +30,11 @@ import javax.servlet.ServletException;
 
 import hudson.Extension;
 import hudson.Util;
-import hudson.model.Hudson;
 import hudson.model.Item;
 import hudson.model.ManagementLink;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -134,7 +134,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      */
     @POST
     public HttpResponse doSaveConfig(StaplerRequest req) {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(Jenkins.ADMINISTER);
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
@@ -153,7 +153,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     }
 
     public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(Jenkins.ADMINISTER);
 
         Config config = store.getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
@@ -171,7 +171,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      * @throws ServletException
      */
     public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(Jenkins.ADMINISTER);
 
         Config config = store.getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
@@ -191,7 +191,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      */
     @POST
     public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(Jenkins.ADMINISTER);
 
         FormValidation error = null;
         if (providerId == null || providerId.isEmpty()) {
@@ -206,7 +206,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
 
         if (error != null) {
             req.setAttribute("error", error);
-            checkPermission(Hudson.ADMINISTER);
+            checkPermission(Jenkins.ADMINISTER);
             req.setAttribute("providers", ConfigProvider.all());
             req.setAttribute("configId", configId);
             req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);
@@ -233,14 +233,14 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     }
 
     public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(Jenkins.ADMINISTER);
         req.setAttribute("providers", ConfigProvider.all());
         req.setAttribute("configId", UUID.randomUUID().toString());
         req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);
     }
 
     private void checkPermission(Permission permission) {
-        Hudson.getInstance().checkPermission(permission);
+        Jenkins.get().checkPermission(permission);
     }
 
     /**
@@ -253,7 +253,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      * @throws IOException
      */
     public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(Jenkins.ADMINISTER);
 
         store.remove(configId);
 

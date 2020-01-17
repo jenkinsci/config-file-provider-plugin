@@ -60,7 +60,7 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      * All registered {@link ConfigProvider}s.
      */
     public static ExtensionList<ConfigProvider> all() {
-        return Jenkins.getActiveInstance().getExtensionList(ConfigProvider.class);
+        return Jenkins.get().getExtensionList(ConfigProvider.class);
     }
 
     /**
