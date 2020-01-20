@@ -130,7 +130,7 @@ public class MvnSettingsProviderTest {
 
         final FreeStyleProject p = jenkins.createFreeStyleProject();
 
-        String mvnName = ToolInstallations.configureMaven3().getName();
+        String mvnName = ToolInstallations.configureMaven35().getName();
         Config c1 = createSetting(mavenSettingProvider);
         Config c2 = createSetting(globalMavenSettingsConfigProvider);
 
@@ -151,7 +151,7 @@ public class MvnSettingsProviderTest {
 
         final FreeStyleProject p = jenkins.createFreeStyleProject();
 
-        String mvnName = ToolInstallations.configureMaven3().getName();
+        String mvnName = ToolInstallations.configureMaven35().getName();
 
         MvnSettingsProvider s1 = new MvnSettingsProvider("dummyId");
         MvnGlobalSettingsProvider s2 = new MvnGlobalSettingsProvider("dummyGlobalId");
