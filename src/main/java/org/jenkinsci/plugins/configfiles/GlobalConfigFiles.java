@@ -37,7 +37,7 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
     private Collection<Config> configs = new TreeSet<>(COMPARATOR);
 
     public static GlobalConfigFiles get() {
-        GlobalConfigFiles instance = Jenkins.getActiveInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles instance = Jenkins.get().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         if (instance == null) { // TODO would be useful to have an ExtensionList.getOrFail
             throw new IllegalStateException();
         }

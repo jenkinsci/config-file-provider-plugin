@@ -52,7 +52,7 @@ public class ConfigFilesTest {
         @Override
         public ItemGroup getConfigContext(ItemGroup itemGroup) {
             if (isActive) {
-                return Jenkins.getInstance();
+                return Jenkins.get();
             }
             return null;
         }

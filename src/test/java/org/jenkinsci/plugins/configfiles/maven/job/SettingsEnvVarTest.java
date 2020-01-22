@@ -4,7 +4,7 @@ import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
-import hudson.model.Cause.UserCause;
+import hudson.model.Cause.UserIdCause;
 import hudson.model.Result;
 import hudson.tasks.Builder;
 import org.apache.commons.lang.StringUtils;
@@ -56,7 +56,7 @@ public class SettingsEnvVarTest {
 
         p.getPostbuilders().add(new VerifyBuilder());
 
-        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
+        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
     }
 
     private static final class VerifyBuilder extends Builder {

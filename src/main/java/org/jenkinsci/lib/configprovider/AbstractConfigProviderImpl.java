@@ -6,9 +6,7 @@ import hudson.model.listeners.SaveableListener;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -103,7 +101,7 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
 
     @Deprecated
     protected XmlFile getConfigXml() {
-        return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.getActiveInstance().getRootDir(), this.getXmlFileName()));
+        return new XmlFile(Jenkins.XSTREAM, new File(Jenkins.get().getRootDir(), this.getXmlFileName()));
     }
 
     static {
@@ -113,16 +111,6 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     @Deprecated
     protected String getXmlFileName() {
         return getId() + ".xml";
-    }
-
-    private static final class NameComparator implements Comparator<Config>, Serializable {
-        private static final long serialVersionUID = -1L;
-
-        public int compare(Config o1, Config o2) {
-            String a = o1.name != null ? o1.name : "";
-            String b = o2.name != null ? o2.name : "";
-            return a.compareTo(b);
-        }
     }
 
     public void clearOldDataStorage() {

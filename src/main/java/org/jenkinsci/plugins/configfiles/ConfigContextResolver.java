@@ -12,7 +12,7 @@ import jenkins.model.Jenkins;
 public abstract class ConfigContextResolver implements ExtensionPoint {
 
     public static ExtensionList<ConfigContextResolver> all() {
-        return Jenkins.getInstance().getExtensionList(ConfigContextResolver.class);
+        return Jenkins.get().getExtensionList(ConfigContextResolver.class);
     }
     /**
      * Optionally provides the {@link ItemGroup} from which configuration files should be retrieved for the provided

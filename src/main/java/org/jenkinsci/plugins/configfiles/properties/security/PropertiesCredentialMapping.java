@@ -9,7 +9,6 @@ import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.Queue;
-import hudson.model.queue.Tasks;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.util.ListBoxModel;
@@ -52,7 +51,7 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
     public static class DescriptorImpl extends Descriptor<PropertiesCredentialMapping> {
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @QueryParameter String propertyKey) {
-            AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.getActiveInstance());
+            AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.get());
             if (_context == null || !_context.hasPermission(Item.CONFIGURE)) {
                 return new StandardUsernameListBoxModel().includeCurrentValue(propertyKey);
             }
@@ -64,7 +63,7 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
 
             // @formatter:off
             return new StandardUsernameListBoxModel().includeAs(
-                    context instanceof Queue.Task ? Tasks.getDefaultAuthenticationOf((Queue.Task) context) : ACL.SYSTEM,
+                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication() : ACL.SYSTEM,
                     context,
                     StandardUsernameCredentials.class,
                     domainRequirements

@@ -4,6 +4,7 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.ItemGroup;
 import hudson.model.TaskListener;
+import hudson.slaves.WorkspaceList;
 import hudson.model.AbstractBuild;
 
 import java.util.ArrayList;
@@ -18,7 +19,6 @@ import jenkins.mvn.GlobalSettingsProviderDescriptor;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.lib.configprovider.model.ConfigFileManager;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
@@ -87,7 +87,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
 
                         FilePath workspace = build.getWorkspace();
                         if (workspace != null) {
-                            FilePath workDir = ConfigFileManager.tempDir(workspace);
+                            FilePath workDir = WorkspaceList.tempDir(workspace);
                             String fileContent = config.content;
 
                             final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, config.getServerCredentialMappings(), listener);

@@ -7,7 +7,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.*;
-import hudson.model.Cause.UserCause;
+import hudson.model.Cause.UserIdCause;
 import hudson.tasks.Builder;
 import org.apache.commons.io.IOUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
@@ -77,7 +77,7 @@ public class ConfigFileBuildWrapperTest {
         p.addProperty(parametersDefinitionProperty);
         p.getPostbuilders().add(new VerifyEnvVariableBuilder("MVN_SETTING", "/tmp/settings.xml"));
 
-        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
+        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
     }
 
     @Test
@@ -94,7 +94,7 @@ public class ConfigFileBuildWrapperTest {
 
         p.getBuildersList().add(new VerifyFileContentBuilder(mCustom.getTargetLocation(), "echo free"));
 
-        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
+        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
     }
 
     @Test
@@ -111,7 +111,7 @@ public class ConfigFileBuildWrapperTest {
 
         p.getBuildersList().add(new VerifyFileContentBuilder(mCustom.getTargetLocation(), "echo ${ENV, var=\"JOB_NAME\"}"));
 
-        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserCause()).get());
+        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
     }
 
     private static final class VerifyEnvVariableBuilder extends Builder {

@@ -141,7 +141,7 @@ public class MvnSettingsProviderTest {
         p.getBuildersList().add(m);
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
 
-        jenkins.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new Cause.UserCause()).get());
+        jenkins.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new Cause.UserIdCause()).get());
     }
 
     @Test
@@ -160,6 +160,6 @@ public class MvnSettingsProviderTest {
         p.getBuildersList().add(m);
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
 
-        jenkins.assertBuildStatus(Result.FAILURE, p.scheduleBuild2(0, new Cause.UserCause()).get());
+        jenkins.assertBuildStatus(Result.FAILURE, p.scheduleBuild2(0, new Cause.UserIdCause()).get());
     }
 }

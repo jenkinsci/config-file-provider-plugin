@@ -2,7 +2,6 @@ package org.jenkinsci.plugins.configfiles;
 
 import hudson.Extension;
 import hudson.model.Action;
-import hudson.model.FreeStyleProject;
 import hudson.model.Job;
 import jenkins.model.TransientActionFactory;
 

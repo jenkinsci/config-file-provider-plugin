@@ -94,7 +94,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
 
     @Override
     public Descriptor<ManagedFile> getDescriptor() {
-        return (DescriptorImpl) Jenkins.getActiveInstance().getDescriptorOrDie(getClass());
+        return (DescriptorImpl) Jenkins.get().getDescriptorOrDie(getClass());
     }
 
 
