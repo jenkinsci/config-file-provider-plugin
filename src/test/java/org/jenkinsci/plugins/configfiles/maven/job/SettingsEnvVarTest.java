@@ -41,7 +41,7 @@ public class SettingsEnvVarTest {
 
         final MavenModuleSet p = j.createProject(MavenModuleSet.class);
 
-        p.setMaven(ToolInstallations.configureMaven3().getName());
+        p.setMaven(ToolInstallations.configureMaven35().getName());
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
         p.setGoals("initialize");
 

@@ -64,7 +64,7 @@ public class ConfigFileBuildWrapperTest {
         final MavenModuleSet p = j.createProject(MavenModuleSet.class);
 
         // p.getBuildWrappersList().add(new ConfigFileBuildWrapper(managedFiles))
-        p.setMaven(ToolInstallations.configureMaven3().getName());
+        p.setMaven(ToolInstallations.configureMaven35().getName());
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
         p.setGoals("initialize"); // -s ${MVN_SETTING}
 
