@@ -43,15 +43,15 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.Secret;
 
-public class CredentialsHelper {
+public class ServerCredentialsHelper {
 
-    private static final Logger LOGGER = Logger.getLogger(CredentialsHelper.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ServerCredentialsHelper.class.getName());
     private static final Collection<String> ATTRIBUTES_TO_KEEP = Arrays.asList("filePermissions", "directoryPermissions", "configuration");
 
     /**
      * hide constructor
      */
-    private CredentialsHelper() {
+    private ServerCredentialsHelper() {
     }
 
     /**

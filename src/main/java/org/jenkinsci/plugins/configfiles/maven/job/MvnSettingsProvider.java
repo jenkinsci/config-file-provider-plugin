@@ -8,12 +8,11 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.lib.configprovider.model.ConfigFileManager;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
-import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
+import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialsHelper;
 import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -93,12 +92,12 @@ public class MvnSettingsProvider extends SettingsProvider {
                             String fileContent = config.content;
 
                             final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
-                            final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, serverCredentialMappings, listener);
+                            final Map<String, StandardUsernameCredentials> resolvedCredentials = ServerCredentialsHelper.resolveCredentials(build, serverCredentialMappings, listener);
                             final Boolean isReplaceAll = config.getIsReplaceAll();
 
                             if (!resolvedCredentials.isEmpty()) {
                                 List<String> tempFiles = new ArrayList<String>();
-                                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+                                fileContent = ServerCredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
                                 for (String tempFile : tempFiles) {
                                     build.addAction(new CleanTempFilesAction(tempFile));
                                 }

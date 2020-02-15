@@ -23,7 +23,7 @@ import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
-import org.jenkinsci.plugins.configfiles.maven.security.CredentialsHelper;
+import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialsHelper;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -90,12 +90,12 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                             FilePath workDir = WorkspaceList.tempDir(workspace);
                             String fileContent = config.content;
 
-                            final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, config.getServerCredentialMappings(), listener);
+                            final Map<String, StandardUsernameCredentials> resolvedCredentials = ServerCredentialsHelper.resolveCredentials(build, config.getServerCredentialMappings(), listener);
                             final Boolean isReplaceAll = config.getIsReplaceAll();
 
                             if (resolvedCredentials != null && !resolvedCredentials.isEmpty()) {
                                 List<String> tempFiles = new ArrayList<String>();
-                                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+                                fileContent = ServerCredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
                                 for (String tempFile : tempFiles) {
                                     build.addAction(new CleanTempFilesAction(tempFile));
                                 }
