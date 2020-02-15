@@ -12,8 +12,8 @@ import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
-import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialsHelper;
-import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
+import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialsHelper;
+import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialMapping;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 

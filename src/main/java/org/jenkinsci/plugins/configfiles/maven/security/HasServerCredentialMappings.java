@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
+import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialMapping;
+
 import java.util.List;
 
 /**

@@ -31,7 +31,7 @@ import java.util.Map;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
-import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialsHelper;
+import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialsHelper;
 import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;

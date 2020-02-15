@@ -17,7 +17,7 @@ import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
-import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
+import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialMapping;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;

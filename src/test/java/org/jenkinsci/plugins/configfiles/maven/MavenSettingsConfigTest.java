@@ -28,7 +28,7 @@ import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import java.util.Collections;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
-import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
+import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialMapping;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;

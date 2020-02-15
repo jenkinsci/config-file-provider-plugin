@@ -36,7 +36,7 @@ import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
 import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
-import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
+import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialMapping;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class MavenSettingsConfig extends Config implements HasServerCredentialMappings {

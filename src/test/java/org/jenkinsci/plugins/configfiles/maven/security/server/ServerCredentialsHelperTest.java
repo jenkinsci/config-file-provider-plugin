@@ -1,5 +1,5 @@
 
-package org.jenkinsci.plugins.configfiles.maven.security;
+package org.jenkinsci.plugins.configfiles.maven.security.server;
 
 import java.io.StringReader;
 import java.util.ArrayList;
