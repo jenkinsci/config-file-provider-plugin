@@ -23,22 +23,21 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import hudson.FilePath;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
+import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ContentType;
+import org.jenkinsci.plugins.configfiles.maven.security.HasCredentialMappings;
+import org.jenkinsci.plugins.configfiles.maven.security.proxy.ProxyCredentialsHelper;
+import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialsHelper;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
-import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.lib.configprovider.model.ContentType;
-import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialsHelper;
-import org.jenkinsci.plugins.configfiles.maven.security.HasCredentialMappings;
-
-import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
-
-import hudson.FilePath;
-import hudson.model.Run;
-import hudson.model.TaskListener;
 
 /**
  * @author Olivier Lamy
@@ -66,17 +65,28 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
     @Override
     public String supplyContent(Config configFile, Run<?, ?> build, FilePath workDir, TaskListener listener, List<String> tempFiles) throws IOException {
         HasCredentialMappings settings = (HasCredentialMappings) configFile;
-        final Map<String, StandardUsernameCredentials> resolvedCredentials = ServerCredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings(), listener);
+        final Map<String, StandardUsernameCredentials> resolvedServerCredentials = ServerCredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings(), listener);
         final Boolean isReplaceAll = settings.getIsReplaceAll();
 
         String fileContent = super.supplyContent(configFile, build, workDir, listener, tempFiles);
-        if (!resolvedCredentials.isEmpty()) {
+        if (!resolvedServerCredentials.isEmpty()) {
             try {
-                fileContent = ServerCredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+                fileContent = ServerCredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedServerCredentials, workDir, tempFiles);
             } catch (Exception exception) {
-                throw new IOException("[ERROR] could not insert credentials into the settings file " + configFile, exception);
+                throw new IOException("[ERROR] could not insert server credentials into the settings file " + configFile, exception);
             }
         }
+
+        final Map<String, StandardUsernameCredentials> resolvedProxyCredentials = ProxyCredentialsHelper.resolveCredentials(build, settings.getProxyCredentialMappings(), listener);
+
+        if (!resolvedProxyCredentials.isEmpty()) {
+            try {
+                fileContent = ProxyCredentialsHelper.fillAuthentication(fileContent, resolvedProxyCredentials);
+            } catch (Exception exception) {
+                throw new IOException("[ERROR] could not insert proxy credentials into the settings file " + configFile, exception);
+            }
+        }
+
         return fileContent;
     }
 }

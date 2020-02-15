@@ -50,7 +50,7 @@ public class MavenSettingsConfigTest {
     public void withCredentials() throws Exception {
         // Smokes:
         SystemCredentialsProvider.getInstance().getCredentials().add(new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, "creds", "", "bot", "s3cr3t"));
-        GlobalConfigFiles.get().save(new MavenSettingsConfig("m2settings", "m2settings", "", "<settings/>", true, Collections.singletonList(new ServerCredentialMapping("myserver", "creds"))));
+        GlobalConfigFiles.get().save(new MavenSettingsConfig("m2settings", "m2settings", "", "<settings/>", true, Collections.singletonList(new ServerCredentialMapping("myserver", "creds")), null));
         WorkflowJob p = r.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition("node {configFileProvider([configFile(fileId: 'm2settings', variable: 'SETTINGS')]) {echo readFile(env.SETTINGS)}}", true));
         r.assertLogContains("<password>s3cr3t</password>", r.buildAndAssertSuccess(p));

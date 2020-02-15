@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
+import org.jenkinsci.plugins.configfiles.maven.security.proxy.ProxyCredentialMapping;
 import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialMapping;
 
 import java.util.List;
@@ -13,4 +14,5 @@ public interface HasCredentialMappings {
 	public abstract List<ServerCredentialMapping> getServerCredentialMappings();
 	public abstract Boolean getIsReplaceAll();
 
+	public abstract List<ProxyCredentialMapping> getProxyCredentialMappings();
 }

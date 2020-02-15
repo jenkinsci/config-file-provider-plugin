@@ -118,11 +118,11 @@ public class MvnSettingsCredentialsTest {
         store.addCredentials(Domain.global(), new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, "credid", "dummy desc", "foo", "bar"));
 
         ServerCredentialMapping mapping = new ServerCredentialMapping("myserver", "credid");
-        List<ServerCredentialMapping> mappings = new ArrayList<ServerCredentialMapping>();
-        mappings.add(mapping);
+        List<ServerCredentialMapping> serverCredentialMappings = new ArrayList<ServerCredentialMapping>();
+        serverCredentialMappings.add(mapping);
 
         MavenSettingsConfig c1 = (MavenSettingsConfig) provider.newConfig();
-        MavenSettingsConfig c2 = new MavenSettingsConfig(c1.id + "dummy", c1.name, c1.comment, c1.content, MavenSettingsConfig.isReplaceAllDefault, mappings);
+        MavenSettingsConfig c2 = new MavenSettingsConfig(c1.id + "dummy", c1.name, c1.comment, c1.content, MavenSettingsConfig.isReplaceAllDefault, serverCredentialMappings, null);
 
         GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c2);
@@ -136,11 +136,11 @@ public class MvnSettingsCredentialsTest {
         store.addCredentials(Domain.global(), new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, "dudecredid", "dummy desc", "dude", "dudepwd"));
 
         ServerCredentialMapping mapping = new ServerCredentialMapping("someserver", "dudecredid");
-        List<ServerCredentialMapping> mappings = new ArrayList<ServerCredentialMapping>();
-        mappings.add(mapping);
+        List<ServerCredentialMapping> serverCredentialMappings = new ArrayList<ServerCredentialMapping>();
+        serverCredentialMappings.add(mapping);
 
         GlobalMavenSettingsConfig c1 = (GlobalMavenSettingsConfig) provider.newConfig();
-        GlobalMavenSettingsConfig c2 = new GlobalMavenSettingsConfig(c1.id + "dummy2", c1.name, c1.comment, c1.content,  GlobalMavenSettingsConfig.isReplaceAllDefault, mappings);
+        GlobalMavenSettingsConfig c2 = new GlobalMavenSettingsConfig(c1.id + "dummy2", c1.name, c1.comment, c1.content,  GlobalMavenSettingsConfig.isReplaceAllDefault, serverCredentialMappings, null);
 
         GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c2);

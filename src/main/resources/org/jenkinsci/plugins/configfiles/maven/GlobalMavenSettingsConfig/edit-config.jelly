@@ -49,8 +49,14 @@ div.credentialssection {
 		            <f:repeatableDeleteButton />
 		          </div>
 			</f:entry>
-			
-                     
+
+			<f:entry title="${%Proxy Credentials}" field="proxyCredentialMappings">
+				<f:repeatableProperty field="proxyCredentialMappings" />
+				<div align="right">
+					<f:repeatableDeleteButton />
+				</div>
+			</f:entry>
+
                   <f:entry title="${%Content}">
                       <f:textarea id="config.content" name="config.content" value="${config.content}" /> 
                   </f:entry>

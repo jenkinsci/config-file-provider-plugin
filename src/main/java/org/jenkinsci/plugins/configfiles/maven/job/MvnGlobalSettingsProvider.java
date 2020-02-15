@@ -23,6 +23,7 @@ import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
+import org.jenkinsci.plugins.configfiles.maven.security.proxy.ProxyCredentialsHelper;
 import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialsHelper;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -77,7 +78,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                 if (c instanceof GlobalMavenSettingsConfig) {
                     config = (GlobalMavenSettingsConfig) c;
                 } else {
-                    config = new GlobalMavenSettingsConfig(c.id, c.name, c.comment, c.content, GlobalMavenSettingsConfig.isReplaceAllDefault, null);
+                    config = new GlobalMavenSettingsConfig(c.id, c.name, c.comment, c.content, GlobalMavenSettingsConfig.isReplaceAllDefault, null, null);
                 }
 
                 listener.getLogger().println("using global settings config with name " + config.name);
@@ -90,15 +91,21 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                             FilePath workDir = WorkspaceList.tempDir(workspace);
                             String fileContent = config.content;
 
-                            final Map<String, StandardUsernameCredentials> resolvedCredentials = ServerCredentialsHelper.resolveCredentials(build, config.getServerCredentialMappings(), listener);
+                            final Map<String, StandardUsernameCredentials> resolvedServerCredentials = ServerCredentialsHelper.resolveCredentials(build, config.getServerCredentialMappings(), listener);
                             final Boolean isReplaceAll = config.getIsReplaceAll();
 
-                            if (resolvedCredentials != null && !resolvedCredentials.isEmpty()) {
+                            if (resolvedServerCredentials != null && !resolvedServerCredentials.isEmpty()) {
                                 List<String> tempFiles = new ArrayList<String>();
-                                fileContent = ServerCredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+                                fileContent = ServerCredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedServerCredentials, workDir, tempFiles);
                                 for (String tempFile : tempFiles) {
                                     build.addAction(new CleanTempFilesAction(tempFile));
                                 }
+                            }
+
+                            final Map<String, StandardUsernameCredentials> resolvedProxyCredentials = ProxyCredentialsHelper.resolveCredentials(build, config.getProxyCredentialMappings(), listener);
+
+                            if (resolvedProxyCredentials != null && !resolvedProxyCredentials.isEmpty()) {
+                                fileContent = ProxyCredentialsHelper.fillAuthentication(fileContent, resolvedProxyCredentials);
                             }
 
                             FilePath configurationFile = workspace.createTextTempFile("global-settings", ".xml", fileContent, false);

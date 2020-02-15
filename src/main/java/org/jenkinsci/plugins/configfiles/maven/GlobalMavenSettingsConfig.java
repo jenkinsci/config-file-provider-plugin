@@ -23,25 +23,26 @@
  */
 package org.jenkinsci.plugins.configfiles.maven;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import jenkins.model.Jenkins;
-
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
 import org.jenkinsci.plugins.configfiles.maven.security.HasCredentialMappings;
+import org.jenkinsci.plugins.configfiles.maven.security.proxy.ProxyCredentialMapping;
 import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialMapping;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class GlobalMavenSettingsConfig extends Config implements HasCredentialMappings {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+    public class GlobalMavenSettingsConfig extends Config implements HasCredentialMappings {
     private static final long serialVersionUID = 1L;
 
     private List<ServerCredentialMapping> serverCredentialMappings;
+    private List<ProxyCredentialMapping> proxyCredentialMappings;
 
     /**
      * Should server elements not contained in the credentials list be merged, or cleaned.
@@ -51,9 +52,10 @@ public class GlobalMavenSettingsConfig extends Config implements HasCredentialMa
     public static final Boolean isReplaceAllDefault = Boolean.TRUE;
 
     @DataBoundConstructor
-    public GlobalMavenSettingsConfig(String id, String name, String comment, String content, Boolean isReplaceAll, List<ServerCredentialMapping> serverCredentialMappings) {
+    public GlobalMavenSettingsConfig(String id, String name, String comment, String content, Boolean isReplaceAll, List<ServerCredentialMapping> serverCredentialMappings, List<ProxyCredentialMapping> proxyCredentialMappings) {
         super(id, name, comment, content, GlobalMavenSettingsConfigProvider.class.getName());
         this.serverCredentialMappings = serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
+        this.proxyCredentialMappings = proxyCredentialMappings == null ? new ArrayList<ProxyCredentialMapping>() : proxyCredentialMappings;
         this.isReplaceAll = (null == isReplaceAll) ? isReplaceAllDefault : isReplaceAll;
     }
     
@@ -63,6 +65,10 @@ public class GlobalMavenSettingsConfig extends Config implements HasCredentialMa
 
     public List<ServerCredentialMapping> getServerCredentialMappings() {
         return serverCredentialMappings == null ? new ArrayList<ServerCredentialMapping>() : serverCredentialMappings;
+    }
+
+    public List<ProxyCredentialMapping> getProxyCredentialMappings() {
+        return proxyCredentialMappings == null ? new ArrayList<ProxyCredentialMapping>() : proxyCredentialMappings;
     }
 
     public Boolean getIsReplaceAll() {
@@ -94,7 +100,9 @@ public class GlobalMavenSettingsConfig extends Config implements HasCredentialMa
                 Messages.GlobalMavenSettingsConfig_MyGlobalSettingsComment(),
                 loadTemplateContent(),
                 GlobalMavenSettingsConfig.isReplaceAllDefault,
-                Collections.emptyList());
+                Collections.emptyList(),
+                Collections.emptyList()
+            );
         }
 
         // ======================

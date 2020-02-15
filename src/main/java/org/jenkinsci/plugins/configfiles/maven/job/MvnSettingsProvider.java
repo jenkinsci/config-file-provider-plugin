@@ -8,10 +8,13 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ConfigFileManager;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
+import org.jenkinsci.plugins.configfiles.maven.security.proxy.ProxyCredentialMapping;
+import org.jenkinsci.plugins.configfiles.maven.security.proxy.ProxyCredentialsHelper;
 import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialsHelper;
 import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialMapping;
 import org.kohsuke.stapler.AncestorInPath;
@@ -78,7 +81,7 @@ public class MvnSettingsProvider extends SettingsProvider {
                 if (c instanceof MavenSettingsConfig) {
                     config = (MavenSettingsConfig) c;
                 } else {
-                    config = new MavenSettingsConfig(c.id, c.name, c.comment, c.content, MavenSettingsConfig.isReplaceAllDefault, null);
+                    config = new MavenSettingsConfig(c.id, c.name, c.comment, c.content, MavenSettingsConfig.isReplaceAllDefault, null, null);
                 }
 
                 listener.getLogger().println("using settings config with name " + config.name);
@@ -92,15 +95,22 @@ public class MvnSettingsProvider extends SettingsProvider {
                             String fileContent = config.content;
 
                             final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
-                            final Map<String, StandardUsernameCredentials> resolvedCredentials = ServerCredentialsHelper.resolveCredentials(build, serverCredentialMappings, listener);
+                            final Map<String, StandardUsernameCredentials> resolvedServerCredentials = ServerCredentialsHelper.resolveCredentials(build, serverCredentialMappings, listener);
                             final Boolean isReplaceAll = config.getIsReplaceAll();
 
-                            if (!resolvedCredentials.isEmpty()) {
+                            if (!resolvedServerCredentials.isEmpty()) {
                                 List<String> tempFiles = new ArrayList<String>();
-                                fileContent = ServerCredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+                                fileContent = ServerCredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedServerCredentials, workDir, tempFiles);
                                 for (String tempFile : tempFiles) {
                                     build.addAction(new CleanTempFilesAction(tempFile));
                                 }
+                            }
+
+                            final List<ProxyCredentialMapping> proxyCredentialMappings = config.getProxyCredentialMappings();
+                            final Map<String, StandardUsernameCredentials> resolvedProxyCredentials = ProxyCredentialsHelper.resolveCredentials(build, proxyCredentialMappings, listener);
+
+                            if (!resolvedProxyCredentials.isEmpty()) {
+                                fileContent = ProxyCredentialsHelper.fillAuthentication(fileContent, resolvedServerCredentials);
                             }
 
                             final FilePath f = workspace.createTextTempFile("settings", ".xml", fileContent, false);

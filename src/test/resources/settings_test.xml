@@ -59,6 +59,32 @@
             network. | <proxy> <id>optional</id> <active>true</active> <protocol>http</protocol> 
             <username>proxyuser</username> <password>proxypass</password> <host>proxy.host.net</host> 
             <port>80</port> <nonProxyHosts>local.net|some.host.com</nonProxyHosts> </proxy> -->
+        <proxy>
+            <id>proxy1</id>
+            <active>true</active>
+            <protocol>http</protocol>
+            <host>129.168.0.1</host>
+            <port>8080</port>
+            <username>[placeholder]</username>
+            <password>[placeholder]</password>
+            <nonProxyHosts>localhost|127.0.0.1</nonProxyHosts>
+        </proxy>
+        <proxy>
+            <id>proxy2</id>
+            <active>true</active>
+            <protocol>http</protocol>
+            <host>129.168.0.2</host>
+            <port>8080</port>
+            <nonProxyHosts>localhost|127.0.0.1</nonProxyHosts>
+        </proxy>
+        <proxy>
+            <id>proxy3</id>
+            <active>true</active>
+            <protocol>http</protocol>
+            <host>localhost</host>
+            <port>8080</port>
+            <nonProxyHosts>localhost|127.0.0.1</nonProxyHosts>
+        </proxy>
     </proxies>
 
     <!-- servers | This is a list of authentication profiles, keyed by the server-id 
