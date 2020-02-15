@@ -32,7 +32,7 @@ import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialsHelper;
-import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
+import org.jenkinsci.plugins.configfiles.maven.security.HasCredentialMappings;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 
@@ -65,7 +65,7 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
 
     @Override
     public String supplyContent(Config configFile, Run<?, ?> build, FilePath workDir, TaskListener listener, List<String> tempFiles) throws IOException {
-        HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
+        HasCredentialMappings settings = (HasCredentialMappings) configFile;
         final Map<String, StandardUsernameCredentials> resolvedCredentials = ServerCredentialsHelper.resolveCredentials(build, settings.getServerCredentialMappings(), listener);
         final Boolean isReplaceAll = settings.getIsReplaceAll();
 

@@ -35,11 +35,11 @@ import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
-import org.jenkinsci.plugins.configfiles.maven.security.HasServerCredentialMappings;
+import org.jenkinsci.plugins.configfiles.maven.security.HasCredentialMappings;
 import org.jenkinsci.plugins.configfiles.maven.security.server.ServerCredentialMapping;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class MavenSettingsConfig extends Config implements HasServerCredentialMappings {
+public class MavenSettingsConfig extends Config implements HasCredentialMappings {
     private static final long serialVersionUID = 1L;
 
     private List<ServerCredentialMapping> serverCredentialMappings;
