@@ -105,6 +105,10 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         return "configfiles";
     }
 
+    public String getCategoryName() {
+        return "CONFIGURATION";
+    }
+
     public ContentType getContentTypeForProvider(String providerId) {
         for (ConfigProvider provider : ConfigProvider.all()) {
             if (provider.getProviderId().equals(providerId)) {
