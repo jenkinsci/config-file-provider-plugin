@@ -1,4 +1,12 @@
-_extends: .github
-name-template: v$NEXT_MINOR_VERSION 🌈
-tag-template: config-file-provider-$NEXT_MINOR_VERSION
-version-template: $MAJOR.$MINOR.$PATCH
+name: Release Drafter
+on:
+  push:
+    branches:
+      - master
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v5.11.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
