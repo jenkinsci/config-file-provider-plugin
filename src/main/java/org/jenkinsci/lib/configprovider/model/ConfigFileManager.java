@@ -73,6 +73,9 @@ public class ConfigFileManager {
         }
 
         FilePath workDir = WorkspaceList.tempDir(workspace);
+        if (workDir == null) {
+            throw new IllegalArgumentException("Don't configure a workspace to be the file system root, it must be in a child directory");
+        }
         workDir.mkdirs();
 
         boolean createTempFile = StringUtils.isBlank(configFile.getTargetLocation());
