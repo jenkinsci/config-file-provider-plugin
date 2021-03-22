@@ -106,7 +106,7 @@
         <dependency> <!-- FilePathUtils -->
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-api</artifactId>
-            <version>2.30</version>
+            <version>2.42</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
