@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -115,7 +116,13 @@ public class CredentialsHelper {
         if (mavenServerId2jenkinsCredential.isEmpty()) {
             return mavenSettingsContent;
         }
-        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(content)));
+
+        // TODO: switch to XMLUtils.parse(Reader) when the baseline > 2.179 or  XMLUtils.parse(InputSteam) > 2.265
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        //documentBuilderFactory.isValidating() is false by default, so these attributes won't avoid to parse an usual maven settings.
+        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        Document doc = documentBuilderFactory.newDocumentBuilder().parse(new InputSource(new StringReader(content)));
 
         Map<String, Node> removedMavenServers = Collections.emptyMap();
 
