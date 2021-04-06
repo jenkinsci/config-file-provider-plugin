@@ -47,6 +47,7 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.verb.POST;
 
 /**
@@ -256,6 +257,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      * @return forward to 'index'
      * @throws IOException
      */
+    @RequirePOST
     public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
         checkPermission(Jenkins.ADMINISTER);
 

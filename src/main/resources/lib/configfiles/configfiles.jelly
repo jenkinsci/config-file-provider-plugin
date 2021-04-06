@@ -49,10 +49,10 @@ THE SOFTWARE.
                                      src="${imagesURL}/16x16/document_edit.gif"/>
                             </a>
                             <j:out value=" "/>
-                            <a href="removeConfig?id=${t.id}" onclick="return cfp_confirmDelete(this)" data-confirm="${t.name}">
+                            <l:confirmationLink href="removeConfig?id=${t.id}" post="true" message="Sure you want to delete [${t.name}]?">
                                 <img width="16" height="16" title="${%remove script} ${t.name}"
                                      src="${imagesURL}/16x16/edit-delete.gif"/>
-                            </a>
+                            </l:confirmationLink>
                         </td>
                         <td>
                             <i>
@@ -78,14 +78,4 @@ THE SOFTWARE.
             </table>
         </j:forEach>
     </div>
-    <script>
-        function cfp_confirmDelete(anchor) {
-            var confirmMessage = anchor.getAttribute("data-confirm");
-            if (confirm("Sure you want to delete ["+confirmMessage+"]?")) {
-                return true;
-            }else{
-                return false;
-            }
-        }
-    </script>
 </j:jelly>

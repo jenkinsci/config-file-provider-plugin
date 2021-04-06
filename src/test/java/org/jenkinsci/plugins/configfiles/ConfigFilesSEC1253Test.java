@@ -55,7 +55,7 @@ public class ConfigFilesSEC1253Test {
         assertThat(store.getConfigs(), hasSize(1));
 
         HtmlPage configFiles = wc.goTo("configfiles");
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getOneHtmlElementByAttribute("a", "href", "removeConfig?id=" + CONFIG_ID);
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@onclick, 'removeConfig?id=" + CONFIG_ID + "')]");
 
         AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
         wc.setConfirmHandler((page, s) -> {
@@ -87,7 +87,7 @@ public class ConfigFilesSEC1253Test {
         JenkinsRule.WebClient wc = j.createWebClient();
 
         HtmlPage configFiles = wc.goTo("configfiles");
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getOneHtmlElementByAttribute("a", "href", "removeConfig?id=" + CONFIG_ID);
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@onclick, 'removeConfig?id=" + CONFIG_ID + "')]");
 
         AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
         AtomicReference<Boolean> alertCalled = new AtomicReference<>(false);
