@@ -68,6 +68,16 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     }
 
     /**
+     * The global configuration actions are exclusive of Jenkins administer.
+     * @return The target.
+     */
+    @Override
+    public Object getTarget() {
+        checkPermission(Jenkins.ADMINISTER);
+        return this;
+    }
+    
+    /**
      * @see hudson.model.Action#getDisplayName()
      */
     public String getDisplayName() {
@@ -139,7 +149,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      */
     @POST
     public HttpResponse doSaveConfig(StaplerRequest req) {
-        checkPermission(Jenkins.ADMINISTER);
+        // permission handled in getTarget
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
@@ -158,7 +168,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     }
 
     public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
-        checkPermission(Jenkins.ADMINISTER);
+        // permission handled in getTarget
 
         Config config = store.getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
@@ -176,7 +186,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      * @throws ServletException
      */
     public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
-        checkPermission(Jenkins.ADMINISTER);
+        // permission handled in getTarget
 
         Config config = store.getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
@@ -196,7 +206,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      */
     @POST
     public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
-        checkPermission(Jenkins.ADMINISTER);
+        // permission handled in getTarget
 
         FormValidation error = null;
         if (providerId == null || providerId.isEmpty()) {
@@ -238,7 +248,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     }
 
     public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        checkPermission(Jenkins.ADMINISTER);
+        // permission handled in getTarget
         req.setAttribute("providers", ConfigProvider.all());
         req.setAttribute("configId", UUID.randomUUID().toString());
         req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);
@@ -259,7 +269,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      */
     @RequirePOST
     public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
-        checkPermission(Jenkins.ADMINISTER);
+        // permission handled in getTarget
 
         store.remove(configId);
 
@@ -267,6 +277,8 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     }
 
     public FormValidation doCheckConfigId(@QueryParameter("configId") String configId) {
+        // permission handled in getTarget
+
         if (configId == null || configId.isEmpty()) {
             return FormValidation.warning(Messages.ConfigFilesManagement_configIdCannotBeEmpty());
         }
@@ -281,12 +293,5 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         } else {
             return FormValidation.warning(Messages.ConfigFilesManagement_configIdAlreadyUsed(config.name, config.id));
         }
-    }
-
-
-    @Override
-    public Object getTarget() {
-        checkPermission(Item.EXTENDED_READ);
-        return this;
     }
 }
