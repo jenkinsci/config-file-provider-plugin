@@ -238,6 +238,8 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public FormValidation doCheckConfigId(@QueryParameter("configId") String configId) {
+        checkPermission(Job.CONFIGURE);
+        
         if (configId == null || configId.isEmpty()) {
             return FormValidation.warning(Messages.ConfigFilesManagement_configIdCannotBeEmpty());
         }

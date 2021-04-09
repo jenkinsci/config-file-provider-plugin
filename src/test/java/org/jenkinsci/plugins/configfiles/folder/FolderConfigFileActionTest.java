@@ -3,6 +3,9 @@ package org.jenkinsci.plugins.configfiles.folder;
 import com.cloudbees.hudson.plugins.folder.Folder;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import hudson.model.Item;
+import jenkins.model.Jenkins;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -19,6 +22,7 @@ import org.junit.Test;
 import org.jvnet.hudson.test.BuildWatcher;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.MockAuthorizationStrategy;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -27,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -250,6 +255,40 @@ public class FolderConfigFileActionTest {
         assertThat(store.getConfigs(), empty());
     }
 
+    @Test
+    @Issue("SECURITY-2203")
+    public void folderCheckConfigIdProtected() throws Exception {
+        // ----------
+        // Create a new folder
+        Folder f1 = createFolder();
+        f1.save();
+
+        // ----------
+        // let's allow all people to see the folder, but not configure it
+        r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                // read access to everyone
+                .grant(Jenkins.READ).everywhere().toEveryone()
+                .grant(Item.DISCOVER).everywhere().toAuthenticated()
+                .grant(Item.READ).onItems(f1).toEveryone()
+                        
+                // config access on the folder to this user
+                .grant(Item.CONFIGURE).onFolders(f1).to("folderConfigurer")
+        );
+
+        // ----------
+        // An user without permission cannot see the form to add a new config file
+        JenkinsRule.WebClient wc = r.createWebClient();
+        wc.login("reader");
+        wc.assertFails(f1.getUrl() +  "configfiles/selectProvider", 404);
+
+        // ----------
+        // The person with permission can access
+        wc.login("folderConfigurer");
+        HtmlPage page = wc.goTo(f1.getUrl() +  "configfiles/selectProvider");
+        MatcherAssert.assertThat(page, notNullValue());
+    }
+    
     private CpsFlowDefinition getNewJobDefinition() {
         return new CpsFlowDefinition("" +
                 "node {\n" +

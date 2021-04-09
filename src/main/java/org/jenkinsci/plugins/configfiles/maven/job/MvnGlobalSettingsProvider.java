@@ -2,6 +2,7 @@ package org.jenkinsci.plugins.configfiles.maven.job;
 
 import hudson.Extension;
 import hudson.FilePath;
+import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.TaskListener;
 import hudson.slaves.WorkspaceList;
@@ -130,7 +131,9 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
             return "provided global settings.xml";
         }
 
-        public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context) {
+        public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project) {
+            project.checkPermission(Item.CONFIGURE);
+            
             ListBoxModel items = new ListBoxModel();
             items.add("please select", "");
             for (Config config : ConfigFiles.getConfigsInContext(context, GlobalMavenSettingsConfigProvider.class)) {

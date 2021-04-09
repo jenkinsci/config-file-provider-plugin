@@ -106,7 +106,10 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
             return "";
         }
 
-        public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context) {
+        public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project) {
+            // You should have permission to configure your project in order to get the available managed files
+            project.checkPermission(Item.CONFIGURE);
+            
             ListBoxModel items = new ListBoxModel();
             items.add("please select", "");
             for (Config config : ConfigFiles.getConfigsInContext(context, null)) {
@@ -124,6 +127,10 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
          * @return a validation result / description
          */
         public HttpResponse doCheckFileId(StaplerRequest req, @AncestorInPath Item context, @QueryParameter String fileId) {
+            // You should have permission to configure your project in order to check whether the selected file id is
+            // allowed to you
+            context.checkPermission(Item.CONFIGURE);
+            
             final Config config = ConfigFiles.getByIdOrNull(context, fileId);
             if (config != null) {
                 return ConfigFileDetailLinkDescription.getDescription(req, context, fileId);
