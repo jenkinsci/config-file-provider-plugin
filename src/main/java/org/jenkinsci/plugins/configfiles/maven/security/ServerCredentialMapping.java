@@ -1,10 +1,13 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.cloudbees.plugins.credentials.CredentialsProvider;
 import hudson.model.*;
+import hudson.security.Permission;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -48,12 +51,16 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     @Extension
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
 
-        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @QueryParameter String serverId) {
-            AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.get());
-            if (_context == null || !_context.hasPermission(Item.CONFIGURE)) {
+        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item projectOrFolder, @QueryParameter String serverId) {
+            List<Permission> permsToCheck = projectOrFolder == null ? Arrays.asList(Jenkins.ADMINISTER) : Arrays.asList(Item.EXTENDED_READ, CredentialsProvider.USE_ITEM);
+            AccessControlled contextToCheck = projectOrFolder == null ? Jenkins.get() : projectOrFolder;
+            
+            // If we're on the global page and we don't have administer permission or if we're in a project or folder 
+            // and we don't have permission to use credentials and extended read in the item
+            if (permsToCheck.stream().anyMatch( per -> !contextToCheck.hasPermission(per))) {
                 return new StandardUsernameListBoxModel().includeCurrentValue(serverId);
             }
-
+            
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (StringUtils.isNotBlank(serverId)) {
                 domainRequirements = Collections.singletonList(new MavenServerIdRequirement(serverId));
