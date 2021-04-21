@@ -111,7 +111,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                             build.addAction(new CleanTempFilesAction(configurationFile.getRemote()));
                             return configurationFile;
                         } else {
-                            listener.getLogger().println("ERROR: can't supply maven settings, workspace is null / slave seems not connected...");
+                            listener.getLogger().println("ERROR: can't supply maven settings, workspace is null / agent seems not connected...");
                         }
                     } catch (Exception e) {
                         throw new IllegalStateException("the global settings.xml could not be supplied for the current build: " + e.getMessage());
