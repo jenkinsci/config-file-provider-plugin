@@ -87,7 +87,6 @@ public abstract class AbstractConfigProviderImpl extends ConfigProvider {
     /**
      * Overridden for backward compatibility to let subtype customize the file name.
      */
-    @Deprecated
     public void load() {
         XmlFile xml = getConfigXml();
         if (xml.exists()) {
