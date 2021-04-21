@@ -23,30 +23,49 @@
  */
 package org.jenkinsci.plugins.configfiles.custom;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.jenkinsci.plugins.configfiles.Messages;
+import org.jenkinsci.plugins.configfiles.custom.security.CustomizedCredentialMapping;
+import org.jenkinsci.plugins.configfiles.custom.security.HasCustomizedCredentialMappings;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class CustomConfig extends Config {
+public class CustomConfig extends Config implements HasCustomizedCredentialMappings {
     private static final long serialVersionUID = 1L;
 
-    @DataBoundConstructor
+    private List<CustomizedCredentialMapping> customizedCredentialMappings;
+
     public CustomConfig(String id, String name, String comment, String content) {
         super(id, name, comment, content);
+        this.customizedCredentialMappings = new ArrayList<CustomizedCredentialMapping>();
+    }
+
+    @DataBoundConstructor
+    public CustomConfig(String id, String name, String comment, String content, List<CustomizedCredentialMapping> customizedCredentialMappings) {
+        super(id, name, comment, content, CustomConfigProvider.class.getName());
+        this.customizedCredentialMappings = customizedCredentialMappings == null ? new ArrayList<CustomizedCredentialMapping>() : customizedCredentialMappings;
     }
 
     public CustomConfig(String id, String name, String comment, String content, String providerId) {
         super(id, name, comment, content, providerId);
+        this.customizedCredentialMappings = new ArrayList<CustomizedCredentialMapping>();
+    }
+
+    @Override
+    public List<CustomizedCredentialMapping> getCustomizedCredentialMappings() {
+        return customizedCredentialMappings == null ? new ArrayList<CustomizedCredentialMapping>() : customizedCredentialMappings;
     }
 
     @Extension(ordinal = 50)
-    public static class CustomConfigProvider extends AbstractConfigProviderImpl {
+    public static class CustomConfigProvider extends AbstractCustomProvider {
 
         public CustomConfigProvider() {
             load();
@@ -54,7 +73,7 @@ public class CustomConfig extends Config {
 
         @Override
         public ContentType getContentType() {
-            return null;
+            return ContentType.DefinedType.SHELL;
         }
 
         @Override
@@ -62,9 +81,9 @@ public class CustomConfig extends Config {
             return Messages.custom_provider_name();
         }
 
-        @NonNull
+        @Nonnull
         @Override
-        public CustomConfig newConfig(@NonNull String id) {
+        public CustomConfig newConfig(@Nonnull String id) {
             return new CustomConfig(id,
                 Messages.CustomConfig_SettingsName(),
                 Messages.CustomConfig_SettingsComment(),
