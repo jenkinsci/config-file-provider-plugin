@@ -5,7 +5,8 @@ image:https://img.shields.io/jenkins/plugin/v/config-file-provider.svg[link="htt
 image:https://img.shields.io/github/release/jenkinsci/config-file-provider-plugin.svg?label=changelog[link="https://github.com/jenkinsci/config-file-provider-plugin/releases/latest"]
 image:https://img.shields.io/jenkins/plugin/i/config-file-provider.svg?color=blue[link="https://plugins.jenkins.io/config-file-provider"]
 
-Adds the ability to provide configuration files (i.e., settings.xml for maven, XML, groovy, custom files, etc.) loaded through the Jenkins UI which will be copied to the job's workspace.
+Adds the ability to provide configuration files (i.e., settings.xml for maven, XML, groovy, custom files, etc.)
+loaded through the Jenkins UI which will be copied to the job's workspace.
 
 == How it works
 
@@ -20,7 +21,7 @@ plugin (except binary), but the UI provides some advanced editing
 support for the following file types:
 
 * Maven settings.xml (user and global)
-* plain XML
+* Plain XML
 * Groovy
 * JSON
 * Custom (plain text)
@@ -29,53 +30,53 @@ support for the following file types:
 
 Choose the "Managed files" in the administration home:
 
-[.confluence-embedded-file-wrapper]#image:docs/images/Screenshot_2018-12-11_094438_001.png[image]#
+image:docs/images/Screenshot_2018-12-11_094438_001.png[image]
 
 Edit an existing file or add a new file:
 
-[.confluence-embedded-file-wrapper]#image:docs/images/cfg-files.jpg[image]#
+image:docs/images/cfg-files.jpg[image]
 
 Choose the configuration type:
 
-[.confluence-embedded-file-wrapper]#image:docs/images/new_file.jpg[image]#
+image:docs/images/new_file.jpg[image]
 
 Edit the content:
 
-[.confluence-embedded-file-wrapper]#image:docs/images/edit.png.jpg[image]#
+image:docs/images/edit.png.jpg[image]
 
 Configure the Maven plugin to use it:
 
-[.confluence-embedded-file-wrapper]#image:docs/images/maven-plugin.png.jpg[image]#
+image:docs/images/maven-plugin.png.jpg[image]
 
 Provide any config file to a project
 
-[.confluence-embedded-file-wrapper]#image:docs/images/add_file.jpg[image]#
+image:docs/images/add_file.jpg[image]
 
 === Maven Server Credentials (since 2.7)
 
 The file types '_Global Maven settings.xml_' and '_Maven settings.xml_'
 have built-in support for the
-https://wiki.jenkins.io/display/JENKINS/Credentials+Plugin[Credentials
+https://plugins.jenkins.io/credentials/[Credentials
 Plugin]. When the plugin serves the _settings.xml_ to the maven
 execution, the credentials get injected. *This functionality is only
 available in the maven builder (e.g. for freestyle projects) and maven
 project type*. +
 After installation of the
-https://wiki.jenkins.io/display/JENKINS/Config+File+Provider+Plugin[Config
+https://plugins.jenkins.io/config-file-provider/[Config
 File Provider Plugin], a new Credentials Specification is available and
 can be used to mark credentials domain to contain credentials valid for
 maven server ids. The "Maven serverId" Specification allows you to
 define serverId patterns - this will make it easier to select the
 correct credential when configuring the _settings.xml_. +
-[.confluence-embedded-file-wrapper .confluence-embedded-manual-size]#image:docs/images/Screen_Shot_2013-11-03_at_18.30.48.png[image,height=300]#
+image:docs/images/Screen_Shot_2013-11-03_at_18.30.48.png[image,height=300]
 
 The current implementation supports "Username with
 password"-credentials. If your passwords are
-http://maven.apache.org/guides/mini/guide-encryption.html[encrypted by
+https://maven.apache.org/guides/mini/guide-encryption.html[encrypted by
 maven], you can store the encrypted passwords in the same configuration
 - but you have to make sure the _settings-security.xml_ is available to
 the job, unfortunately maven does not yet provide a way to pass this
-file aswell, so this file has to be located at the original location
+file as well, so this file has to be located at the original location
 required by maven (<user.home>/.m2)
 
 When configuring the _settings.xml_ (user or global), you can add as
@@ -88,7 +89,7 @@ file used by the jobs.
 This example will add two server configurations to your _settings.xml,_
 one called 'artifactory.prod' (using 'release_user' with password) and
 the other 'artifactory.dev' (using 'snapshot_user' with password). +
-[.confluence-embedded-file-wrapper .confluence-embedded-manual-size]#image:docs/images/Screen_Shot_2013-11-03_at_18.33.56.png[image,height=300]#
+image:docs/images/Screen_Shot_2013-11-03_at_18.33.56.png[image,height=300]
 
 Now provided _settings.xml_ with credentials can be used in the project
 and builder configuration. A common practice would be to define a global
@@ -96,7 +97,7 @@ _settings.xml_ to provide credentials and repository definitions and
 have local (default) _settings.xml_ define the location of the local
 repo.
 
-[.confluence-embedded-file-wrapper]#image:docs/images/Screen_Shot_2013-07-28_at_16.23.32.png[image]#
+image:docs/images/Screen_Shot_2013-07-28_at_16.23.32.png[image]
 
 == Using the configuration files in Jenkins Pipelines
 
@@ -108,7 +109,7 @@ can be stored in a temporary file identified by the given
 
 Sample for a Maven build:
 
-[source,syntaxhighlighter-pre]
+[source,groovy]
 ----
 node {
 
@@ -125,34 +126,28 @@ node {
 }
 ----
 
-The "Pipeline Syntax" page helps to write the proper syntax. (before
-version 2.13, the build wrapper syntax
-"`+wrap([$class: 'ConfigFileBuildWrapper'...]{...+`}" hat to be used)
+The "Pipeline Syntax" page helps to write the proper syntax.
 
-[.confluence-embedded-file-wrapper]#image:docs/images/pipeline-syntax-screenshot.png[image]#
+image:docs/images/pipeline-syntax-screenshot.png[image]
 
 == Plugins adding support for new file types
 
-* {blank}
-+
-[.icon .aui-icon .content-type-page]#Page:#
-+
-https://wiki.jenkins.io/display/JENKINS/Managed+Script+Plugin[Managed
-Script Plugin] [.smalltext]#— Managed scripts are shell scripts which
+* link:https://plugins.jenkins.io/managed-scripts/[Managed
+Script Plugin] — Managed scripts are shell scripts which
 are managed centrally by an administrator and can be referenced as a
-build step within jobs.#
+build step within jobs.
 
 == Extension Point
 
 This plugin makes use of the
-org.jenkinsci.lib.configprovider.ConfigProvider ExtensionPoint. If you
+`org.jenkinsci.lib.configprovider.ConfigProvider` ExtensionPoint. If you
 need to have easy administration of a new file type, just implement this
 ExtensionPoint and you're ready to go.
 
 The easiest way to do so is to extend
-'org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl' - have a
+`org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl` - have a
 look at
-'org.jenkinsci.plugins.managedscripts.ScriptConfig.ScriptConfigProvider'
+`org.jenkinsci.plugins.managedscripts.ScriptConfig.ScriptConfigProvider`
 
 
 #### builds are currently executed on:
