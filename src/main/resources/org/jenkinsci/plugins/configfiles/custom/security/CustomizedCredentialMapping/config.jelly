@@ -1,7 +1,7 @@
 <!--
 The MIT License
 
-Copyright (c) 2013, Dominik Bartholdi
+Copyright (c) 2020, Andrew Grimberg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,18 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
-	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+         <f:entry title="${%Token}" field="tokenKey">
+             <f:textbox />
+         </f:entry>
 
-					<j:set var="instance" value="${config}"/>
-					<j:set var="descriptor" value="${config.descriptor}"/>
-					<st:include page="id-name-and-comment"  class="${descriptor.clazz}"/>
-					<f:entry title="${%Tokenized Credentials}">
-						<f:repeatableProperty field="customizedCredentialMappings" />
-					</f:entry>
-					<f:entry title="${%Content}">
-						<f:textarea id="config.content" name="config.content" value="${config.content}" /> 
-					</f:entry>
-					
+         <f:entry title="${%Credentials}" field="credentialsId" >
+             <c:select />
+         </f:entry>
+
+         <f:entry title="" >
+            <div align="right">
+             <input type="button" value="${%Delete}" class="repeatable-delete" style="margin-left: 1em;" />
+             </div>
+         </f:entry>
 </j:jelly>

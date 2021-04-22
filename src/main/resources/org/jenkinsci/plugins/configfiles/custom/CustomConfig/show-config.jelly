@@ -10,6 +10,8 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
+	<j:set var="descriptor" value="${config.descriptor}"/>
+	<j:set var="instance" value="${config}"/>
 	<f:entry title="${%ID}">
 		<f:textbox readonly="readonly" name="config.id" value="${config.id}" />
 	</f:entry>
@@ -18,6 +20,9 @@
 	</f:entry>
 	<f:entry title="${%Comment}">
 		<f:textbox readonly="readonly" name="config.comment" value="${config.comment}" />
+	</f:entry>
+	<f:entry title="${%Tokenized Credentials}" field="customizedCredentialMappings">
+		<f:repeatableProperty field="customizedCredentialMappings" noAddButton="true" />
 	</f:entry>
 	<f:entry title="${%Content}">
 		<f:textarea readonly="readonly" id="config.content" name="config.content" value="${config.content}" />

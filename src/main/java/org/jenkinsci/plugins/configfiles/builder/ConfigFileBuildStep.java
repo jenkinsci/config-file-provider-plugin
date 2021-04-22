@@ -44,7 +44,7 @@ public class ConfigFileBuildStep extends Builder implements Serializable {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
 
         if (build.getWorkspace() == null) {
-            throw new IllegalStateException("the workspace does not yet exist, can't provision config files - maybe slave is offline?");
+            throw new IllegalStateException("the workspace does not yet exist, can't provision config files - maybe the agent is offline?");
         }
 
         List<String> tempFiles = new ArrayList<String>();

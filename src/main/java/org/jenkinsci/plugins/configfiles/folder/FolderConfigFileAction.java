@@ -38,6 +38,7 @@ import com.cloudbees.hudson.plugins.folder.AbstractFolder;
 
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.verb.POST;
 
 public class FolderConfigFileAction implements Action, ConfigFilesUIContract, StaplerProxy {
@@ -225,6 +226,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
         req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);
     }
 
+    @RequirePOST
     @Override
     public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
         checkPermission(Job.CONFIGURE);
@@ -236,6 +238,8 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public FormValidation doCheckConfigId(@QueryParameter("configId") String configId) {
+        checkPermission(Job.CONFIGURE);
+        
         if (configId == null || configId.isEmpty()) {
             return FormValidation.warning(Messages.ConfigFilesManagement_configIdCannotBeEmpty());
         }

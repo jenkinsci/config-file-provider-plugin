@@ -11,6 +11,7 @@ import hudson.model.ItemGroup;
 import hudson.model.Queue;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
+import hudson.security.Permission;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
@@ -50,12 +51,16 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
     @Extension
     public static class DescriptorImpl extends Descriptor<PropertiesCredentialMapping> {
 
-        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @QueryParameter String propertyKey) {
-            AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context : Jenkins.get());
-            if (_context == null || !_context.hasPermission(Item.CONFIGURE)) {
+        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item projectOrFolder, @QueryParameter String propertyKey) {
+            Permission permToCheck = projectOrFolder == null ? Jenkins.ADMINISTER : Item.CONFIGURE;
+            AccessControlled contextToCheck = projectOrFolder == null ? Jenkins.get() : projectOrFolder;
+
+            // If we're on the global page and we don't have administer permission or if we're in a project or folder 
+            // and we don't have configure permission there
+            if (!contextToCheck.hasPermission(permToCheck)) {
                 return new StandardUsernameListBoxModel().includeCurrentValue(propertyKey);
             }
-
+            
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (StringUtils.isNotBlank(propertyKey)) {
                 domainRequirements = Collections.singletonList(new PropertyKeyRequirement(propertyKey));

@@ -1,6 +1,11 @@
 package org.jenkinsci.plugins.configfiles.folder;
 
 import com.cloudbees.hudson.plugins.folder.Folder;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import hudson.model.Item;
+import jenkins.model.Jenkins;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -15,14 +20,24 @@ import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.BuildWatcher;
+import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.MockAuthorizationStrategy;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by domi on 11/10/16.
@@ -199,6 +214,81 @@ public class FolderConfigFileActionTest {
         assertThat(store, Matchers.is(getStore(f1)));
     }
 
+    @Test
+    @Issue("SECURITY-2202")
+    public void xssPreventionInFolder() throws Exception {
+        final String CONFIG_ID = "myid";
+
+        // ----------
+        // Create a new configuration in a new folder
+        Folder f1 = createFolder();
+        ConfigFileStore store = getStore(f1);
+
+        CustomConfig config = new CustomConfig(CONFIG_ID, "name", "comment", "content");
+        store.save(config);
+
+        assertEquals(1, store.getConfigs().size());
+
+        /// ----------
+        // Check removing it by GET doesn't work
+        JenkinsRule.WebClient wc = r.createWebClient();
+
+        // If we try to call the URL directly (via GET), it fails with a 405 - Method not allowed
+        wc.assertFails(f1.getUrl() +  "configfiles/removeConfig?id=" + CONFIG_ID, 405);
+        assertEquals(1, store.getConfigs().size());
+
+        // ----------
+        // Clicking the button works
+        // If we click on the link, it goes via POST, therefore it removes it successfully
+        HtmlPage configFiles = wc.goTo(f1.getUrl() + "configfiles");
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@onclick, 'removeConfig?id=" + CONFIG_ID + "')]");
+
+        AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
+        wc.setConfirmHandler((page, s) -> {
+            confirmCalled.set(true);
+            return true;
+        });
+
+        assertThat(confirmCalled.get(), is(false));
+        removeAnchor.click();
+        assertThat(confirmCalled.get(), is(true));
+        assertThat(store.getConfigs(), empty());
+    }
+
+    @Test
+    @Issue("SECURITY-2203")
+    public void folderCheckConfigIdProtected() throws Exception {
+        // ----------
+        // Create a new folder
+        Folder f1 = createFolder();
+        f1.save();
+
+        // ----------
+        // let's allow all people to see the folder, but not configure it
+        r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                // read access to everyone
+                .grant(Jenkins.READ).everywhere().toEveryone()
+                .grant(Item.DISCOVER).everywhere().toAuthenticated()
+                .grant(Item.READ).onItems(f1).toEveryone()
+                        
+                // config access on the folder to this user
+                .grant(Item.CONFIGURE).onFolders(f1).to("folderConfigurer")
+        );
+
+        // ----------
+        // An user without permission cannot see the form to add a new config file
+        JenkinsRule.WebClient wc = r.createWebClient();
+        wc.login("reader");
+        wc.assertFails(f1.getUrl() +  "configfiles/selectProvider", 404);
+
+        // ----------
+        // The person with permission can access
+        wc.login("folderConfigurer");
+        HtmlPage page = wc.goTo(f1.getUrl() +  "configfiles/selectProvider");
+        MatcherAssert.assertThat(page, notNullValue());
+    }
+    
     private CpsFlowDefinition getNewJobDefinition() {
         return new CpsFlowDefinition("" +
                 "node {\n" +

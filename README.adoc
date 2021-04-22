@@ -152,4 +152,4 @@ look at
 
 #### builds are currently executed on:
 
-* link:https://ci.jenkins.io/blue/organizations/jenkins/Plugins%2Fconfig-file-provider-plugin/[ci.jenkins.io]
+* link:https://ci.jenkins.io/blue/organizations/jenkins/Plugins%2Fconfig-file-provider-plugin/[jenkins ci]
