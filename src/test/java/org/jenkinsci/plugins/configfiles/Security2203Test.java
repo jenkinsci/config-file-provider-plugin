@@ -8,10 +8,16 @@ import hudson.security.ACL;
 import hudson.security.ACLContext;
 import hudson.security.AccessDeniedException2;
 import hudson.security.Permission;
+import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
+import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
+import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
+import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.job.MvnGlobalSettingsProvider;
 import org.jenkinsci.plugins.configfiles.maven.job.MvnSettingsProvider;
+import org.jenkinsci.plugins.configfiles.sec.ProtectedCodeRunner;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,14 +26,18 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.kohsuke.stapler.StaplerRequest;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.fail;
 
 /**
@@ -37,6 +47,12 @@ public class Security2203Test {
     @Rule
     public JenkinsRule r = new JenkinsRule();
 
+    @Inject
+    MavenSettingsConfig.MavenSettingsConfigProvider mavenSettingConfigProvider;
+    
+    @Inject
+    GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider globalMavenSettingsConfigProvider;
+    
     private FreeStyleProject project;
 
     @Before
@@ -82,35 +98,182 @@ public class Security2203Test {
     }
     
     /**
-     * The {@link MvnGlobalSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item)} is only accessible by people able to
-     * configure the job.
+     * The {@link MvnSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item, String)} is only accessible by 
+     * administers.
      */
-    @Issue("SECURITY-2203")
+    @Issue({"SECURITY-2203", "SECURITY-2203"})
     @Test
-    public void mvnGlobalSettingsProviderDoFillSettingsConfigIdItemsProtected() {
-        Runnable run = () -> {
-            MvnGlobalSettingsProvider.DescriptorImpl descriptor = (MvnGlobalSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnGlobalSettingsProvider.class);
-            descriptor.doFillSettingsConfigIdItems(Jenkins.get(), project);
+    public void mvnSettingsProviderDoFillSettingsConfigIdItemsProtectedGlobalConfiguration() {
+        r.jenkins.getInjector().injectMembers(this);
+
+        // Create a maven settings config file that will only be returned by the administer user
+        Config c = createSetting(mavenSettingConfigProvider);
+
+        final String CURRENT = "current-value";
+
+        // Code called from a project
+        Supplier<ListBoxModel> settingsConfigListSupplier = () -> {
+            MvnSettingsProvider.DescriptorImpl descriptor = (MvnSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnSettingsProvider.class);
+            return descriptor.doFillSettingsConfigIdItems(Jenkins.get(), null, CURRENT); // no project, global configuration
+
         };
+        ProtectedCodeRunner<ListBoxModel> projectChecker = new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
+
+        ListBoxModel result;
+
+        // Reader doesn't get the list of credentials
+        result = projectChecker.getResult(); // with reader
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, equalTo(CURRENT));
+
+        // projectConfigurer doesn't get the list of credentials
+        result = projectChecker.withUser("projectConfigurer").getResult(); // with projectConfigurer
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, equalTo(CURRENT));
         
-        assertWhoCanExecute(run, Item.CONFIGURE, "MvnGlobalSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems");
+        result = projectChecker.withUser("administer").getResult();
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, startsWith(c.id)); // The config created is successfully returned
     }
 
     /**
-     * The {@link MvnSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item)} is only accessible by people able to
+     * The {@link MvnSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item, String)} is only accessible by people able to
      * configure the job.
      */
-    @Issue("SECURITY-2203")
+    @Issue({"SECURITY-2203", "SECURITY-2203"})
     @Test
-    public void mvnSettingsProviderDoFillSettingsConfigIdItemsProtected() {
-        Runnable run = () -> {
-            MvnSettingsProvider.DescriptorImpl descriptor = (MvnSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnSettingsProvider.class);
-            descriptor.doFillSettingsConfigIdItems(Jenkins.get(), project);
-        };
+    public void mvnSettingsProviderDoFillSettingsConfigIdItemsProtectedForProject() {
+        r.jenkins.getInjector().injectMembers(this);
 
-        assertWhoCanExecute(run, Item.CONFIGURE, "MvnSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems");
+        // Create a maven settings config file that will only be returned by the administer user
+        Config c = createSetting(mavenSettingConfigProvider);
+
+        final String CURRENT = "current-value";
+
+        // Code called from a project
+        Supplier<ListBoxModel> settingsConfigListSupplier = () -> {
+            MvnSettingsProvider.DescriptorImpl descriptor = (MvnSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnSettingsProvider.class);
+            return descriptor.doFillSettingsConfigIdItems(Jenkins.get(), project, CURRENT); // we pass the project
+
+        };
+        ProtectedCodeRunner<ListBoxModel> projectChecker = new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
+
+        ListBoxModel result;
+
+        // Reader doesn't get the list of credentials
+        result = projectChecker.getResult(); // with reader
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, equalTo(CURRENT));
+
+        // projectConfigurer can configure the project
+        result = projectChecker.withUser("projectConfigurer").getResult();
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, startsWith(c.id)); // The config created is successfully returned
+
+        // administer can configure the project
+        result = projectChecker.withUser("administer").getResult();
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, startsWith(c.id)); // The config created is successfully returned
     }
 
+    /**
+     * The {@link MvnGlobalSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item, String)} is only accessible by people able to
+     * administer Jenkins.
+     */
+    @Issue({"SECURITY-2203", "SECURITY-2203"})
+    @Test
+    public void mvnGlobalSettingsProviderDoFillSettingsConfigIdItemsProtectedGlobalConfiguration() {
+        r.jenkins.getInjector().injectMembers(this);
+
+        // Create a maven settings config file that will only be returned by the administer user
+        Config c = createSetting(globalMavenSettingsConfigProvider);
+
+        final String CURRENT = "current-value";
+
+        // Code called from a project
+        Supplier<ListBoxModel> settingsConfigListSupplier = () -> {
+            MvnGlobalSettingsProvider.DescriptorImpl descriptor = (MvnGlobalSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnGlobalSettingsProvider.class);
+            return descriptor.doFillSettingsConfigIdItems(Jenkins.get(), null, CURRENT); // from global configuration, no project
+
+        };
+        ProtectedCodeRunner<ListBoxModel> projectChecker = new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
+
+        ListBoxModel result;
+
+        // Reader doesn't get the list of credentials
+        result = projectChecker.getResult(); // with reader
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, equalTo(CURRENT));
+
+        // projectConfigurer doesn't get the list of credentials
+        result = projectChecker.withUser("projectConfigurer").getResult(); // with projectConfigurer
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, equalTo(CURRENT));
+
+        result = projectChecker.withUser("administer").getResult();
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, startsWith(c.id)); // The config created is successfully returned
+    }
+
+    /**
+     * The {@link MvnGlobalSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item, String)} is only accessible by people able to
+     * configure the job.
+     */
+    @Issue({"SECURITY-2203", "SECURITY-2203"})
+    @Test
+    public void mvnGlobalSettingsProviderDoFillSettingsConfigIdItemsProtectedForProject() {
+        r.jenkins.getInjector().injectMembers(this);
+
+        // Create a maven settings config file that will only be returned by the administer user
+        Config c = createSetting(globalMavenSettingsConfigProvider);
+
+        final String CURRENT = "current-value";
+
+        // Code called from a project
+        Supplier<ListBoxModel> settingsConfigListSupplier = () -> {
+            MvnGlobalSettingsProvider.DescriptorImpl descriptor = (MvnGlobalSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnGlobalSettingsProvider.class);
+            return descriptor.doFillSettingsConfigIdItems(Jenkins.get(), project, CURRENT); // we pass the project
+
+        };
+        ProtectedCodeRunner<ListBoxModel> projectChecker = new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
+
+        ListBoxModel result;
+
+        // Reader doesn't get the list of credentials
+        result = projectChecker.getResult(); // with reader
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, equalTo(CURRENT));
+
+        // projectConfigurer can configure the project
+        result = projectChecker.withUser("projectConfigurer").getResult();
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, startsWith(c.id)); // The config created is successfully returned
+
+        // administer can configure the project
+        result = projectChecker.withUser("administer").getResult();
+        assertThat(result, hasSize(2));
+        assertThat(result.get(0).value, equalTo(""));
+        assertThat(result.get(1).value, startsWith(c.id)); // The config created is successfully returned
+    }
+    
+    private Config createSetting(ConfigProvider provider) {
+        Config c1 = provider.newConfig();
+        GlobalConfigFiles globalConfigFiles = r.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(c1);
+        return c1;
+    }
+    
     /**
      * The {@link ConfigFilesManagement#getTarget()} is only accessible by people able to administer jenkins. It guarantees
      * all methods in the class require {@link Jenkins#ADMINISTER}.
