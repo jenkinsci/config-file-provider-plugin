@@ -5,6 +5,8 @@ import hudson.FilePath;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.TaskListener;
+import hudson.security.AccessControlled;
+import hudson.security.Permission;
 import hudson.slaves.WorkspaceList;
 import hudson.model.AbstractBuild;
 
@@ -15,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import hudson.util.ListBoxModel;
+import jenkins.model.Jenkins;
 import jenkins.mvn.GlobalSettingsProvider;
 import jenkins.mvn.GlobalSettingsProviderDescriptor;
 
@@ -132,7 +135,10 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
         }
 
         public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project) {
-            project.checkPermission(Item.CONFIGURE);
+            Permission permToCheck = project == null ? Jenkins.SYSTEM_READ : Item.EXTENDED_READ;
+            AccessControlled contextToCheck = project == null ? Jenkins.get() : project;
+
+            contextToCheck.checkPermission(permToCheck);
             
             ListBoxModel items = new ListBoxModel();
             items.add("please select", "");
