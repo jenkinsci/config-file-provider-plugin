@@ -32,6 +32,7 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * This provider delivers the global settings.xml to the job during job/project execution. <br>
@@ -134,7 +135,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
             return "provided global settings.xml";
         }
 
-        public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, String currentValue) {
+        public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, @QueryParameter String settingsConfigId) {
             Permission permToCheck = project == null ? Jenkins.ADMINISTER : Item.EXTENDED_READ;
             AccessControlled contextToCheck = project == null ? Jenkins.get() : project;
 
@@ -142,12 +143,12 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
             items.add("please select", "");
 
             if (!contextToCheck.hasPermission(permToCheck)) {
-                items.add(new ListBoxModel.Option("current", currentValue, true)); // we just add what they send
+                items.add(new ListBoxModel.Option("current", settingsConfigId, true)); // we just add what they send
                 return items;
             }
             
             for (Config config : ConfigFiles.getConfigsInContext(context, GlobalMavenSettingsConfigProvider.class)) {
-                items.add(new ListBoxModel.Option(config.name, config.id, config.id.equals(currentValue)));
+                items.add(new ListBoxModel.Option(config.name, config.id, config.id.equals(settingsConfigId)));
             }
             return items;
         }

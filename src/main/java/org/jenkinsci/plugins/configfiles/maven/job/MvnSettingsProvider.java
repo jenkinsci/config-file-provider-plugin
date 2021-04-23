@@ -32,6 +32,7 @@ import hudson.slaves.WorkspaceList;
 import hudson.util.ListBoxModel;
 import jenkins.mvn.SettingsProvider;
 import jenkins.mvn.SettingsProviderDescriptor;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * This provider delivers the settings.xml to the job during job/project execution. <br>
@@ -136,7 +137,7 @@ public class MvnSettingsProvider extends SettingsProvider {
             return Messages.MvnSettingsProvider_ProvidedSettings();
         }
 
-        public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, String currentValue) {
+        public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, @QueryParameter String settingsConfigId) {
             Permission permToCheck = project == null ? Jenkins.ADMINISTER : Item.EXTENDED_READ;
             AccessControlled contextToCheck = project == null ? Jenkins.get() : project;
 
@@ -144,12 +145,12 @@ public class MvnSettingsProvider extends SettingsProvider {
             items.add(Messages.MvnSettingsProvider_PleaseSelect(), "");
 
             if (!contextToCheck.hasPermission(permToCheck)) {
-                items.add(new ListBoxModel.Option("current", currentValue, true)); // we just add what they send
+                items.add(new ListBoxModel.Option("current", settingsConfigId, true)); // we just add what they send
                 return items;
             }
             
             for (Config config : ConfigFiles.getConfigsInContext(context, MavenSettingsConfigProvider.class)) {
-                items.add(new ListBoxModel.Option(config.name, config.id, config.id.equals(currentValue)));
+                items.add(new ListBoxModel.Option(config.name, config.id, config.id.equals(settingsConfigId)));
             }
             return items;
         }
