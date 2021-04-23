@@ -101,7 +101,7 @@ public class Security2203Test {
      * The {@link MvnSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item, String)} is only accessible by 
      * administers.
      */
-    @Issue({"SECURITY-2203", "SECURITY-2203"})
+    @Issue({"SECURITY-2203", "JENKINS-65436"})
     @Test
     public void mvnSettingsProviderDoFillSettingsConfigIdItemsProtectedGlobalConfiguration() {
         r.jenkins.getInjector().injectMembers(this);
@@ -143,7 +143,7 @@ public class Security2203Test {
      * The {@link MvnSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item, String)} is only accessible by people able to
      * configure the job.
      */
-    @Issue({"SECURITY-2203", "SECURITY-2203"})
+    @Issue({"SECURITY-2203", "JENKINS-65436"})
     @Test
     public void mvnSettingsProviderDoFillSettingsConfigIdItemsProtectedForProject() {
         r.jenkins.getInjector().injectMembers(this);
@@ -186,7 +186,7 @@ public class Security2203Test {
      * The {@link MvnGlobalSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item, String)} is only accessible by people able to
      * administer Jenkins.
      */
-    @Issue({"SECURITY-2203", "SECURITY-2203"})
+    @Issue({"SECURITY-2203", "JENKINS-65436"})
     @Test
     public void mvnGlobalSettingsProviderDoFillSettingsConfigIdItemsProtectedGlobalConfiguration() {
         r.jenkins.getInjector().injectMembers(this);
@@ -228,7 +228,7 @@ public class Security2203Test {
      * The {@link MvnGlobalSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item, String)} is only accessible by people able to
      * configure the job.
      */
-    @Issue({"SECURITY-2203", "SECURITY-2203"})
+    @Issue({"SECURITY-2203", "JENKINS-65436"})
     @Test
     public void mvnGlobalSettingsProviderDoFillSettingsConfigIdItemsProtectedForProject() {
         r.jenkins.getInjector().injectMembers(this);
