@@ -142,7 +142,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
             items.add("please select", "");
 
             if (!contextToCheck.hasPermission(permToCheck)) {
-                items.add("current", currentValue); // we just add what they send
+                items.add(new ListBoxModel.Option("current", currentValue, true)); // we just add what they send
                 return items;
             }
             
