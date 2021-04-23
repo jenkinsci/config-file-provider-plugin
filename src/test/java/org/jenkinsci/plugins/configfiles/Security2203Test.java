@@ -6,7 +6,6 @@ import hudson.model.ItemGroup;
 import hudson.model.User;
 import hudson.security.ACL;
 import hudson.security.ACLContext;
-import hudson.security.AccessDeniedException2;
 import hudson.security.Permission;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
@@ -313,7 +312,7 @@ public class Security2203Test {
 
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName(userWithPermission.get(permission)))) {
             run.run(); // The method doesn't fail
-        } catch (AccessDeniedException2 e) {
+        } catch (AccessDeniedException e) {
             fail(String.format("%s should be accessible to people with the permission %s but it failed with the exception: %s", checkedMethod, permission, e));
         }
     }

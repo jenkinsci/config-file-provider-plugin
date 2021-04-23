@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.configfiles.sec;
 
-import hudson.security.AccessDeniedException2;
 import jenkins.model.Jenkins;
 import org.junit.Before;
 import org.junit.Rule;
@@ -8,10 +7,11 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 
+import java.nio.file.AccessDeniedException;
 import java.util.function.Supplier;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
@@ -42,7 +42,7 @@ public class ProtectedCodeRunnerTests {
         assertThat(checker.getResult(), is("allowed"));
 
         Throwable t = checker.withUser("reader").getThrowable(); 
-        assertThat(t, instanceOf(AccessDeniedException2.class));
-        assertThat(((AccessDeniedException2) t).permission, equalTo(Jenkins.ADMINISTER));
+        assertThat(t, instanceOf(AccessDeniedException.class));
+        assertThat(t.getMessage(), containsString(Jenkins.ADMINISTER.group.title + "/" + Jenkins.ADMINISTER.name));
     }
 }
