@@ -136,19 +136,22 @@ public class MvnSettingsProvider extends SettingsProvider {
             return Messages.MvnSettingsProvider_ProvidedSettings();
         }
 
-        public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project) {
-            Permission permToCheck = project == null ? Jenkins.SYSTEM_READ : Item.EXTENDED_READ;
+        public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, String currentValue) {
+            Permission permToCheck = project == null ? Jenkins.ADMINISTER : Item.EXTENDED_READ;
             AccessControlled contextToCheck = project == null ? Jenkins.get() : project;
 
-            contextToCheck.checkPermission(permToCheck);
-            
             ListBoxModel items = new ListBoxModel();
             items.add(Messages.MvnSettingsProvider_PleaseSelect(), "");
+
+            if (!contextToCheck.hasPermission(permToCheck)) {
+                items.add("current", currentValue); // we just add what they send
+                return items;
+            }
+            
             for (Config config : ConfigFiles.getConfigsInContext(context, MavenSettingsConfigProvider.class)) {
-                items.add(config.name, config.id);
+                items.add(new ListBoxModel.Option(config.name, config.id, config.id.equals(currentValue)));
             }
             return items;
         }
     }
-
 }
