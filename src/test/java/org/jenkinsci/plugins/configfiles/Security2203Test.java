@@ -143,7 +143,7 @@ public class Security2203Test {
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName("reader"))) {
             run.run(); // The method should fail
             fail(String.format("%s should be only accessible by people with the permission %s, but it's accessible by a person with %s", checkedMethod, permission, Item.READ));
-        } catch (AccessDeniedException  e) {
+        } catch (AccessDeniedException e) {
             assertThat(e.getMessage(), containsString(permission.group.title + "/" + permission.name));
         }
 
