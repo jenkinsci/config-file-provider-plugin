@@ -6,10 +6,10 @@ import hudson.model.ItemGroup;
 import hudson.model.User;
 import hudson.security.ACL;
 import hudson.security.ACLContext;
-import hudson.security.AccessDeniedException2;
 import hudson.security.Permission;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
+import org.acegisecurity.AccessDeniedException;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
@@ -305,13 +306,13 @@ public class Security2203Test {
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName("reader"))) {
             run.run(); // The method should fail
             fail(String.format("%s should be only accessible by people with the permission %s, but it's accessible by a person with %s", checkedMethod, permission, Item.READ));
-        } catch (AccessDeniedException2 e) {
-            assertThat(e.permission, equalTo(permission));
+        } catch (AccessDeniedException e) {
+            assertThat(e.getMessage(), containsString(permission.group.title + "/" + permission.name));
         }
 
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName(userWithPermission.get(permission)))) {
             run.run(); // The method doesn't fail
-        } catch (AccessDeniedException2 e) {
+        } catch (AccessDeniedException e) {
             fail(String.format("%s should be accessible to people with the permission %s but it failed with the exception: %s", checkedMethod, permission, e));
         }
     }
