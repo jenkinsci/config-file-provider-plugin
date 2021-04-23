@@ -1,13 +1,13 @@
 package org.jenkinsci.plugins.configfiles.sec;
 
 import jenkins.model.Jenkins;
+import org.acegisecurity.AccessDeniedException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 
-import java.nio.file.AccessDeniedException;
 import java.util.function.Supplier;
 
 import static org.hamcrest.MatcherAssert.assertThat;
