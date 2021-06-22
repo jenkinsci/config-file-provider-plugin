@@ -2,8 +2,7 @@ package org.jenkinsci.plugins.configfiles.sec;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.security.Permission;
-import org.acegisecurity.AccessDeniedException;
-
+import org.springframework.security.access.AccessDeniedException;
 import java.util.function.Supplier;
 
 import static org.hamcrest.MatcherAssert.assertThat;

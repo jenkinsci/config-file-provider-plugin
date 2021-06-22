@@ -28,7 +28,7 @@
 
     <properties>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <jenkins.version>2.235.5</jenkins.version>
+        <jenkins.version>2.277</jenkins.version>
         <java.level>8</java.level>
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
     </properties>
@@ -54,8 +54,8 @@
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.235.x</artifactId>
-                <version>19</version>
+                <artifactId>bom-2.277.x</artifactId>
+                <version>29</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -71,6 +71,8 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>token-macro</artifactId>
+            <!-- because asm update on 2.277: https://www.jenkins.io/doc/upgrade-guide/2.277/ -->
+            <version>2.15</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
