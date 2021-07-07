@@ -71,7 +71,7 @@ public class CleanTempFilesRunListener extends RunListener<AbstractBuild<?, ?>> 
                 }
             } finally {
                 // remove the action, there is nothing we want to persist on the build
-                build.getAllActions().remove(action);
+                build.removeAction(action);
             }
         }
 
