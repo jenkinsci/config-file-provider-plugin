@@ -134,8 +134,10 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
 
     private void setField(String fieldName, String value, Config config) {
         Field field = ReflectionUtils.findField(config.getClass(), fieldName);
-        field.setAccessible(true);
-        ReflectionUtils.setField(field, config, value);
+        if (field != null) {
+            field.setAccessible(true);
+            ReflectionUtils.setField(field, config, value);
+        }
     }
 
     public abstract void clearOldDataStorage();

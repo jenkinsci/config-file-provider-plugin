@@ -1,12 +1,12 @@
 package org.jenkinsci.plugins.configfiles.sec;
 
 import jenkins.model.Jenkins;
-import org.acegisecurity.AccessDeniedException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.function.Supplier;
 

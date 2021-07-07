@@ -9,7 +9,7 @@ import hudson.security.ACLContext;
 import hudson.security.Permission;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
-import org.acegisecurity.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
