@@ -93,6 +93,7 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
     /* only for CasC (Configuration as Code Plugin) */
     public void setConfigs(Collection<Config> configs) {
         this.configs = configs;
+        readResolve(); // ensure configs collection is a TreeSet
     }
 
     @Override

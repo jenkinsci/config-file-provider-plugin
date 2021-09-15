@@ -1,8 +1,15 @@
 package org.jenkinsci.plugins.configfiles;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.TreeSet;
+
 import io.jenkins.plugins.casc.misc.ConfiguredWithCode;
 import io.jenkins.plugins.casc.misc.JenkinsConfiguredWithCodeRule;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -33,5 +40,21 @@ public class GlobalConfigFilesConfigAsCodeTest {
         Assert.assertNotNull(maven);
         Assert.assertFalse(maven.isReplaceAll);
         Assert.assertEquals("someCredentials", maven.getServerCredentialMappings().get(0).getCredentialsId());
+    }
+
+    /** @see https://issues.jenkins.io/browse/JENKINS-60498 */
+    @Test
+    public void ensure_configs_treeset() {
+        final Config[] testConfigs = {
+            new CustomConfig("1", "name1", "", ""),
+            new CustomConfig("2", "name2", "", "")
+        };
+
+        final GlobalConfigFiles cfg = GlobalConfigFiles.get();
+        cfg.setConfigs(Arrays.asList(testConfigs));
+
+        final Collection<Config> actualConfigs = cfg.getConfigs();
+        Assert.assertTrue("configs must be a TreeSet", actualConfigs instanceof TreeSet);
+        MatcherAssert.assertThat(actualConfigs, Matchers.containsInAnyOrder(testConfigs));
     }
 }
