@@ -133,14 +133,13 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
             // allowed to you
             if (context != null) {
                 context.checkPermission(Item.CONFIGURE);
+                final Config config = ConfigFiles.getByIdOrNull(context, fileId);
+                if (config != null) {
+                    return ConfigFileDetailLinkDescription.getDescription(req, context, fileId);
+                }
             }
-            
-            final Config config = ConfigFiles.getByIdOrNull(context, fileId);
-            if (config != null) {
-                return ConfigFileDetailLinkDescription.getDescription(req, context, fileId);
-            } else {
-                return FormValidation.error("you must select a valid file");
-            }
+
+            return FormValidation.error("you must select a valid file");
         }
 
     }
