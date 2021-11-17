@@ -133,9 +133,11 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
         public HttpResponse doCheckFileId(StaplerRequest req, @AncestorInPath Item context, @QueryParameter String fileId) {
             // You should have permission to configure your project in order to check whether the selected file id is
             // allowed to you
-            Permission permission = context == null ? Item.CREATE : Item.CONFIGURE;
-            AccessControlled ac = context == null ? Jenkins.get() : context;
-            ac.checkPermission(permission);
+            if (context!= null) {
+                context.checkPermission(Item.CONFIGURE);
+            } else {
+                Jenkins.get().checkPermission(Item.CREATE);
+            }
 
             Config config;
             if (context == null) {
