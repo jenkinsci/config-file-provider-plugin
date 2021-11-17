@@ -30,6 +30,8 @@ import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
+import hudson.security.AccessControlled;
+import hudson.security.Permission;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
@@ -108,9 +110,9 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
 
         public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project) {
             // You should have permission to configure your project in order to get the available managed files
-            if (project != null) {
-                project.checkPermission(Item.CONFIGURE);
-            }
+            Permission permission = context == null ? Item.CREATE : Item.CONFIGURE;
+            AccessControlled ac = project == null ? Jenkins.get() : project;
+            ac.checkPermission(permission);
 
             ListBoxModel items = new ListBoxModel();
             items.add("please select", "");
@@ -131,17 +133,23 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
         public HttpResponse doCheckFileId(StaplerRequest req, @AncestorInPath Item context, @QueryParameter String fileId) {
             // You should have permission to configure your project in order to check whether the selected file id is
             // allowed to you
-            if (context != null) {
-                context.checkPermission(Item.CONFIGURE);
-                final Config config = ConfigFiles.getByIdOrNull(context, fileId);
+            Permission permission = context == null ? Item.CREATE : Item.CONFIGURE;
+            AccessControlled ac = context == null ? Jenkins.get() : context;
+            ac.checkPermission(permission);
+
+            Config config;
+            if (context == null) {
+                config = ConfigFiles.getByIdOrNull(Jenkins.get(), fileId);
+                return config != null ? FormValidation.ok() : FormValidation.error("The selected file is invalid");
+            } else {
+                config = ConfigFiles.getByIdOrNull(context, fileId);
                 if (config != null) {
                     return ConfigFileDetailLinkDescription.getDescription(req, context, fileId);
+                } else {
+                    return FormValidation.error("The selected file is incorrect.");
                 }
             }
-
-            return FormValidation.error("you must select a valid file");
         }
-
     }
 }
 
