@@ -113,7 +113,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
             if (context != null) {
                 project.checkPermission(Item.CONFIGURE);
             } else {
-                Jenkins.get().checkPermission(Item.CREATE);
+                context.checkPermission(Item.CREATE);
             }
 
             ListBoxModel items = new ListBoxModel();
