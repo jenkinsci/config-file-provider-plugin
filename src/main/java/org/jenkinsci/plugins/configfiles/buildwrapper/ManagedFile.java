@@ -110,7 +110,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
 
         public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project) {
             // You should have permission to configure your project in order to get the available managed files
-            Permission permission = context == null ? Item.CREATE : Item.CONFIGURE;
+            Permission permission = project == null ? Item.CREATE : Item.CONFIGURE;
             AccessControlled ac = project == null ? Jenkins.get() : project;
             ac.checkPermission(permission);
 
