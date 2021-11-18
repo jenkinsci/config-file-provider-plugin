@@ -108,12 +108,12 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
             return "";
         }
 
-        public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project) {
+        public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, @AncestorInPath AccessControlled ac) {
             // You should have permission to configure your project in order to get the available managed files
-            if (context != null) {
+            if (project != null) {
                 project.checkPermission(Item.CONFIGURE);
             } else {
-                context.checkPermission(Item.CREATE);
+                ac.checkPermission(Item.CREATE); // This to get the first parent to validate the authorization (Folder, View or Jenkins)
             }
 
             ListBoxModel items = new ListBoxModel();
@@ -132,13 +132,13 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
          * @param fileId  the id of the config file
          * @return a validation result / description
          */
-        public HttpResponse doCheckFileId(StaplerRequest req, @AncestorInPath Item context, @QueryParameter String fileId) {
+        public HttpResponse doCheckFileId(StaplerRequest req, @AncestorInPath Item context, @AncestorInPath AccessControlled ac, @QueryParameter String fileId) {
             // You should have permission to configure your project in order to check whether the selected file id is
             // allowed to you
             if (context != null) {
                 context.checkPermission(Item.CONFIGURE);
             } else {
-                Jenkins.get().checkPermission(Item.CREATE);
+                ac.checkPermission(Item.CREATE);
             }
 
             Config config;
