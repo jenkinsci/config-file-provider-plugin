@@ -6,6 +6,7 @@ import hudson.model.ItemGroup;
 import hudson.model.User;
 import hudson.security.ACL;
 import hudson.security.ACLContext;
+import hudson.security.AccessControlled;
 import hudson.security.Permission;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
@@ -69,7 +70,7 @@ public class Security2203Test {
     }
 
     /**
-     * The {@link ManagedFile.DescriptorImpl#doFillFileIdItems(ItemGroup, Item)} is only accessible by people able to
+     * The {@link ManagedFile.DescriptorImpl#doFillFileIdItems(ItemGroup, Item, AccessControlled)} is only accessible by people able to
      * configure the job.
      */
     @Issue("SECURITY-2203")
@@ -77,14 +78,14 @@ public class Security2203Test {
     public void managedFileDoFillFiledIdItemsProtected() {
         Runnable run = () -> {
             ManagedFile.DescriptorImpl descriptor = (ManagedFile.DescriptorImpl) Jenkins.get().getDescriptorOrDie(ManagedFile.class);
-            descriptor.doFillFileIdItems(Jenkins.get(), project);
+            descriptor.doFillFileIdItems(Jenkins.get(), project, project);
         };
 
         assertWhoCanExecute(run,Item.CONFIGURE, "ManagedFile.DescriptorImpl#doFillFileIdItems");
     }
 
     /**
-     * The {@link ManagedFile.DescriptorImpl#doCheckFileId(StaplerRequest, Item, String)} is only accessible by people
+     * The {@link ManagedFile.DescriptorImpl#doCheckFileId(StaplerRequest, Item, AccessControlled, String)} is only accessible by people
      * able to configure the job.
      */
     @Issue("SECURITY-2203")
@@ -92,7 +93,7 @@ public class Security2203Test {
     public void managedFileDoCheckFileIdProtected() {
         Runnable run = () -> {
             ManagedFile.DescriptorImpl descriptor = (ManagedFile.DescriptorImpl) Jenkins.get().getDescriptorOrDie(ManagedFile.class);
-            descriptor.doCheckFileId(null, project, "fileId"); // request won't be used, we can use null
+            descriptor.doCheckFileId(null, project, project, "fileId"); // request won't be used, we can use null
         };
 
         assertWhoCanExecute(run, Item.CONFIGURE, "ManagedFile.DescriptorImpl#doCheckFileId");
