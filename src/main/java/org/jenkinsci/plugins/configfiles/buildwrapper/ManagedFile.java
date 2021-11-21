@@ -30,6 +30,8 @@ import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
+import hudson.security.AccessControlled;
+import hudson.security.Permission;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
@@ -106,10 +108,12 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
             return "";
         }
 
-        public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project) {
+        public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, @AncestorInPath AccessControlled ac) {
             // You should have permission to configure your project in order to get the available managed files
             if (project != null) {
                 project.checkPermission(Item.CONFIGURE);
+            } else {
+                ac.checkPermission(Item.CREATE); // This to get the first parent to validate the authorization (Folder, View or Jenkins)
             }
 
             ListBoxModel items = new ListBoxModel();
@@ -128,21 +132,28 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
          * @param fileId  the id of the config file
          * @return a validation result / description
          */
-        public HttpResponse doCheckFileId(StaplerRequest req, @AncestorInPath Item context, @QueryParameter String fileId) {
+        public HttpResponse doCheckFileId(StaplerRequest req, @AncestorInPath Item context, @AncestorInPath AccessControlled ac, @QueryParameter String fileId) {
             // You should have permission to configure your project in order to check whether the selected file id is
             // allowed to you
             if (context != null) {
                 context.checkPermission(Item.CONFIGURE);
-            }
-            
-            final Config config = ConfigFiles.getByIdOrNull(context, fileId);
-            if (config != null) {
-                return ConfigFileDetailLinkDescription.getDescription(req, context, fileId);
             } else {
-                return FormValidation.error("you must select a valid file");
+                ac.checkPermission(Item.CREATE);
+            }
+
+            Config config;
+            if (context == null) {
+                config = ConfigFiles.getByIdOrNull(Jenkins.get(), fileId);
+                return config != null ? FormValidation.ok() : FormValidation.error("The selected file is invalid");
+            } else {
+                config = ConfigFiles.getByIdOrNull(context, fileId);
+                if (config != null) {
+                    return ConfigFileDetailLinkDescription.getDescription(req, context, fileId);
+                } else {
+                    return FormValidation.error("The selected file is incorrect.");
+                }
             }
         }
-
     }
 }
 
