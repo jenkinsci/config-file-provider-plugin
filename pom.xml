@@ -10,23 +10,26 @@
     </parent>
 
     <artifactId>config-file-provider</artifactId>
-    <version>3.8.2-SNAPSHOT</version>
+    <version>${revision}${changelist}</version>
 
     <packaging>hpi</packaging>
 
     <url>https://github.com/jenkinsci/config-file-provider-plugin</url>
 
     <scm>
-        <connection>scm:git:https://github.com/jenkinsci/config-file-provider-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:jenkinsci/config-file-provider-plugin.git</developerConnection>
-        <url>https://github.com/jenkinsci/config-file-provider-plugin</url>
-        <tag>HEAD</tag>
+        <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
+        <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+        <url>https://github.com/${gitHubRepo}</url>
+        <tag>${scmTag}</tag>
     </scm>
 
     <name>Config File Provider Plugin</name>
     <description>Ability to provide configuration files (e.g. settings.xml for maven, XML, groovy, custom files,...) loaded through the UI which will be copied to the job workspace</description>
 
     <properties>
+        <revision>3.8.2</revision>
+        <changelist>-SNAPSHOT</changelist>
+        <gitHubRepo>jenkinsci/config-file-provider-plugin</gitHubRepo>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <jenkins.version>2.303.1</jenkins.version>
         <java.level>8</java.level>
