@@ -12,7 +12,7 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestExtension;
 import org.springframework.security.access.AccessDeniedException;
 
-import javax.annotation.CheckForNull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;

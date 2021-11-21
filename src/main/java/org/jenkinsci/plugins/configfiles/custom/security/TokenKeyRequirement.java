@@ -25,7 +25,7 @@ package org.jenkinsci.plugins.configfiles.custom.security;
 
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 
-import javax.annotation.CheckForNull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 public class TokenKeyRequirement extends DomainRequirement {
 

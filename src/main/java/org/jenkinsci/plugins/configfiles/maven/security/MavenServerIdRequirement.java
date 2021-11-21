@@ -1,6 +1,6 @@
 package org.jenkinsci.plugins.configfiles.maven.security;
 
-import javax.annotation.CheckForNull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 
