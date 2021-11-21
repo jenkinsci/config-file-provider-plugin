@@ -17,7 +17,7 @@
     <url>https://github.com/jenkinsci/config-file-provider-plugin</url>
 
     <scm>
-        <connection>scm:git:git://github.com/jenkinsci/config-file-provider-plugin.git</connection>
+        <connection>scm:git:https://github.com/jenkinsci/config-file-provider-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/config-file-provider-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/config-file-provider-plugin</url>
         <tag>HEAD</tag>
