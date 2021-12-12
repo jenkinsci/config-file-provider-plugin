@@ -43,13 +43,13 @@ THE SOFTWARE.
                     <tr valign="center" style="border-top: thin inset darkgray">
                         <td width="32">
                             <a href="editConfig?id=${t.id}">
-                                <img width="16" height="16" title="${%edit script} ${t.name}"
-                                     src="${imagesURL}/16x16/document_edit.gif" />
+                                <l:icon title="${%edit script} ${t.name}"
+                                     class="icon-notepad icon-xlg" />
                             </a>
                             <j:out value=" " />
                             <l:confirmationLink href="removeConfig?id=${t.id}" post="true" message="Sure you want to delete [${t.name}]?">
-                                <img width="16" height="16" title="${%remove script} ${t.name}"
-                                     src="${imagesURL}/16x16/edit-delete.gif" />
+                                <l:icon title="${%remove script} ${t.name}"
+                                     class="icon-edit-delete icon-md" />
                             </l:confirmationLink>
                         </td>
                         <td >
