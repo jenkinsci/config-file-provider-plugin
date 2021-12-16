@@ -34,6 +34,8 @@
         <jenkins.version>2.303.1</jenkins.version>
         <java.level>8</java.level>
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
+        <spotbugs.effort>Max</spotbugs.effort>
+        <spotbugs.failOnError>true</spotbugs.failOnError>
     </properties>
 
     <developers>
@@ -58,7 +60,7 @@
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-2.303.x</artifactId>
-                <version>1008.vb9e22885c9cf</version>
+                <version>1008.vb9e22885c9cf </version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
