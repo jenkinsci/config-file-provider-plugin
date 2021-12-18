@@ -37,9 +37,6 @@ THE SOFTWARE.
 
 			<f:entry title="${%Server Credentials}" field="serverCredentialMappings">
                   <f:repeatableProperty field="serverCredentialMappings" />
-		          <div align="right">
-		            <f:repeatableDeleteButton />
-		          </div>
 			</f:entry>
 			
                      
@@ -47,5 +44,3 @@ THE SOFTWARE.
                       <f:textarea id="config.content" name="config.content" value="${config.content}" /> 
                   </f:entry>
 </j:jelly>
-
-
