@@ -28,11 +28,14 @@ THE SOFTWARE.
 		<cf:sitepanel />
 
 		<l:main-panel>
-			<h1>
-				<img width="48" height="48" src="${imagesURL}/16x16/document_edit.gif" />
-				<img width="16" height="16" src="${imagesURL}/16x16/empty.gif" />
-				${%Edit Configuration File}
-			</h1>
+			<div class="jenkins-app-bar">
+				<div class="jenkins-app-bar__content">
+					<h1>
+						${%Edit Configuration File}
+					</h1>
+				</div>
+			</div>
+
 			<f:form method="post" action="saveConfig">
 			   <f:section title="${%The configuration}" name="config">
 			   		<input type="hidden" name="stapler-class" value="${config.class.name}" />
