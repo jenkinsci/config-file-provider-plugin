@@ -31,15 +31,9 @@ THE SOFTWARE.
 		<l:main-panel>
 			<div class="jenkins-app-bar">
 				<div class="jenkins-app-bar__content">
-					<h1>
-						<j:out value="${%filetype}" />
-					</h1>
+					<h1>${%New configuration}</h1>
 				</div>
 			</div>
-
-			<p class="jenkins-form-description">
-				<j:out value="${%selectprovider}" />
-			</p>
 
 			<cf:selectprovider providers="${providers}"/>
 		</l:main-panel>

@@ -32,7 +32,7 @@ THE SOFTWARE.
             <j:out value="${error.renderHtml()}" />
         </j:if>
 
-        <f:entry>
+        <f:entry title="${%Type}">
             <j:forEach var="provider" items="${providers}" varStatus="loop" indexVar="index">
                 <div class="jenkins-radio">
                     <input class="jenkins-radio__input" type="radio" name="providerId" id="${provider.id}" value="${provider.id}" />
@@ -51,7 +51,7 @@ THE SOFTWARE.
         </f:entry>
 
         <f:block>
-            <f:submit value="${%Submit}" />
+            <f:submit value="${%Next}" />
         </f:block>
     </f:form>
 </j:jelly>
