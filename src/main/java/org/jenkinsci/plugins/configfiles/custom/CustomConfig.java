@@ -27,7 +27,7 @@ import hudson.Extension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
@@ -81,9 +81,9 @@ public class CustomConfig extends Config implements HasCustomizedCredentialMappi
             return Messages.custom_provider_name();
         }
 
-        @Nonnull
+        @NonNull
         @Override
-        public CustomConfig newConfig(@Nonnull String id) {
+        public CustomConfig newConfig(@NonNull String id) {
             return new CustomConfig(id,
                 Messages.CustomConfig_SettingsName(),
                 Messages.CustomConfig_SettingsComment(),
