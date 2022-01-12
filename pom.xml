@@ -62,7 +62,13 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-        </dependencies>
+            <!-- versions required by enforcer -->
+            <dependency>
+                <groupId>org.jenkins-ci</groupId>
+                <artifactId>symbol-annotation</artifactId>
+                <version>1.17</version>
+            </dependency>  
+            </dependencies>
     </dependencyManagement>
 
     <dependencies>
