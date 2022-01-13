@@ -31,7 +31,7 @@
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/config-file-provider-plugin</gitHubRepo>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <jenkins.version>2.303.1</jenkins.version>
+        <jenkins.version>2.303.3</jenkins.version>
         <java.level>8</java.level>
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
     </properties>
@@ -58,11 +58,17 @@
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-2.303.x</artifactId>
-                <version>1008.vb9e22885c9cf</version>
+                <version>1090.v0a_33df40457a_</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-        </dependencies>
+            <!-- versions required by enforcer -->
+            <dependency>
+                <groupId>org.jenkins-ci</groupId>
+                <artifactId>symbol-annotation</artifactId>
+                <version>1.17</version>
+            </dependency>  
+            </dependencies>
     </dependencyManagement>
 
     <dependencies>
