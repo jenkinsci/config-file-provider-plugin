@@ -5,7 +5,7 @@ import hudson.model.Action;
 import hudson.model.Job;
 import jenkins.model.TransientActionFactory;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -19,9 +19,9 @@ public class ConfigFilesActionFactory extends TransientActionFactory<Job> {
         return Job.class;
     }
 
-    @Nonnull
+    @NonNull
     @Override
-    public Collection<? extends Action> createFor(@Nonnull Job job) {
+    public Collection<? extends Action> createFor(@NonNull Job job) {
         return Collections.singletonList(new ConfigFilesAction(job));
     }
 }

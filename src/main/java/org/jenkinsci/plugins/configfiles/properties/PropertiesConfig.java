@@ -8,7 +8,7 @@ import org.jenkinsci.plugins.configfiles.properties.security.HasPropertyCredenti
 import org.jenkinsci.plugins.configfiles.properties.security.PropertiesCredentialMapping;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,9 +55,9 @@ public class PropertiesConfig extends Config implements HasPropertyCredentialMap
             return Messages.properties_provider_description();
         }
 
-        @Nonnull
+        @NonNull
         @Override
-        public Config newConfig(@Nonnull String id) {
+        public Config newConfig(@NonNull String id) {
             return new PropertiesConfig(id,
                     Messages.PropertiesConfig_SettingsName(),
                     Messages.PropertiesConfig_SettingsComment(),

@@ -31,9 +31,9 @@ THE SOFTWARE.
     <l:header />
     <l:side-panel>
         <l:tasks>
-            <l:task icon="images/24x24/setting.gif" href="${rootURL}/manage" title="${%Manage Jenkins}" />
-            <l:task icon="images/24x24/next.gif" href="configfiles" title="${%Config Files}" />
-            <l:task icon="images/24x24/new-package.gif" href="selectProvider" title="${%Add a new Config}" />
+            <l:task icon="icon-gear2 icon-md" href="${rootURL}/manage" title="${%Manage Jenkins}" />
+            <l:task icon="icon-next icon-md" href="configfiles" title="${%Config Files}" />
+            <l:task icon="icon-new-package icon-md" href="selectProvider" title="${%Add a new Config}" />
         </l:tasks>
     </l:side-panel>
 </j:jelly>
