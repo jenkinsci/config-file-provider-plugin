@@ -28,7 +28,7 @@ THE SOFTWARE.
 	<l:layout title="${%filetype}" norefresh="true">
 		<cf:sitepanel />
 
-		<!-- Remove when Jenkins LTS release is no longer supported by update center-->
+		<!-- TODO Remove when Jenkins LTS release is no longer supported by update center -->
 		<j:if test="${h.version.startsWith('2.289.') or h.version.startsWith('2.303.') or h.version.startsWith('2.319.')}">
 			<style>
 				.jenkins-radio__label {
