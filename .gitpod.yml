@@ -1,5 +1,6 @@
 tasks:
   - init: mvn -ntp compile 
+
 vscode:
   extensions:
     - redhat.java
