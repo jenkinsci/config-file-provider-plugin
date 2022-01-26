@@ -1,0 +1,7 @@
+tasks:
+  - init: mvn -ntp compile 
+vscode:
+  extensions:
+    - redhat.java
+    - vscjava.vscode-java-debug
+    - vscjava.vscode-maven
