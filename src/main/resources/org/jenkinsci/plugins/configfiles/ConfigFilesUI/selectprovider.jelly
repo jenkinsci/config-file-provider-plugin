@@ -25,20 +25,29 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
-	<l:layout norefresh="true">
-
+	<l:layout title="${%filetype}" norefresh="true">
 		<cf:sitepanel />
 
+		<!-- TODO Remove when Jenkins LTS release is no longer supported by update center -->
+		<style>
+			.jenkins-radio__label {
+				margin-left: 5px;
+				font-weight: 600;
+			}
+			.jenkins-radio__description {
+				margin: 4px 0 10px 21px;
+				color: var(--text-color-secondary);
+			}
+		</style>
+
 		<l:main-panel>
-			<h1>
-				<l:icon class="icon-notepad icon-xlg" />
-				<img width="16" height="16" src="${imagesURL}/16x16/empty.gif" />
-				<j:out value="${%filetype}" />
-			</h1>
-			<j:out value="${%selectprovider}" />
+			<div class="jenkins-app-bar">
+				<div class="jenkins-app-bar__content">
+					<h1>${%New configuration}</h1>
+				</div>
+			</div>
 
 			<cf:selectprovider providers="${providers}"/>
-
 		</l:main-panel>
 	</l:layout>
 </j:jelly>

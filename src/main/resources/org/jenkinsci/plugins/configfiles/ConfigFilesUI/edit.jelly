@@ -25,15 +25,17 @@ THE SOFTWARE.
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
 	<l:layout norefresh="true">
-	    <style>.CodeMirror {border: 2px inset #dee;}</style>
 		<cf:sitepanel />
 
 		<l:main-panel>
-			<h1>
-				<l:icon class="icon-notepad icon-xlg" />
-				<img width="16" height="16" src="${imagesURL}/16x16/empty.gif" />
-				${%Edit Configuration File}
-			</h1>
+			<div class="jenkins-app-bar">
+				<div class="jenkins-app-bar__content">
+					<h1>
+						${%Edit Configuration File}
+					</h1>
+				</div>
+			</div>
+
 			<f:form method="post" action="saveConfig">
 			   <f:section title="${%The configuration}" name="config">
 			   		<input type="hidden" name="stapler-class" value="${config.class.name}" />

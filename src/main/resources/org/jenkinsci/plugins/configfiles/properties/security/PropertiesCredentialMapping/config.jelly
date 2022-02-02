@@ -37,7 +37,7 @@ THE SOFTWARE.
 
          <f:entry title="" >
             <div align="right">
-             <input type="button" value="${%Delete}" class="repeatable-delete" style="margin-left: 1em;" />
+                <f:repeatableDeleteButton />
              </div>
          </f:entry>
 

@@ -25,41 +25,33 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-
     <j:set var="providers" value="${attrs.providers}" />
 
     <f:form name="addConfig" method="post" action="addConfig">
         <j:if test="${error != null}">
             <j:out value="${error.renderHtml()}" />
         </j:if>
-        <f:entry>
-            <table width="100%">
-                <j:forEach var="provider" items="${providers}" varStatus="loop" indexVar="index">
-                    <tr>
-                        <td colspan="2">
-                            <f:radio name="providerId" value="${provider.id}" id="provider-${index}" />
-                            <b>
-                                <label class="attach-previous" for="provider-${index}">${provider.displayName}</label>
-                            </b>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <j:out value=" " />
-                        </td>
-                        <td>
-                            <st:include page="newInstanceDetail.jelly" from="${provider}" />
-                        </td>
-                    </tr>
-                </j:forEach>
-            </table>
+
+        <f:entry title="${%Type}">
+            <j:forEach var="provider" items="${providers}" varStatus="loop" indexVar="index">
+                <div class="jenkins-radio">
+                    <input class="jenkins-radio__input" type="radio" name="providerId" id="${provider.id}" value="${provider.id}" />
+                    <label for="${provider.id}" class="jenkins-radio__label">
+                        ${provider.displayName}
+                    </label>
+                    <div class="jenkins-radio__description">
+                        <st:include page="newInstanceDetail.jelly" from="${provider}" />
+                    </div>
+                </div>
+            </j:forEach>
         </f:entry>
+
         <f:entry title="${%ID}" description="${%ID of the config file}">
             <f:textbox name="configId" value="${configId}" checkUrl="'checkConfigId?configId='+escape(this.value)"/>
         </f:entry>
+
         <f:block>
-            <f:submit value="${%Submit}" />
+            <f:submit value="${%Next}" />
         </f:block>
     </f:form>
-
 </j:jelly>

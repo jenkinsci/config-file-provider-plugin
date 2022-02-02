@@ -26,15 +26,7 @@ THE SOFTWARE.
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-<style type="text/css">
-div.credentialssection {
-  border-bottom: 1px solid black;
-}
-</style>
 			<j:set var="instance" value="${config}"/>
-	   		<p>
-	   		 ${%description}
-	   		</p>
 
             <j:set var="descriptor" value="${config.descriptor}"/>
             <st:include page="id-name-and-comment"  class="${descriptor.clazz}"/>
@@ -45,9 +37,6 @@ div.credentialssection {
 
 			<f:entry title="${%Server Credentials}" field="serverCredentialMappings">
                   <f:repeatableProperty field="serverCredentialMappings" />
-		          <div align="right">
-		            <f:repeatableDeleteButton />
-		          </div>
 			</f:entry>
 			
                      
@@ -55,5 +44,3 @@ div.credentialssection {
                       <f:textarea id="config.content" name="config.content" value="${config.content}" /> 
                   </f:entry>
 </j:jelly>
-
-
