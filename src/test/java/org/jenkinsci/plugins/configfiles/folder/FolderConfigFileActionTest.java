@@ -241,7 +241,7 @@ public class FolderConfigFileActionTest {
         // Clicking the button works
         // If we click on the link, it goes via POST, therefore it removes it successfully
         HtmlPage configFiles = wc.goTo(f1.getUrl() + "configfiles");
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@onclick, 'removeConfig?id=" + CONFIG_ID + "')]");
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
 
         AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
         wc.setConfirmHandler((page, s) -> {
