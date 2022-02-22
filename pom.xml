@@ -31,6 +31,7 @@
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/config-file-provider-plugin</gitHubRepo>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+        <jenkins.version>2.324</jenkins.version>
         <java.level>8</java.level>
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
     </properties>
