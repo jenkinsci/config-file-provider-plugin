@@ -31,7 +31,7 @@
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/config-file-provider-plugin</gitHubRepo>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <jenkins.version>2.324</jenkins.version>
+        <jenkins.version>2.332.1</jenkins.version>
         <java.level>8</java.level>
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
     </properties>
@@ -57,8 +57,8 @@
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.303.x</artifactId>
-                <version>1210.vcd41f6657f03</version>
+                <artifactId>bom-2.332.x</artifactId>
+                <version>1342.v729ca_3818e88</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -71,7 +71,12 @@
             <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
-                <version>2.10.0</version>
+                <version>2.11.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jenkins-ci.main</groupId>
+                <artifactId>jenkins-test-harness</artifactId>
+                <version>1736.vc72c458c5103</version>
             </dependency>
             </dependencies>
     </dependencyManagement>
