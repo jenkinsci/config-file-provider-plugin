@@ -5,6 +5,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlRadioButtonInput;
+import hudson.util.VersionNumber;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,7 +56,8 @@ public class ConfigFilesSEC1253Test {
         assertThat(store.getConfigs(), hasSize(1));
 
         HtmlPage configFiles = wc.goTo("configfiles");
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@onclick, 'removeConfig?id=" + CONFIG_ID + "')]");
+        String attribute = j.jenkins.getVersion().isOlderThan(new VersionNumber("2.324")) ? "onclick" : "data-url";
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@" + attribute + ", 'removeConfig?id=" + CONFIG_ID + "')]");
 
         AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
         wc.setConfirmHandler((page, s) -> {
@@ -87,7 +89,8 @@ public class ConfigFilesSEC1253Test {
         JenkinsRule.WebClient wc = j.createWebClient();
 
         HtmlPage configFiles = wc.goTo("configfiles");
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@onclick, 'removeConfig?id=" + CONFIG_ID + "')]");
+        String attribute = j.jenkins.getVersion().isOlderThan(new VersionNumber("2.324")) ? "onclick" : "data-url";
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@" + attribute + ", 'removeConfig?id=" + CONFIG_ID + "')]");
 
         AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
         AtomicReference<Boolean> alertCalled = new AtomicReference<>(false);

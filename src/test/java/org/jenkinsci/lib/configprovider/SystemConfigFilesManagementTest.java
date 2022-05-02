@@ -1,6 +1,7 @@
 package org.jenkinsci.lib.configprovider;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.plugins.emailext.JellyTemplateConfig;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -44,9 +45,9 @@ public class SystemConfigFilesManagementTest {
         Assert.assertEquals(1, getProvider(XmlConfig.XmlConfigProvider.class).getAllConfigs().size());
         Assert.assertEquals(1, getProvider(GroovyScript.GroovyConfigProvider.class).getAllConfigs().size());
         Assert.assertEquals(1, getProvider(CustomConfig.CustomConfigProvider.class).getAllConfigs().size());
-//        Assert.assertEquals(1, getProvider(JellyTemplateConfig.JellyTemplateConfigProvider.class).getAllConfigs().size());
+        Assert.assertEquals(1, getProvider(JellyTemplateConfig.JellyTemplateConfigProvider.class).getAllConfigs().size());
 
-        Assert.assertEquals(5, GlobalConfigFiles.get().getConfigs().size());
+        Assert.assertEquals(6, GlobalConfigFiles.get().getConfigs().size());
     }
 
     private <T> T getProvider(Class<T> providerClass) {
