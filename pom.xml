@@ -31,7 +31,7 @@
         <changelist>-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <jenkins.version>2.346</jenkins.version>
+        <jenkins.version>2.346.1</jenkins.version>
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
     </properties>
 
