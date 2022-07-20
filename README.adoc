@@ -30,11 +30,11 @@ support for the following file types:
 
 Choose the "Managed files" in the administration home:
 
-image:docs/images/Screenshot_2018-12-11_094438_001.png[image]
+image:docs/images/managed-files.png[image]
 
 Edit an existing file or add a new file:
 
-image:docs/images/cfg-files.jpg[image]
+image:docs/images/cfg-files.png[image]
 
 Choose the configuration type:
 
