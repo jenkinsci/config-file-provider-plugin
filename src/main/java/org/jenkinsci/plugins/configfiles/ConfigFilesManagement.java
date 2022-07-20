@@ -59,7 +59,7 @@ import org.kohsuke.stapler.verb.POST;
 @Extension
 public class ConfigFilesManagement extends ManagementLink implements ConfigFilesUIContract, StaplerProxy {
 
-    public static final String ICON_PATH = "/plugin/config-file-provider/images/cfg_logo.png";
+    public static final String ICON_PATH = "symbol-cfg-logo plugin-config-file-provider";
 
     private ConfigFileStore store;
 
