@@ -181,7 +181,7 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     }
 
     /**
-     * @deprecated Use <tt>GlobalConfigFiles.get().remove(String)</tt> instead.
+     * @deprecated Use @{code GlobalConfigFiles.get().remove(String)} instead.
      */
     @Deprecated
     public void remove(String configId) {
@@ -190,7 +190,7 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     }
 
     /**
-     * @deprecated Use <tt>GlobalConfigFiles.get().save(Config)</tt> instead.
+     * @deprecated Use {@code GlobalConfigFiles.get().save(Config)} instead.
      */
     @Deprecated
     public void save(Config config) {
