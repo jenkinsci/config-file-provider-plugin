@@ -186,11 +186,11 @@ public class ConfigFileBuildWrapperTest {
         boolean foundSecond = false;
         for (DomElement htmlElement : option) {
             final HtmlOption htmlOption = (HtmlOption) htmlElement;
-            if (htmlOption.getValue().equals(activeConfig.id)) {
+            if (htmlOption.getValueAttribute().equals(activeConfig.id)) {
                 Assert.assertTrue("correct config is not selected", htmlOption.isSelected());
                 foundActive = true;
             }
-            if (htmlOption.getValue().equals(secondConfig.id)) {
+            if (htmlOption.getValueAttribute().equals(secondConfig.id)) {
                 Assert.assertFalse("wrong config is selected", htmlOption.isSelected());
                 foundSecond = true;
             }
