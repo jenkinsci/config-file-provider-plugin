@@ -1,9 +1,9 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNodeList;
-import com.gargoylesoftware.htmlunit.html.HtmlOption;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.html.DomElement;
+import org.htmlunit.html.DomNodeList;
+import org.htmlunit.html.HtmlOption;
+import org.htmlunit.html.HtmlPage;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.*;
@@ -186,11 +186,11 @@ public class ConfigFileBuildWrapperTest {
         boolean foundSecond = false;
         for (DomElement htmlElement : option) {
             final HtmlOption htmlOption = (HtmlOption) htmlElement;
-            if (htmlOption.getValueAttribute().equals(activeConfig.id)) {
+            if (htmlOption.getValue().equals(activeConfig.id)) {
                 Assert.assertTrue("correct config is not selected", htmlOption.isSelected());
                 foundActive = true;
             }
-            if (htmlOption.getValueAttribute().equals(secondConfig.id)) {
+            if (htmlOption.getValue().equals(secondConfig.id)) {
                 Assert.assertFalse("wrong config is selected", htmlOption.isSelected());
                 foundSecond = true;
             }
