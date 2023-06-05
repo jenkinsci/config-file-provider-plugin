@@ -1,8 +1,8 @@
 package org.jenkinsci.plugins.configfiles.folder;
 
 import com.cloudbees.hudson.plugins.folder.Folder;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.html.HtmlAnchor;
+import org.htmlunit.html.HtmlPage;
 import hudson.model.Item;
 import hudson.util.VersionNumber;
 import jenkins.model.Jenkins;

@@ -1,7 +1,7 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
+import org.htmlunit.html.HtmlPage;
+import org.htmlunit.html.HtmlTextInput;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
@@ -107,8 +107,8 @@ public class MvnSettingsProviderTest {
 
             final HtmlTextInput name = page.getElementByName("config.name");
             final HtmlTextInput comment = page.getElementByName("config.comment");
-            Assert.assertEquals("name NOK", c1.name, name.getValueAttribute());
-            Assert.assertEquals("comment NOK", c1.comment, comment.getValueAttribute());
+            Assert.assertEquals("name NOK", c1.name, name.getValue());
+            Assert.assertEquals("comment NOK", c1.comment, comment.getValue());
         }
         {
             // GlobalMavenSettingsConfig
@@ -118,8 +118,8 @@ public class MvnSettingsProviderTest {
 
             final HtmlTextInput name = page.getElementByName("config.name");
             final HtmlTextInput comment = page.getElementByName("config.comment");
-            Assert.assertEquals("name NOK", c2.name, name.getValueAttribute());
-            Assert.assertEquals("comment NOK", c2.comment, comment.getValueAttribute());
+            Assert.assertEquals("name NOK", c2.name, name.getValue());
+            Assert.assertEquals("comment NOK", c2.comment, comment.getValue());
         }
     }
 

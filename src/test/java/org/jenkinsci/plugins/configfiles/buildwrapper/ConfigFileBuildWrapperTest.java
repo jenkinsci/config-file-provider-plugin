@@ -1,9 +1,9 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNodeList;
-import com.gargoylesoftware.htmlunit.html.HtmlOption;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.html.DomElement;
+import org.htmlunit.html.DomNodeList;
+import org.htmlunit.html.HtmlOption;
+import org.htmlunit.html.HtmlPage;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.*;
