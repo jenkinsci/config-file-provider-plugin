@@ -144,7 +144,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
         // TODO only add property when its really needed (eg. don't add it if there is no config to be saved)
         FolderConfigFileProperty folderConfigFileProperty = folder.getProperties().get(FolderConfigFileProperty.class);
         if(folderConfigFileProperty == null) {
-            folderConfigFileProperty = new FolderConfigFileProperty(folder);
+            folderConfigFileProperty = new FolderConfigFileProperty();
             try {
                 folder.addProperty(folderConfigFileProperty);
             } catch (IOException e) {
