@@ -134,7 +134,7 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
     }
 
     @Extension(optional = true)
-    @Symbol("folderConfigFile")
+    @Symbol("folderConfigFiles")
     public static class DescriptorImpl extends AbstractFolderPropertyDescriptor {
 
         @Override
