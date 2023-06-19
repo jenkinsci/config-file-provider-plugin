@@ -29,13 +29,7 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
     private Collection<Config> configs;
 
     /*package*/ FolderConfigFileProperty() {
-        this((Collection<Config>) null);
-    }
-
-    @Deprecated
-    /*package*/ FolderConfigFileProperty(AbstractFolder<?> owner) {
-        this((Collection<Config>)null);
-        setOwner(owner);
+        this(null);
     }
 
     @DataBoundConstructor
