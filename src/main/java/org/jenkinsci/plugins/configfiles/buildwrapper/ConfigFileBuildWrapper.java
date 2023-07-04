@@ -2,6 +2,7 @@
  The MIT License
 
  Copyright (c) 2011, Dominik Bartholdi
+ Copyright (c) 2023, CloudBees Inc.
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -23,27 +24,40 @@
  */
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.console.ConsoleLogFilter;
 import hudson.model.AbstractProject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildWrapperDescriptor;
+import hudson.util.Secret;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import jenkins.tasks.SimpleBuildWrapper;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
+
+import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.ConfigFiles;
+import org.jenkinsci.plugins.credentialsbinding.masking.SecretPatterns;
 
 public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
 
@@ -73,6 +87,25 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
         if (!tempFiles.isEmpty()) {
             context.setDisposer(new TempFileCleaner(tempFiles));
         }
+    }
+
+    private synchronized List<String> getSecretValuesToMask(Run<?,?> build) {
+        List<String> seecretsToMask = new ArrayList<>();
+        for (ManagedFile managedFile : managedFiles) {
+            Config config = ConfigFiles.getByIdOrNull(build, managedFile.getFileId());
+            seecretsToMask.addAll(config.getProvider().getSensitiveContentForMasking(config, build));
+        }
+        return seecretsToMask;
+    }
+
+    @Override
+    public ConsoleLogFilter createLoggerDecorator(@NonNull Run<?, ?> build) {
+        List<String> secretValues = getSecretValuesToMask(build);
+        if (secretValues.isEmpty()) {
+            // no secrets so no filtering
+            return null;
+        }
+        return new SecretFilter(secretValues, build.getCharset());
     }
 
     public List<ManagedFile> getManagedFiles() {
@@ -111,6 +144,25 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
                 LOGGER.log(Level.FINE, "Delete: {0}", new Object[]{tempFile});
                 new FilePath(workspace, tempFile).delete();
             }
+        }
+
+    }
+
+    private static final class SecretFilter extends ConsoleLogFilter implements Serializable {
+
+        private static final long serialVersionUID = 1;
+
+        private Secret pattern;
+        private String charset;
+
+        SecretFilter(Collection<String> secrets, Charset cs) {
+            pattern = Secret.fromString(SecretPatterns.getAggregateSecretPattern(secrets).pattern());
+            charset = cs.name();
+        }
+
+        @Override
+        public OutputStream decorateLogger(Run build, OutputStream logger) {
+            return new SecretPatterns.MaskingOutputStream(logger, () -> Pattern.compile(pattern.getPlainText()), charset);
         }
 
     }

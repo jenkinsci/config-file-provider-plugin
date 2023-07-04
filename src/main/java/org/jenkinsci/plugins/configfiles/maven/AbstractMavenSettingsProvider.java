@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.jenkinsci.lib.configprovider.AbstractConfigProviderImpl;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
@@ -79,4 +80,11 @@ public abstract class AbstractMavenSettingsProvider extends AbstractConfigProvid
         }
         return fileContent;
     }
+
+    @Override
+    public @NonNull List<String> getSensitiveContentForMasking(Config configFile, Run<?, ?> build) {
+        HasServerCredentialMappings settings = (HasServerCredentialMappings) configFile;
+        return CredentialsHelper.secretsForMasking(build, settings.getServerCredentialMappings());
+    }
+
 }

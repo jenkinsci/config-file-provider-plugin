@@ -30,12 +30,26 @@ public class PropertiesConfigTest {
         SystemCredentialsProvider.getInstance().getCredentials().add(new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, "creds", "", "bot", "s3cr3t"));
         GlobalConfigFiles.get().save(new PropertiesConfig("gradle", "gradle", "", "myprop=", true, Collections.singletonList(new PropertiesCredentialMapping("myprop", "creds"))));
         WorkflowJob p = r.createProject(WorkflowJob.class, "p");
-        p.setDefinition(new CpsFlowDefinition("node {configFileProvider([configFile(fileId: 'gradle', variable: 'SETTINGS')]) {echo readFile(env.SETTINGS)}}", true));
-        r.assertLogContains("myprop=s3cr3t", r.buildAndAssertSuccess(p));
+        p.setDefinition(new CpsFlowDefinition(
+                String.join("\n", 
+                  "node {",
+                  "  configFileProvider([configFile(fileId: 'gradle', ",
+                  "                                 variable: 'SETTINGS')]) {",
+                  "    String content = readFile(env.SETTINGS)",
+                  "    if (currentBuild.id == 1) { // only the first build will have the secret" ,
+                  "      assert content.contains('myprop=s3cr3t')",
+                  "    }",
+                  "    echo content",
+                  "  }",
+                  "}"),
+                true));
+        WorkflowRun b1 = r.buildAndAssertSuccess(p);
+        r.assertLogContains("myprop=****", b1);
+        r.assertLogNotContains("myprop=s3cr3t", b1);
         // Missing credentials. Currently treated as nonfatal:
         SystemCredentialsProvider.getInstance().getCredentials().set(0, new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "creds", "", "bot", "s3cr3t"));
         WorkflowRun b2 = r.buildAndAssertSuccess(p);
         r.assertLogContains("Could not find credentials [creds] for p #2", b2);
-        r.assertLogNotContains("myprop=s3cr3t", b2);
+        r.assertLogContains("myprop="+System.lineSeparator(), b2);
     }
 }

@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.configfiles.properties;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -36,5 +37,11 @@ public abstract class AbstractPropertiesProvider extends AbstractConfigProviderI
             }
         }
         return fileContent;
+    }
+
+    @Override
+    public @NonNull List<String> getSensitiveContentForMasking(Config configFile, Run<?, ?> build) {
+        HasPropertyCredentialMappings settings = (HasPropertyCredentialMappings) configFile;
+        return CredentialsHelper.secretsForMasking(build, settings.getPropertiesCredentialMappings());
     }
 }

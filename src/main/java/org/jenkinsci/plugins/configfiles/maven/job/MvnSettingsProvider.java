@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -22,6 +23,9 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import hudson.Extension;
 import hudson.FilePath;
@@ -66,9 +70,8 @@ public class MvnSettingsProvider extends SettingsProvider {
         this.settingsConfigId = settingsConfigId;
     }
 
-    @Override
-    public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
-
+    @CheckForNull
+    private MavenSettingsConfig getMavenSettingsConfig(AbstractBuild<?, ?> build, TaskListener listener) {
         if (StringUtils.isNotBlank(settingsConfigId)) {
 
             Config c = ConfigFiles.getByIdOrNull(build.getRootBuild(), settingsConfigId);
@@ -78,55 +81,75 @@ public class MvnSettingsProvider extends SettingsProvider {
                 listener.getLogger().println("ERROR: " + msg);
                 throw new IllegalStateException(msg);
             } else {
-
-                MavenSettingsConfig config;
                 if (c instanceof MavenSettingsConfig) {
-                    config = (MavenSettingsConfig) c;
-                } else {
-                    config = new MavenSettingsConfig(c.id, c.name, c.comment, c.content, MavenSettingsConfig.isReplaceAllDefault, null);
+                    return (MavenSettingsConfig) c;
                 }
+                return new MavenSettingsConfig(c.id, c.name, c.comment, c.content, MavenSettingsConfig.isReplaceAllDefault, null);
+            }
+        }
+        return null;
+    }
 
-                listener.getLogger().println("using settings config with name " + config.name);
-                listener.getLogger().println("Replacing all maven server entries not found in credentials list is " + config.getIsReplaceAll());
-                if (StringUtils.isNotBlank(config.content)) {
-                    try {
+    @Override
+    public FilePath supplySettings(AbstractBuild<?, ?> build, TaskListener listener) {
+        MavenSettingsConfig config = getMavenSettingsConfig(build, listener);
+        if (config != null) {
+            listener.getLogger().println("using settings config with name " + config.name);
+            listener.getLogger().println("Replacing all maven server entries not found in credentials list is " + config.getIsReplaceAll());
+            if (StringUtils.isNotBlank(config.content)) {
+                try {
 
-                        FilePath workspace = build.getWorkspace();
-                        if (workspace != null) {
-                            FilePath workDir = WorkspaceList.tempDir(workspace);
-                            String fileContent = config.content;
+                    FilePath workspace = build.getWorkspace();
+                    if (workspace != null) {
+                        FilePath workDir = WorkspaceList.tempDir(workspace);
+                        String fileContent = config.content;
 
-                            final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
-                            final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, serverCredentialMappings, listener);
-                            final Boolean isReplaceAll = config.getIsReplaceAll();
+                        final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
+                        final Map<String, StandardUsernameCredentials> resolvedCredentials = CredentialsHelper.resolveCredentials(build, serverCredentialMappings, listener);
+                        final Boolean isReplaceAll = config.getIsReplaceAll();
 
-                            if (!resolvedCredentials.isEmpty()) {
-                                List<String> tempFiles = new ArrayList<String>();
-                                fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
-                                for (String tempFile : tempFiles) {
-                                    build.addAction(new CleanTempFilesAction(tempFile));
-                                }
+                        if (!resolvedCredentials.isEmpty()) {
+                            List<String> tempFiles = new ArrayList<String>();
+                            fileContent = CredentialsHelper.fillAuthentication(fileContent, isReplaceAll, resolvedCredentials, workDir, tempFiles);
+                            for (String tempFile : tempFiles) {
+                                build.addAction(new CleanTempFilesAction(tempFile));
                             }
-
-                            final FilePath f = workspace.createTextTempFile("settings", ".xml", fileContent, false);
-                            LOGGER.log(Level.FINE, "Create {0}", new Object[]{f});
-                            build.getEnvironments().add(new SimpleEnvironment("MVN_SETTINGS", f.getRemote()));
-
-                            // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
-                            // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
-                            build.addAction(new CleanTempFilesAction(f.getRemote()));
-                            return f;
-                        } else {
-                            listener.getLogger().println("ERROR: can't supply maven settings, workspace is null / agent seems not connected...");
                         }
-                    } catch (Exception e) {
-                        throw new IllegalStateException("the settings.xml could not be supplied for the current build: " + e.getMessage(), e);
+
+                        final FilePath f = workspace.createTextTempFile("settings", ".xml", fileContent, false);
+                        LOGGER.log(Level.FINE, "Create {0}", new Object[]{f});
+                        build.getEnvironments().add(new SimpleEnvironment("MVN_SETTINGS", f.getRemote()));
+
+                        // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
+                        // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
+                        build.addAction(new CleanTempFilesAction(f.getRemote()));
+                        return f;
+                    } else {
+                        listener.getLogger().println("ERROR: can't supply maven settings, workspace is null / agent seems not connected...");
                     }
+                } catch (Exception e) {
+                    throw new IllegalStateException("the settings.xml could not be supplied for the current build: " + e.getMessage(), e);
                 }
             }
         }
 
         return null;
+    }
+
+    /**
+     * Obtain a list of sensitive Strings to mask for the given provider and build.
+     * For example if a {@link UsernamePasswordCredentials} credential is being
+     * injected into the file then the password (and possibly the username) would need to be masked and should be returned here.
+     * @return List of Strings that need to be masked in the console.
+     */
+    public @NonNull List<String> getSensitiveContentForMasking(AbstractBuild<?, ?> build) {
+        MavenSettingsConfig config = getMavenSettingsConfig(build, TaskListener.NULL);
+        if (config != null) {
+            final List<ServerCredentialMapping> serverCredentialMappings = config.getServerCredentialMappings();
+            final List<String> secretsForMasking = CredentialsHelper.secretsForMasking(build, serverCredentialMappings);
+            return secretsForMasking;
+        }
+        return Collections.emptyList();
     }
 
     @Extension(ordinal = 10)

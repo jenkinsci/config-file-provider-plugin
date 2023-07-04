@@ -5,9 +5,13 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.CredentialsStore;
 import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
+import hudson.EnvVars;
 import hudson.FilePath;
+import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
+import hudson.maven.MavenModuleSetBuild;
 import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
 import hudson.model.Cause.UserIdCause;
 import hudson.model.Result;
 import hudson.model.TaskListener;
@@ -21,8 +25,11 @@ import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.jvnet.hudson.test.BuildWatcher;
 import org.jvnet.hudson.test.ExtractResourceSCM;
+import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.TestBuilder;
 import org.jvnet.hudson.test.ToolInstallations;
 
 import javax.inject.Inject;
@@ -30,11 +37,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import static org.junit.Assert.assertNotNull;
 
 public class MvnSettingsCredentialsTest {
 
     @Rule
     public JenkinsRule                        j = new JenkinsRule();
+
+    @Rule
+    public BuildWatcher                       bw = new BuildWatcher();
 
     @Inject
     private MavenSettingsConfigProvider       mavenSettingProvider;
@@ -42,7 +53,7 @@ public class MvnSettingsCredentialsTest {
     @Inject
     private GlobalMavenSettingsConfigProvider globalMavenSettingsConfigProvider;
 
-    @Test
+    @Test @Issue("SECURITY-3090")
     public void serverCredentialsMustBeInSettingsXmlAtRuntime() throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
@@ -63,7 +74,31 @@ public class MvnSettingsCredentialsTest {
         p.setSettings(delegator);
         p.setGlobalSettings(delegator2);
 
-        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
+        //SECURITY-3090
+        p.getPostbuilders().add(new TestBuilder() {
+            @Override
+            public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+                EnvVars environment = build.getEnvironment(listener);
+                String settingsPath = environment.get("MVN_SETTINGS");
+                assertNotNull("There should be an environment var specifying the mvn settings", settingsPath);
+                String globalSettingsPath = environment.get("MVN_GLOBALSETTINGS");
+                assertNotNull("There should be an environment var specifying the mvn global settings", globalSettingsPath);
+                String settings = build.getWorkspace().child(settingsPath).readToString();
+                listener.getLogger().println("SETTINGS:\n" + settings);
+                String globalSettings = build.getWorkspace().child(globalSettingsPath).readToString();
+                listener.getLogger().println("GLOBAL SETTINGS:\n" + globalSettings);
+                return true;
+            }
+        });
+
+        MavenModuleSetBuild build = j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
+
+        j.assertLogNotContains("<password>bar</password>", build);
+        j.assertLogNotContains("<username>foo</username>", build);
+        j.assertLogNotContains("<password>dudepwd</password>", build);
+        j.assertLogNotContains("<username>dude</username>", build);
+        j.assertLogContains("<username>****</username>", build);
+        j.assertLogContains("<password>****</password>", build);
     }
 
     private static final class DelegatingMvnSettingsProvider extends MvnSettingsProvider {
@@ -71,6 +106,7 @@ public class MvnSettingsCredentialsTest {
         private final MvnSettingsProvider mvnSettingsProvider;
 
         public DelegatingMvnSettingsProvider(MvnSettingsProvider mvnSettingsProvider) {
+            super(mvnSettingsProvider.getSettingsConfigId());
             this.mvnSettingsProvider = mvnSettingsProvider;
         }
 
@@ -87,6 +123,7 @@ public class MvnSettingsCredentialsTest {
             Assert.assertTrue("settings must contain password", settingContent.contains("<password>bar</password>"));
             return settingsPath;
         }
+
     }
 
     private static final class DelegatingGlobalMvnSettingsProvider extends MvnGlobalSettingsProvider {
@@ -94,6 +131,7 @@ public class MvnSettingsCredentialsTest {
         private final MvnGlobalSettingsProvider mvnSettingsProvider;
 
         public DelegatingGlobalMvnSettingsProvider(MvnGlobalSettingsProvider mvnSettingsProvider) {
+            super(mvnSettingsProvider.getSettingsConfigId());
             this.mvnSettingsProvider = mvnSettingsProvider;
         }
 
@@ -115,7 +153,9 @@ public class MvnSettingsCredentialsTest {
     private MavenSettingsConfig createSettings(MavenSettingsConfigProvider provider) throws Exception {
 
         CredentialsStore store = CredentialsProvider.lookupStores(j.getInstance()).iterator().next();
-        store.addCredentials(Domain.global(), new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, "credid", "dummy desc", "foo", "bar"));
+        UsernamePasswordCredentialsImpl credentials = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, "credid", "dummy desc", "foo", "bar");
+        credentials.setUsernameSecret(true);
+        store.addCredentials(Domain.global(), credentials);
 
         ServerCredentialMapping mapping = new ServerCredentialMapping("myserver", "credid");
         List<ServerCredentialMapping> mappings = new ArrayList<ServerCredentialMapping>();
@@ -133,7 +173,9 @@ public class MvnSettingsCredentialsTest {
     private GlobalMavenSettingsConfig createGlobalSettings(GlobalMavenSettingsConfigProvider provider) throws Exception {
 
         CredentialsStore store = CredentialsProvider.lookupStores(j.getInstance()).iterator().next();
-        store.addCredentials(Domain.global(), new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, "dudecredid", "dummy desc", "dude", "dudepwd"));
+        UsernamePasswordCredentialsImpl credentials = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, "dudecredid", "dummy desc", "dude", "dudepwd");
+        credentials.setUsernameSecret(true);
+        store.addCredentials(Domain.global(), credentials);
 
         ServerCredentialMapping mapping = new ServerCredentialMapping("someserver", "dudecredid");
         List<ServerCredentialMapping> mappings = new ArrayList<ServerCredentialMapping>();

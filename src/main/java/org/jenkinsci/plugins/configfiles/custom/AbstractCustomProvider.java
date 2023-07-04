@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.configfiles.custom;
 
 import com.cloudbees.plugins.credentials.common.IdCredentials;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -60,5 +61,11 @@ public abstract class AbstractCustomProvider extends AbstractConfigProviderImpl 
             }
         }
         return fileContent;
+    }
+
+    @Override
+    public @NonNull List<String> getSensitiveContentForMasking(Config configFile, Run<?, ?> build) {
+        HasCustomizedCredentialMappings settings = (HasCustomizedCredentialMappings) configFile;
+        return CustomConfigCredentialsHelper.secretsForMasking(build, settings.getCustomizedCredentialMappings());
     }
 }
