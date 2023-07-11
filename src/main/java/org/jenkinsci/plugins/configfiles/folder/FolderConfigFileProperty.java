@@ -6,16 +6,19 @@ import com.cloudbees.hudson.plugins.folder.AbstractFolderPropertyDescriptor;
 import hudson.Extension;
 import hudson.model.*;
 import net.sf.json.JSONObject;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigByIdComparator;
 import org.jenkinsci.plugins.configfiles.ConfigByNameComparator;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.ConfigProviderComparator;
+import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFolder<?>> implements ConfigFileStore {
 
@@ -23,12 +26,21 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
 
     private static ConfigProviderComparator CONFIGPROVIDER_COMPARATOR = new ConfigProviderComparator();
 
-    private Collection<Config> configs = new TreeSet<>(COMPARATOR);
+    private Collection<Config> configs;
 
-    private transient AbstractFolder<?> owner;
+    /*package*/ FolderConfigFileProperty() {
+        this(null);
+    }
 
-    /*package*/ FolderConfigFileProperty(AbstractFolder<?> owner) {
-        setOwner(owner);
+    @DataBoundConstructor
+    public FolderConfigFileProperty(Collection<Config> configs) {
+        if(configs != null) {
+            this.configs = configs
+                .stream()
+                .collect(Collectors.toCollection(() -> new TreeSet<>(COMPARATOR)));
+        } else {
+            this.configs = new TreeSet<>(COMPARATOR);
+        }
     }
 
     @Override
@@ -116,6 +128,7 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
     }
 
     @Extension(optional = true)
+    @Symbol("folderConfigFiles")
     public static class DescriptorImpl extends AbstractFolderPropertyDescriptor {
 
         @Override
