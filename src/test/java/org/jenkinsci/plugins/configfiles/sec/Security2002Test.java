@@ -1,10 +1,13 @@
 package org.jenkinsci.plugins.configfiles.sec;
 
+import org.hamcrest.CoreMatchers;
 import org.htmlunit.html.HtmlAnchor;
+import org.htmlunit.html.HtmlElement;
 import org.htmlunit.html.HtmlPage;
 import hudson.util.VersionNumber;
 import jenkins.model.GlobalConfiguration;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
+import org.jenkinsci.plugins.configfiles.HtmlElementUtil;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.junit.Rule;
 import org.junit.Test;
@@ -51,18 +54,21 @@ public class Security2002Test {
         // Clicking the button works
         // If we click on the link, it goes via POST, therefore it removes it successfully
         HtmlPage configFiles = wc.goTo("configfiles");
-        String attribute = j.jenkins.getVersion().isOlderThan(new VersionNumber("2.324")) ? "onclick" : "data-url";
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@" + attribute + ", 'removeConfig?id=" + CONFIG_ID + "')]");
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
 
-        AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
-        wc.setConfirmHandler((page, s) -> {
-            confirmCalled.set(true);
-            return true;
-        });
-
-        assertThat(confirmCalled.get(), is(false));
-        removeAnchor.click(); 
-        assertThat(confirmCalled.get(), is(true));
+        if (j.jenkins.getVersion().isOlderThan(new VersionNumber("2.415"))) {
+            AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
+            wc.setConfirmHandler((page, s) -> {
+                confirmCalled.set(true);
+                return true;
+            });
+            assertThat(confirmCalled.get(), CoreMatchers.is(false));
+            removeAnchor.click();
+            assertThat(confirmCalled.get(), CoreMatchers.is(true));
+        } else {
+            HtmlElement document = configFiles.getDocumentElement();
+            HtmlElementUtil.clickDialogOkButton(removeAnchor, document);
+        }
         assertThat(store.getConfigs(), empty());
     }
 }
