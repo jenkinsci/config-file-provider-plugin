@@ -56,8 +56,7 @@ public class ConfigFilesSEC1253Test {
         assertThat(store.getConfigs(), hasSize(1));
 
         HtmlPage configFiles = wc.goTo("configfiles");
-        String attribute = j.jenkins.getVersion().isOlderThan(new VersionNumber("2.324")) ? "onclick" : "data-url";
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@" + attribute + ", 'removeConfig?id=" + CONFIG_ID + "')]");
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
 
         AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
         wc.setConfirmHandler((page, s) -> {
@@ -89,8 +88,7 @@ public class ConfigFilesSEC1253Test {
         JenkinsRule.WebClient wc = j.createWebClient();
 
         HtmlPage configFiles = wc.goTo("configfiles");
-        String attribute = j.jenkins.getVersion().isOlderThan(new VersionNumber("2.324")) ? "onclick" : "data-url";
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@" + attribute + ", 'removeConfig?id=" + CONFIG_ID + "')]");
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
 
         AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
         AtomicReference<Boolean> alertCalled = new AtomicReference<>(false);
