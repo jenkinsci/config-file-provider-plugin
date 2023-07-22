@@ -1,6 +1,8 @@
 package org.jenkinsci.plugins.configfiles;
 
 import org.htmlunit.html.HtmlAnchor;
+import org.htmlunit.html.HtmlButton;
+import org.htmlunit.html.HtmlElement;
 import org.htmlunit.html.HtmlForm;
 import org.htmlunit.html.HtmlInput;
 import org.htmlunit.html.HtmlPage;
@@ -56,20 +58,21 @@ public class ConfigFilesSEC1253Test {
         assertThat(store.getConfigs(), hasSize(1));
 
         HtmlPage configFiles = wc.goTo("configfiles");
-        String attribute = j.jenkins.getVersion().isOlderThan(new VersionNumber("2.324")) ? "onclick" : "data-url";
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@" + attribute + ", 'removeConfig?id=" + CONFIG_ID + "')]");
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
 
-        AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
-        wc.setConfirmHandler((page, s) -> {
-            confirmCalled.set(true);
-            return true;
-        });
-
-        assertThat(confirmCalled.get(), is(false));
-
-        removeAnchor.click();
-
-        assertThat(confirmCalled.get(), is(true));
+        if (j.jenkins.getVersion().isOlderThan(new VersionNumber("2.415"))) {
+            AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
+            wc.setConfirmHandler((page, s) -> {
+                confirmCalled.set(true);
+                return true;
+            });
+            assertThat(confirmCalled.get(), is(false));
+            removeAnchor.click();
+            assertThat(confirmCalled.get(), is(true));
+        } else {
+            HtmlElement document = configFiles.getDocumentElement();
+            HtmlElementUtil.clickDialogOkButton(removeAnchor, document);
+        }
 
         assertThat(store.getConfigs(), empty());
     }
@@ -89,25 +92,27 @@ public class ConfigFilesSEC1253Test {
         JenkinsRule.WebClient wc = j.createWebClient();
 
         HtmlPage configFiles = wc.goTo("configfiles");
-        String attribute = j.jenkins.getVersion().isOlderThan(new VersionNumber("2.324")) ? "onclick" : "data-url";
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@" + attribute + ", 'removeConfig?id=" + CONFIG_ID + "')]");
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
 
-        AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
         AtomicReference<Boolean> alertCalled = new AtomicReference<>(false);
-        wc.setConfirmHandler((page, s) -> {
-            confirmCalled.set(true);
-            return true;
-        });
         wc.setAlertHandler((page, s) -> {
             alertCalled.set(true);
         });
-
-        assertThat(confirmCalled.get(), is(false));
         assertThat(alertCalled.get(), is(false));
+        if (j.jenkins.getVersion().isOlderThan(new VersionNumber("2.415"))) {
+            AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
+            wc.setConfirmHandler((page, s) -> {
+                confirmCalled.set(true);
+                return true;
+            });
+            assertThat(confirmCalled.get(), is(false));
+            removeAnchor.click();
+            assertThat(confirmCalled.get(), is(true));
+        } else {
+            HtmlElement document = configFiles.getDocumentElement();
+            HtmlElementUtil.clickDialogOkButton(removeAnchor, document);
+        }
 
-        removeAnchor.click();
-
-        assertThat(confirmCalled.get(), is(true));
         assertThat(alertCalled.get(), is(false));
 
         assertThat(store.getConfigs(), empty());

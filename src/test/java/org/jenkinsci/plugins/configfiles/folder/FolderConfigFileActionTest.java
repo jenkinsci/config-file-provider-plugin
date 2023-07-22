@@ -1,7 +1,9 @@
 package org.jenkinsci.plugins.configfiles.folder;
 
 import com.cloudbees.hudson.plugins.folder.Folder;
+import org.hamcrest.CoreMatchers;
 import org.htmlunit.html.HtmlAnchor;
+import org.htmlunit.html.HtmlElement;
 import org.htmlunit.html.HtmlPage;
 import hudson.model.Item;
 import hudson.util.VersionNumber;
@@ -13,6 +15,7 @@ import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
+import org.jenkinsci.plugins.configfiles.HtmlElementUtil;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
@@ -242,18 +245,22 @@ public class FolderConfigFileActionTest {
         // Clicking the button works
         // If we click on the link, it goes via POST, therefore it removes it successfully
         HtmlPage configFiles = wc.goTo(f1.getUrl() + "configfiles");
-        String attribute = r.jenkins.getVersion().isOlderThan(new VersionNumber("2.324")) ? "onclick" : "data-url";
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@" + attribute + ", 'removeConfig?id=" + CONFIG_ID + "')]");
+        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
 
-        AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
-        wc.setConfirmHandler((page, s) -> {
-            confirmCalled.set(true);
-            return true;
-        });
+        if (r.jenkins.getVersion().isOlderThan(new VersionNumber("2.415"))) {
+            AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
+            wc.setConfirmHandler((page, s) -> {
+                confirmCalled.set(true);
+                return true;
+            });
+            assertThat(confirmCalled.get(), CoreMatchers.is(false));
+            removeAnchor.click();
+            assertThat(confirmCalled.get(), CoreMatchers.is(true));
+        } else {
+            HtmlElement document = configFiles.getDocumentElement();
+            HtmlElementUtil.clickDialogOkButton(removeAnchor, document);
+        }
 
-        assertThat(confirmCalled.get(), is(false));
-        removeAnchor.click();
-        assertThat(confirmCalled.get(), is(true));
         assertThat(store.getConfigs(), empty());
     }
 
