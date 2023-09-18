@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class CredentialsHelperTest {
 
-    private final static String PWD = "s3cr3t";
+    private final static String PWD = "bot-user-s3cr3t";
 
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
@@ -22,7 +22,7 @@ public class CredentialsHelperTest {
     @Test
     public void testPropertiesIsReplacedWhenReplaceTrue() throws Exception {
         Map<String, StandardUsernameCredentials> credentials = new HashMap<>();
-        credentials.put("myProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot", PWD));
+        credentials.put("myProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
 
@@ -34,7 +34,7 @@ public class CredentialsHelperTest {
     @Test
     public void testPropertiesIsNotReplacedWhenReplaceFalse() throws Exception {
         Map<String, StandardUsernameCredentials> credentials = new HashMap<>();
-        credentials.put("myProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot", PWD));
+        credentials.put("myProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
 
@@ -46,7 +46,7 @@ public class CredentialsHelperTest {
     @Test
     public void testPropertiesIsAddedWhenReplaceTrue() throws Exception {
         Map<String, StandardUsernameCredentials> credentials = new HashMap<>();
-        credentials.put("myNewProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot", PWD));
+        credentials.put("myNewProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
 
@@ -58,7 +58,7 @@ public class CredentialsHelperTest {
     @Test
     public void testPropertiesIsAddedWhenReplaceFalse() throws Exception {
         Map<String, StandardUsernameCredentials> credentials = new HashMap<>();
-        credentials.put("myNewProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot", PWD));
+        credentials.put("myNewProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
 
         final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
 

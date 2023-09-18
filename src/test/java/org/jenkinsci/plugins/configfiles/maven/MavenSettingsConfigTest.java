@@ -88,7 +88,7 @@ public class MavenSettingsConfigTest {
     @Before
     public void before() {
         GlobalConfigFiles.get().save(new MavenSettingsConfig("m2settings", "m2settings", "", "<settings/>", true, 
-                Collections.singletonList(new ServerCredentialMapping("myserver", createCredential("creds", "bot", "s3cr3t").getId()))));
+                Collections.singletonList(new ServerCredentialMapping("myserver", createCredential("creds", "bot-user-name", "bot-user-s3cr3t").getId()))));
         GlobalConfigFiles.get().save(new GlobalMavenSettingsConfig("m2GlobalSettings", "m2GlobalSettings", "", "<settings/>", true, 
                 Collections.singletonList(new ServerCredentialMapping("myGlobalServer", createCredential("creds2", "admin", "sensitive").getId()))));
 
@@ -104,8 +104,8 @@ public class MavenSettingsConfigTest {
                 "    String settings = readFile(env.SETTINGS)",
                 "    echo settings",
                 "    if (!settings.equals('<settings/>')) {", //Build #2 won't have credentials to assert on
-                "      assert settings.contains('<password>s3cr3t</password>')",
-                "      assert settings.contains('<username>bot</username>')",
+                "      assert settings.contains('<password>bot-user-s3cr3t</password>')",
+                "      assert settings.contains('<username>bot-user-name</username>')",
                 "    }",
                 "    settings = readFile(env.GOBAL_SETTINGS)",
                 "    echo settings",
@@ -116,14 +116,14 @@ public class MavenSettingsConfigTest {
                 "  }",
                 "}"), true));
         WorkflowRun run = r.buildAndAssertSuccess(p);
-        r.assertLogNotContains("<password>s3cr3t</password>", run);
-        r.assertLogNotContains("<username>bot</username>", run);
+        r.assertLogNotContains("<password>bot-user-s3cr3t</password>", run);
+        r.assertLogNotContains("<username>bot-user-name</username>", run);
         r.assertLogNotContains("<password>sensitive</password>", run);
         r.assertLogNotContains("<username>admin</username>", run);
         r.assertLogContains("<password>****</password>", run);
         r.assertLogContains("<username>****</username>", run);
         // Missing credentials. Currently treated as nonfatal:
-        SystemCredentialsProvider.getInstance().getCredentials().set(0, new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "creds", "", "bot", "s3cr3t"));
+        SystemCredentialsProvider.getInstance().getCredentials().set(0, new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "creds", "", "bot-user-name", "bot-user-s3cr3t"));
         SystemCredentialsProvider.getInstance().getCredentials().set(1, new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "creds2", "", "admin", "sensitive"));
         WorkflowRun b2 = r.buildAndAssertSuccess(p);
         r.assertLogContains("Could not find credentials [creds] for p #2", b2);
@@ -141,8 +141,8 @@ public class MavenSettingsConfigTest {
             public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
                 String settings = build.getWorkspace().child(build.getEnvironment(listener).get("SETTINGS")).readToString();
                 listener.getLogger().println(settings);
-                assertThat(settings, containsString("<password>s3cr3t</password>"));
-                assertThat(settings, containsString("<username>bot</username>"));
+                assertThat(settings, containsString("<password>bot-user-s3cr3t</password>"));
+                assertThat(settings, containsString("<username>bot-user-name</username>"));
 
                 
                 settings = build.getWorkspace().child(build.getEnvironment(listener).get("GLOBAL_SETTINGS")).readToString();
@@ -154,8 +154,8 @@ public class MavenSettingsConfigTest {
         });
         p.setAssignedNode(slave);
         FreeStyleBuild run = r.buildAndAssertSuccess(p);
-        r.assertLogNotContains("<password>s3cr3t</password>", run);
-        r.assertLogNotContains("<username>bot</username>", run);
+        r.assertLogNotContains("<password>bot-user-s3cr3t</password>", run);
+        r.assertLogNotContains("<username>bot-user-name</username>", run);
         r.assertLogNotContains("<password>sensitive</password>", run);
         r.assertLogNotContains("<username>admin</username>", run);
         r.assertLogContains("<password>****</password>", run);
