@@ -26,6 +26,7 @@ package org.jenkinsci.lib.configprovider;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -44,6 +45,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.ReflectionUtils;
 import jenkins.model.Jenkins;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 
 /**
  * A ConfigProvider represents a configuration file (such as Maven's settings.xml) where the user can choose its actual content among several {@linkplain Config concrete contents} that are
@@ -201,6 +203,10 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
     /**
      * Provide the given content file.
      *
+     * <strong>Implementation Note:</strong>If this is overridden in a sub class and credentials are injected into
+     * the content - then the implementation must also override {@link #getSensitiveContentForMasking(Config, Run)} to
+     * avoid accidental disclosure.
+     *
      * @param configFile the file content to be provided
      * @param workDir target workspace directory
      * @param listener the listener
@@ -208,11 +214,26 @@ public abstract class ConfigProvider extends Descriptor<Config> implements Exten
      *                  be deleted by the caller
      * @return file content
      * @throws IOException in case an exception occurs when providing the content or other needed files
+     * @see #getSensitiveContentForMasking(Config, Run)
      * @since 2.16
      */
     @CheckForNull
     public String supplyContent(@NonNull Config configFile, Run<?, ?> build, FilePath workDir, TaskListener listener, @NonNull List<String> tempFiles) throws IOException {
         return configFile.content;
+    }
+
+    /**
+     * Obtain a list of sensitive Strings to mask for the given provider and build.
+     * For example if a {@link UsernamePasswordCredentials}  is being
+     * injected into a file then the password (and possibly the username) from the resolved credential
+     * would need to be masked and should be returned here.
+     *
+     * @param configFile the file content to provide sensitive strings for.
+     * @param build the build for which the configFile applies.
+     * @return List of Strings that need to be masked in the console.
+     */
+    public @NonNull List<String> getSensitiveContentForMasking(Config configFile, Run<?, ?> build) {
+        return Collections.emptyList();
     }
 
 }

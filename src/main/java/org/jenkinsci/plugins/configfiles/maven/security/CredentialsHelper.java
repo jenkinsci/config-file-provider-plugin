@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.configfiles.maven.security;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,7 +37,7 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
-
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -219,6 +220,30 @@ public class CredentialsHelper {
         content = writer.toString();
 
         return content;
+    }
+
+    public static @NonNull List<String> secretsForMasking(Run<?, ?> build, List<ServerCredentialMapping> propertiesCredentialMappings) {
+        List<String> sensitiveStrings = new ArrayList<>();
+        final Map<String, StandardUsernameCredentials> resolveCredentials = resolveCredentials(build, propertiesCredentialMappings, TaskListener.NULL);
+        for (StandardUsernameCredentials credential : resolveCredentials.values()) {
+            if (credential.isUsernameSecret()) {
+                sensitiveStrings.add(credential.getUsername());
+            }
+            if (credential instanceof StandardUsernamePasswordCredentials) {
+                sensitiveStrings.add(((StandardUsernamePasswordCredentials) credential).getPassword().getPlainText());
+            } else if (credential instanceof SSHUserPrivateKey) {
+                SSHUserPrivateKey sshUserPrivateKey = (SSHUserPrivateKey) credential;
+                Secret passphrase = sshUserPrivateKey.getPassphrase();
+                if (passphrase != null && !passphrase.getPlainText().isBlank()) {
+                    sensitiveStrings.add(passphrase.getPlainText());
+                }
+                // ssh private keys are on disk and not part of the settings file.
+                // The actual private key is multi-line and not masked.
+                // https://github.com/jenkinsci/credentials-binding-plugin/pull/92
+                // the location of the key is not considered sensitive if leaked
+            }
+        }
+        return sensitiveStrings;
     }
 
     /*

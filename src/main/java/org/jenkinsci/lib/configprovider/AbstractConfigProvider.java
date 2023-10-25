@@ -37,6 +37,7 @@ import jenkins.model.Jenkins;
  * 
  * @deprecated as of 1.2. Extend {@link AbstractConfigProviderImpl} directly.
  */
+@Deprecated
 public abstract class AbstractConfigProvider extends AbstractConfigProviderImpl {
 
     protected final String ID_PREFIX = this.getClass().getSimpleName() + ".";

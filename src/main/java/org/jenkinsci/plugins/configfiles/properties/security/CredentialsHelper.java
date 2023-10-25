@@ -5,6 +5,7 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import org.apache.commons.lang.StringUtils;
@@ -109,6 +110,25 @@ public class CredentialsHelper {
                     new Object[]{propertyKey, credential == null ? null : credential.getId(), credential == null ? null : credential.getClass()});
         }
         return propertyKey + "=" + propertyValue;
+    }
+
+    public static @NonNull List<String> secretsForMasking(Run<?, ?> build, List<PropertiesCredentialMapping> propertiesCredentialMappings) {
+        List<String> sensitiveStrings = new ArrayList<>();
+        final Map<String, StandardUsernameCredentials> resolveCredentials = resolveCredentials(build, propertiesCredentialMappings, TaskListener.NULL);
+        for (StandardUsernameCredentials credential : resolveCredentials.values()) {
+            // username is not used so no need to mask.
+            if (credential instanceof StandardUsernamePasswordCredentials) {
+                sensitiveStrings.add(((StandardUsernamePasswordCredentials)credential).getPassword().getPlainText());
+            } else if (credential instanceof SSHUserPrivateKey) {
+                SSHUserPrivateKey sshUserPrivateKey = (SSHUserPrivateKey) credential;
+                List<String> privateKeys = sshUserPrivateKey.getPrivateKeys();
+                if (!sshUserPrivateKey.getPrivateKeys().isEmpty()) {
+                    // only the first key is supported
+                    sensitiveStrings.add(privateKeys.get(0));
+                }
+            }
+        }
+        return sensitiveStrings;
     }
 
 }

@@ -29,6 +29,7 @@ import com.cloudbees.plugins.credentials.common.IdCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -80,6 +81,34 @@ public class CustomConfigCredentialsHelper {
             }
         }
         return customizedCredentialsMap;
+    }
+
+    public static @NonNull List<String> secretsForMasking(Run<?, ?> build, final List<CustomizedCredentialMapping> customizedCredentialMappings) {
+        List<String> sensitiveStrings = new ArrayList<>();
+        final Map<String, IdCredentials> resolveCredentials = resolveCredentials(build, customizedCredentialMappings, TaskListener.NULL);
+        for (IdCredentials credential : resolveCredentials.values()) {
+            // username is not used so no need to mask.
+            if (credential instanceof StandardUsernamePasswordCredentials) {
+                StandardUsernamePasswordCredentials supc = (StandardUsernamePasswordCredentials)credential;
+                if (supc.isUsernameSecret()) {
+                    sensitiveStrings.add(supc.getUsername());
+                }
+                sensitiveStrings.add(supc.getPassword().getPlainText());
+            } else if (credential instanceof SSHUserPrivateKey) {
+                SSHUserPrivateKey sshUserPrivateKey = (SSHUserPrivateKey) credential;
+                if (sshUserPrivateKey.isUsernameSecret()) {
+                    sensitiveStrings.add(sshUserPrivateKey.getUsername());
+                }
+                List<String> privateKeys = sshUserPrivateKey.getPrivateKeys();
+                if (!sshUserPrivateKey.getPrivateKeys().isEmpty()) {
+                    // only the first key is supported
+                    sensitiveStrings.add(privateKeys.get(0));
+                }
+            } else if (credential instanceof StringCredentials) {
+                sensitiveStrings.add(((StringCredentials)credential).getSecret().getPlainText());
+            }
+        }
+        return sensitiveStrings;
     }
 
     public static String fillAuthentication(Run<?, ?> build, FilePath workDir, TaskListener listener,
