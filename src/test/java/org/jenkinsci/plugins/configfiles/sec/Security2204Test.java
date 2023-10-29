@@ -40,7 +40,7 @@ public class Security2204Test {
         try {
             tryToReplaceAuthOnXml("settings-xxe.xml");
         } catch (SAXParseException e) {
-            assertThat(e.getMessage(), containsString("access is not allowed due to restriction set by the accessExternalDTD property"));
+            assertThat(e.getMessage(), containsString("DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true."));
             return;
             // The console also prints the message out:
             // [Fatal Error] :5:13: External Entity: Failed to read external document 'oob.xml', because 'http' access is not allowed due to restriction set by the accessExternalDTD property.
