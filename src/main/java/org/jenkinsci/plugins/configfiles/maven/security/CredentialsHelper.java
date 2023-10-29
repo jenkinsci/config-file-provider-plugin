@@ -16,8 +16,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -27,12 +25,12 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import jenkins.util.xml.XMLUtils;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import com.cloudbees.jenkins.plugins.sshcredentials.SSHUserPrivateKey;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
@@ -118,12 +116,7 @@ public class CredentialsHelper {
             return mavenSettingsContent;
         }
 
-        // TODO: switch to XMLUtils.parse(Reader) when the baseline > 2.179 or  XMLUtils.parse(InputSteam) > 2.265
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        //documentBuilderFactory.isValidating() is false by default, so these attributes won't avoid to parse an usual maven settings.
-        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        Document doc = documentBuilderFactory.newDocumentBuilder().parse(new InputSource(new StringReader(content)));
+        Document doc = XMLUtils.parse(new StringReader(content));
 
         Map<String, Node> removedMavenServers = Collections.emptyMap();
 
