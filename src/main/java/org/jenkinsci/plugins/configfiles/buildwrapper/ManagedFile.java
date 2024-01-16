@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.ExtensionPoint;
 import hudson.Util;
@@ -49,6 +50,7 @@ import java.io.Serializable;
  */
 public class ManagedFile extends ConfigFile implements ExtensionPoint, Describable<ManagedFile>, Serializable {
 
+    @SuppressFBWarnings(value = "PA_PUBLIC_PRIMITIVE_ATTRIBUTE", justification = "Preserve API compatibility.")
     public String variable;
 
     /**
