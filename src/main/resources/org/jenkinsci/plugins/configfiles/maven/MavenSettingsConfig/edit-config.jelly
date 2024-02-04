@@ -22,29 +22,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" >
-			<j:set var="instance" value="${config}"/>
-	   		<p>
-	   		 ${%description}
-	   		</p>
+  <j:set var="instance" value="${config}"/>
+  <p>
+    ${%description}
+  </p>
 
-            <j:set var="descriptor" value="${config.descriptor}"/>
-            <st:include page="id-name-and-comment"  class="${descriptor.clazz}"/>
+  <j:set var="descriptor" value="${config.descriptor}"/>
+  <st:include page="id-name-and-comment"  class="${descriptor.clazz}"/>
 
-            <f:entry>
-                <f:checkbox title="${%Replace All}" field="isReplaceAll" default="true" value="${config.isReplaceAll}"/>
-            </f:entry>
+  <f:entry>
+    <f:checkbox title="${%Replace All}" field="isReplaceAll" default="true" value="${config.isReplaceAll}"/>
+  </f:entry>
 
-			<f:entry title="${%Server Credentials}">
-                  <f:repeatableProperty field="serverCredentialMappings" />
-			</f:entry>
-                     
-            <f:entry title="${%Content}">
-                <f:textarea id="config.content" name="config.content" value="${config.content}" /> 
-            </f:entry>
+  <f:entry title="${%Server Credentials}">
+    <f:repeatableProperty field="serverCredentialMappings" noAddButton="${readOnlyMode}">
+      <j:if test="${not readOnlyMode}">
+        <f:repeatableDeleteButton />
+      </j:if>
+    </f:repeatableProperty>
+  </f:entry>
+
+  <f:entry title="${%Content}">
+    <f:textarea id="config.content" name="config.content" value="${config.content}" />
+  </f:entry>
 </j:jelly>
 
 

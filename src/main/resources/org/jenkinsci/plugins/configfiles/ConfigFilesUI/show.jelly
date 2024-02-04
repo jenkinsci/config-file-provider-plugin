@@ -29,7 +29,7 @@ THE SOFTWARE.
 		<l:main-panel>
 	
 			<f:form method="" action="">
-				<f:section title="${%Script details}" name="config">
+				<f:section title="${config.descriptor.displayName}" name="config">
 					<j:choose>
 						<j:when test="${config.class.name == 'org.jenkinsci.lib.configprovider.model.Config'}">
 							<st:include page="show-config.jelly" from="${instance}" />
