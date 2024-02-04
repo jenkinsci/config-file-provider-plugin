@@ -26,56 +26,61 @@ THE SOFTWARE.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
          xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
 
+    <st:adjunct includes="org.jenkinsci.plugins.configfiles.styles"/>
     <j:set var="groupedConfigs" value="${attrs.groupedConfigs}"/>
 
     <div class="excerpt">
 
-        <j:forEach var="pEntry" items="${groupedConfigs}">
-            <p/>
-            <p/>
-            <table class="pane">
-                <tr valign="center" style="border-top: 0px;">
-                    <td class="pane-header" colspan="3">
-                        <i>
+        <table class="jenkins-table cfp-table">
+            <j:forEach var="pEntry" items="${groupedConfigs}">
+                <tbody>
+                    <tr class="cfp-table__section-header cfp-table__section-header--title">
+                        <td colspan="6" >
                             ${pEntry.key.displayName}
-                        </i>
-                    </td>
-                </tr>
-                <j:forEach var="t" items="${pEntry.value}">
-                    <tr valign="center" style="border-top: thin inset darkgray">
-                        <td width="32">
-                            <a href="editConfig?id=${t.id}">
-                                <l:icon title="${%edit script} ${t.name}"
-                                     class="icon-notepad icon-md"/>
-                            </a>
-                            <j:out value=" "/>
-                            <l:confirmationLink href="removeConfig?id=${t.id}" post="true" message="Sure you want to delete [${t.name}]?">
-                                <l:icon title="${%remove script} ${t.name}"
-                                     class="icon-edit-delete icon-md"/>
-                            </l:confirmationLink>
                         </td>
-                        <td>
-                            <i>
+                    </tr>
+                    <tr class="cfp-table__section-header cfp-table__section-header--fields">
+                        <td class="jenkins-table__cell--tight cfp-table__icon">
+                            ${%E}
+                        </td>
+                        <td class="jenkins-table__cell--tight cfp-table__icon">
+                            ${%D}
+                        </td>
+                        <td>${%Name}</td>
+                        <td>${%ID}</td>
+                        <td>${%Comment}</td>
+                        <td>${%Content Type}</td>
+                    </tr>
+                    <j:forEach var="t" items="${pEntry.value}">
+                        <tr>
+                            <td class="jenkins-table__cell--tight cfp-table__icon">
+                                <a href="editConfig?id=${t.id}">
+                                    <l:icon tooltip="${%Edit script} ${t.name}" src="symbol-create-outline plugin-ionicons-api"
+                                         class="icon-md"/>
+                                </a>
+                            </td>
+                            <td class="jenkins-table__cell--tight cfp-table__icon">
+                                <l:confirmationLink href="removeConfig?id=${t.id}" post="true" message="Sure you want to delete [${t.name}]?">
+                                    <l:icon tooltip="${%Remove script} ${t.name}" src="symbol-trash-outline plugin-ionicons-api"
+                                            class="icon-md"/>
+                                </l:confirmationLink>
+                            </td>
+                            <td>
                                 ${t.name}
-                            </i>
-                        </td>
-                        <td>
-                            <code>
+                            </td>
+                            <td>
                                 ${t.id}
-                            </code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            ${t.contentType}
-                        </td>
-                        <td>
-                            ${t.comment}
-                        </td>
-                        <td></td>
-                    </tr>
-                </j:forEach>
-            </table>
-        </j:forEach>
+                            </td>
+                            <td>
+                                ${t.comment}
+                            </td>
+                            <td>
+                                ${t.contentType}
+                            </td>
+                        </tr>
+                    </j:forEach>
+                </tbody>
+            </j:forEach>
+        </table>
     </div>
 </j:jelly>
