@@ -1,0 +1,34 @@
+.cfp-table {
+  width: auto;
+}
+
+.cfp-table__icon {
+  text-align: center!important;
+  width: 3rem!important;
+}
+
+.cfp-table__section-header > td {
+  background-color: color-mix(in srgb, var(--medium-grey) 20%, var(--light-grey))!important;
+  height: unset!important;
+  font-weight: 600!important;
+  padding-top: 0!important;
+  padding-bottom: 0!important;
+}
+
+.cfp-table > tbody:not(:first-of-type):before {
+  content: "";
+  display: block;
+  height: 20px;
+}
+
+.cfp-table__section-header--title > td {
+  padding: 0 .5rem!important;
+}
+
+.cfp-table__section-header--fields > td:not(.cfp-table__icon) {
+  padding-left: 1.6rem!important;
+}
+
+.jenkins-radio__label {
+  font-weight: 600;
+}
