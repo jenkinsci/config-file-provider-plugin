@@ -43,17 +43,4 @@ THE SOFTWARE.
 		
 		</l:main-panel>
 	</l:layout>
-	<j:if test="${contentType!=null}">
-		<st:adjunct includes="
-	        org.kohsuke.stapler.codemirror.mode.${contentType.cmMode}.${contentType.cmMode},
-	        org.kohsuke.stapler.codemirror.theme.default"/>
-		<script>
-	      var editor = CodeMirror.fromTextArea(document.getElementById("config.content"), {
-	        lineNumbers: true,
-	        matchBrackets: true,
-	        mode: "${contentType.mime}",
-	        readOnly: true
-	      });
-	    </script>
-    </j:if>	
 </j:jelly>
