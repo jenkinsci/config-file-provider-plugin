@@ -52,10 +52,10 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item projectOrFolder, @QueryParameter String serverId) {
-            List<Permission> permsToCheck = projectOrFolder == null ? Arrays.asList(Jenkins.ADMINISTER) : Arrays.asList(Item.EXTENDED_READ, CredentialsProvider.USE_ITEM);
+            List<Permission> permsToCheck = projectOrFolder == null ? Arrays.asList(Jenkins.MANAGE) : Arrays.asList(Item.EXTENDED_READ, CredentialsProvider.USE_ITEM);
             AccessControlled contextToCheck = projectOrFolder == null ? Jenkins.get() : projectOrFolder;
             
-            // If we're on the global page and we don't have administer permission or if we're in a project or folder 
+            // If we're on the global page and we don't have Overall/Manage permission or if we're in a project or folder
             // and we don't have permission to use credentials and extended read in the item
             if (permsToCheck.stream().anyMatch( per -> !contextToCheck.hasPermission(per))) {
                 return new StandardUsernameListBoxModel().includeCurrentValue(serverId);

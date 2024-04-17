@@ -32,6 +32,8 @@
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
         <jenkins.version>2.414.3</jenkins.version>
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
+        <!-- Needed to use Jenkins.MANAGE -->
+        <useBeta>true</useBeta>
     </properties>
 
     <developers>

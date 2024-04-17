@@ -73,7 +73,7 @@ public class CustomizedCredentialMapping extends AbstractDescribableImpl<Customi
 
             StandardListBoxModel result = new StandardListBoxModel();
             if (item == null) {
-                if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+                if (!Jenkins.get().hasPermission(Jenkins.MANAGE)) {
                     return result.includeCurrentValue(credentialsId);
                 }
                 return result
