@@ -52,10 +52,10 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
     public static class DescriptorImpl extends Descriptor<PropertiesCredentialMapping> {
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item projectOrFolder, @QueryParameter String propertyKey) {
-            Permission permToCheck = projectOrFolder == null ? Jenkins.ADMINISTER : Item.CONFIGURE;
+            Permission permToCheck = projectOrFolder == null ? Jenkins.MANAGE : Item.CONFIGURE;
             AccessControlled contextToCheck = projectOrFolder == null ? Jenkins.get() : projectOrFolder;
 
-            // If we're on the global page and we don't have administer permission or if we're in a project or folder 
+            // If we're on the global page and we don't have Overall/Manage permission or if we're in a project or folder
             // and we don't have configure permission there
             if (!contextToCheck.hasPermission(permToCheck)) {
                 return new StandardUsernameListBoxModel().includeCurrentValue(propertyKey);

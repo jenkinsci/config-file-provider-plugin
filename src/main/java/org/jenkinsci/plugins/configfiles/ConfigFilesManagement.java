@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.servlet.ServletException;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.Item;
@@ -68,15 +69,21 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
     }
 
     /**
-     * The global configuration actions are exclusive of Jenkins administer.
+     * The global configuration actions are exclusive to Overall/Manage permission.
      * @return The target.
      */
     @Override
     public Object getTarget() {
-        checkPermission(Jenkins.ADMINISTER);
+        checkPermission(Jenkins.MANAGE);
         return this;
     }
-    
+
+    @NonNull
+    @Override
+    public Permission getRequiredPermission() {
+        return Jenkins.MANAGE;
+    }
+
     /**
      * @see hudson.model.Action#getDisplayName()
      */
@@ -221,7 +228,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
 
         if (error != null) {
             req.setAttribute("error", error);
-            checkPermission(Jenkins.ADMINISTER);
+            checkPermission(Jenkins.MANAGE);
             req.setAttribute("providers", ConfigProvider.all());
             req.setAttribute("configId", configId);
             req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);

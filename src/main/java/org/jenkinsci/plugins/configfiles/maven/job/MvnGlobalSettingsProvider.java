@@ -162,7 +162,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
         }
 
         public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, @QueryParameter String settingsConfigId) {
-            Permission permToCheck = project == null ? Jenkins.ADMINISTER : Item.EXTENDED_READ;
+            Permission permToCheck = project == null ? Jenkins.MANAGE : Item.EXTENDED_READ;
             AccessControlled contextToCheck = project == null ? Jenkins.get() : project;
 
             ListBoxModel items = new ListBoxModel();
