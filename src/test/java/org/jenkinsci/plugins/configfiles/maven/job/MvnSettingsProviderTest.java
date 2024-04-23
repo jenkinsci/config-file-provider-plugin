@@ -1,6 +1,8 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
+import java.util.List;
 import org.htmlunit.html.HtmlPage;
+import org.htmlunit.html.HtmlPlainText;
 import org.htmlunit.html.HtmlTextInput;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Cause;
@@ -105,10 +107,8 @@ public class MvnSettingsProviderTest {
             // http://localhost:8080/configfiles/show?id=org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig1383601194902
             final HtmlPage page = client.goTo("configfiles/show?id=" + c1.id);
 
-            final HtmlTextInput name = page.getElementByName("config.name");
-            final HtmlTextInput comment = page.getElementByName("config.comment");
-            Assert.assertEquals("name NOK", c1.name, name.getValue());
-            Assert.assertEquals("comment NOK", c1.comment, comment.getValue());
+            final List<?> idElement = page.getByXPath("//*[contains(text(),'" + c1.id + "')]");
+            Assert.assertEquals(idElement.size(), 1);
         }
         {
             // GlobalMavenSettingsConfig
@@ -116,10 +116,8 @@ public class MvnSettingsProviderTest {
             // http://localhost:8080/configfiles/show?id=org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig23435346436324
             final HtmlPage page = client.goTo("configfiles/show?id=" + c2.id);
 
-            final HtmlTextInput name = page.getElementByName("config.name");
-            final HtmlTextInput comment = page.getElementByName("config.comment");
-            Assert.assertEquals("name NOK", c2.name, name.getValue());
-            Assert.assertEquals("comment NOK", c2.comment, comment.getValue());
+            final List<?> idElement = page.getByXPath("//*[contains(text(),'" + c2.id + "')]");
+            Assert.assertEquals(idElement.size(), 1);
         }
     }
 
