@@ -113,7 +113,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
         public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, @AncestorInPath AccessControlled ac) {
             // You should have permission to configure your project in order to get the available managed files
             if (project != null) {
-                project.checkPermission(Item.CONFIGURE);
+                project.checkAnyPermission(Item.CONFIGURE, Item.EXTENDED_READ);
             } else {
                 ac.checkPermission(Item.CREATE); // This to get the first parent to validate the authorization (Folder, View or Jenkins)
             }
@@ -138,7 +138,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
             // You should have permission to configure your project in order to check whether the selected file id is
             // allowed to you
             if (context != null) {
-                context.checkPermission(Item.CONFIGURE);
+                context.checkAnyPermission(Item.CONFIGURE, Item.EXTENDED_READ);
             } else {
                 ac.checkPermission(Item.CREATE);
             }

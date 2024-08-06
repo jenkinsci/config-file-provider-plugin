@@ -37,7 +37,7 @@ THE SOFTWARE.
 			</div>
 
 			<f:form method="post" action="saveConfig">
-			   <f:section title="${%The configuration}" name="config">
+			   <f:section title="${config.descriptor.displayName}" name="config">
 			   		<input type="hidden" name="stapler-class" value="${config.class.name}" />
 			   		<j:choose>
 			          <j:when test="${config.class.name == 'org.jenkinsci.lib.configprovider.model.Config'}">

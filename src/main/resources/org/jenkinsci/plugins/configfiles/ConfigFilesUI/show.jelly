@@ -29,7 +29,7 @@ THE SOFTWARE.
 		<l:main-panel>
 	
 			<f:form method="" action="">
-				<f:section title="${%Script details}" name="config">
+				<f:section title="${config.descriptor.displayName}" name="config">
 					<j:choose>
 						<j:when test="${config.class.name == 'org.jenkinsci.lib.configprovider.model.Config'}">
 							<st:include page="show-config.jelly" from="${instance}" />
@@ -43,17 +43,4 @@ THE SOFTWARE.
 		
 		</l:main-panel>
 	</l:layout>
-	<j:if test="${contentType!=null}">
-		<st:adjunct includes="
-	        org.kohsuke.stapler.codemirror.mode.${contentType.cmMode}.${contentType.cmMode},
-	        org.kohsuke.stapler.codemirror.theme.default"/>
-		<script>
-	      var editor = CodeMirror.fromTextArea(document.getElementById("config.content"), {
-	        lineNumbers: true,
-	        matchBrackets: true,
-	        mode: "${contentType.mime}",
-	        readOnly: true
-	      });
-	    </script>
-    </j:if>	
 </j:jelly>
