@@ -9,24 +9,6 @@
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-
-    <j:set var="descriptor" value="${config.descriptor}"/>
-    <j:set var="instance" value="${config}"/>
-    
-	<f:entry title="${%Name}">
-		<f:textbox readonly="readonly" name="config.name" value="${config.name}" />
-	</f:entry>
-	<f:entry title="${%Comment}">
-		<f:textbox readonly="readonly" name="config.comment" value="${config.comment}" />
-	</f:entry>
-    <f:entry>
-        <f:checkbox title="${%Replace All}" description="Replace all servers, even ones not found in provided credentials" name="config.replaceAll" value="${config.isReplaceAll}"/>
-    </f:entry>
-    <f:entry title="${%Server Credentials}" field="serverCredentialMappings">
-        <f:repeatableProperty field="serverCredentialMappings" noAddButton="true" />
-    </f:entry>	
-	<f:entry title="${%Content}">
-		<f:textarea readonly="readonly" id="config.content" name="config.content" value="${config.content}" />
-	</f:entry>
-
+  <j:set var="readOnlyMode" value="true"/>
+  <st:include page="edit-config" it="${config}"/>
 </j:jelly>

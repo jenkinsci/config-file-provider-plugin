@@ -33,10 +33,4 @@ THE SOFTWARE.
          <f:entry title="${%Credentials}" field="credentialsId" >
              <c:select />
          </f:entry>
-
-         <f:entry title="" >
-            <div align="right">
-                <f:repeatableDeleteButton />
-             </div>
-         </f:entry>
 </j:jelly>
