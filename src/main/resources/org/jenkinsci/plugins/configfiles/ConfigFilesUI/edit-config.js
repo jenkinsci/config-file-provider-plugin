@@ -1,9 +1,9 @@
-Behaviour.specify("textarea#config\\.content", "config.content", 0, function(textarea) {
+document.addEventListener("DOMContentLoaded", function() {
+    const textarea = document.querySelector("textarea#config\\.content");
     const contentTypeElement = document.getElementsByName("_.contentType")[0];
-    const readOnlyFlag = document.getElementsByName("readOnlyFlag")[0]
+    const readOnlyFlag = document.getElementsByName("readOnlyFlag")[0];
 
-
-    if (contentTypeElement && contentTypeElement.value !== "") {
+    if (textarea && contentTypeElement && contentTypeElement.value !== "") {
         const contentTypeVal = contentTypeElement.value;
 
         var editor = CodeMirror.fromTextArea(textarea, {
