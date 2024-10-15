@@ -27,7 +27,7 @@ THE SOFTWARE.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 	<l:layout norefresh="true">
 		<l:main-panel>
-	
+
 			<f:form method="" action="">
 				<f:section title="${%Script details}" name="config">
 					<j:choose>
@@ -46,14 +46,14 @@ THE SOFTWARE.
 	<j:if test="${contentType!=null}">
 		<st:adjunct includes="
 	        org.kohsuke.stapler.codemirror.mode.${contentType.cmMode}.${contentType.cmMode},
-	        org.kohsuke.stapler.codemirror.theme.default"/>
-		<script>
-	      var editor = CodeMirror.fromTextArea(document.getElementById("config.content"), {
-	        lineNumbers: true,
-	        matchBrackets: true,
-	        mode: "${contentType.mime}",
-	        readOnly: true
-	      });
-	    </script>
+	        org.kohsuke.stapler.codemirror.theme.default,
+	        org.jenkinsci.plugins.configfiles.ConfigFilesUI.edit-config"/>
+
+		<f:invisibleEntry>
+			<f:checkbox name="readOnlyFlag" checked="true"/>
+			<f:entry field="contentType">
+				<f:textbox value="${contentType.mime}"/>
+			</f:entry>
+		</f:invisibleEntry>
     </j:if>	
 </j:jelly>

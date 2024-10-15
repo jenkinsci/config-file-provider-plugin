@@ -57,13 +57,13 @@ THE SOFTWARE.
 	<j:if test="${contentType!=null}">
 		<st:adjunct includes="
 	        org.kohsuke.stapler.codemirror.mode.${contentType.cmMode}.${contentType.cmMode},
-	        org.kohsuke.stapler.codemirror.theme.default"/>
-		<script>
-	      var editor = CodeMirror.fromTextArea(document.getElementById("config.content"), {
-	        lineNumbers: true,
-	        matchBrackets: true,
-	        mode: "${contentType.mime}"
-	      });
-	    </script>
+			org.kohsuke.stapler.codemirror.theme.default,
+			org.jenkinsci.plugins.configfiles.ConfigFilesUI.edit-config"/>
+
+			<f:invisibleEntry>
+				<f:entry field="contentType">
+					<f:textbox value="${contentType.mime}"/>
+				</f:entry>
+			</f:invisibleEntry>
     </j:if>	
 </j:jelly>
