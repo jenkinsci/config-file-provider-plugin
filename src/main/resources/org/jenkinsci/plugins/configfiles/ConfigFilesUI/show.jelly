@@ -47,7 +47,7 @@ THE SOFTWARE.
 		<st:adjunct includes="
 	        org.kohsuke.stapler.codemirror.mode.${contentType.cmMode}.${contentType.cmMode},
 	        org.kohsuke.stapler.codemirror.theme.default,
-	        org.jenkinsci.plugins.configfiles.ConfigFilesUI.edit-config"/>
+	        org.jenkinsci.plugins.configfiles.ConfigFilesUI.setup-codemirror"/>
 
 		<f:invisibleEntry>
 			<f:checkbox name="readOnlyFlag" checked="true"/>
