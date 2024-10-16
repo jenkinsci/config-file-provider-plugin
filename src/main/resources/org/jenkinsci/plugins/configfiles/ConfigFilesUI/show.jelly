@@ -51,9 +51,7 @@ THE SOFTWARE.
 
 		<f:invisibleEntry>
 			<f:checkbox name="readOnlyFlag" checked="true"/>
-			<f:entry field="contentType">
-				<f:textbox value="${contentType.mime}"/>
-			</f:entry>
+			<f:textbox field="contentType" value="${contentType.mime}"/>
 		</f:invisibleEntry>
     </j:if>	
 </j:jelly>
