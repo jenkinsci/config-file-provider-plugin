@@ -9,6 +9,7 @@ import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.UserCredentialsProvider;
 import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
+import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.ModelObject;
 import hudson.model.User;
@@ -45,7 +46,7 @@ public class Security2254Test {
     private Folder folder;
     
     @Before
-    public void setUpAuthorizationAndProject() throws IOException {
+    public void setUpAuthorizationAndProject() throws IOException, Descriptor.FormException {
         // A folder and a project inside
         folder = r.jenkins.createProject(Folder.class, "f");
         project = folder.createProject(WorkflowJob.class, "p");

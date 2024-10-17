@@ -30,7 +30,8 @@
     <properties>
         <changelist>999999-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
-        <jenkins.version>2.414.3</jenkins.version>
+        <!-- TODO Upgrade to LTS when available -->
+        <jenkins.version>2.479</jenkins.version>
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
         <!-- Needed to use Jenkins.MANAGE -->
         <useBeta>true</useBeta>
@@ -57,8 +58,9 @@
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.414.x</artifactId>
-                <version>2982.vdce2153031a_0</version>
+                <!-- TODO use same baseline as jenkins.version when using LTS -->
+                <artifactId>bom-2.462.x</artifactId>
+                <version>3482.vc10d4f6da_28a_</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>

@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.configfiles.folder;
 
 import com.cloudbees.hudson.plugins.folder.Folder;
+import hudson.model.Descriptor;
 import org.hamcrest.CoreMatchers;
 import org.htmlunit.html.HtmlAnchor;
 import org.htmlunit.html.HtmlElement;
@@ -298,7 +299,7 @@ public class FolderConfigFileActionTest {
         MatcherAssert.assertThat(page, notNullValue());
     }
     
-    private CpsFlowDefinition getNewJobDefinition() {
+    private CpsFlowDefinition getNewJobDefinition() throws Descriptor.FormException {
         return new CpsFlowDefinition("" +
                 "node {\n" +
                 "  configFileProvider([configFile(fileId: 'my-file-id', variable: 'MY_FILE')]) {\n" +
