@@ -3,18 +3,18 @@ package org.jenkinsci.plugins.configfiles.utils;
 import hudson.model.Item;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 public class ConfigFileDetailLinkDescription extends DescriptionResponse {
     private ConfigFileDetailLinkDescription(String linkHtml) {
         super(linkHtml);
     }
 
-    public static ConfigFileDetailLinkDescription getDescription(StaplerRequest req, Item context, String fileId) {
+    public static ConfigFileDetailLinkDescription getDescription(StaplerRequest2 req, Item context, String fileId) {
         return new ConfigFileDetailLinkDescription(getDetailsLink(req, context, fileId));
     }
 
-    private static String getDetailsLink(StaplerRequest req, Item context, String fileId) {
+    private static String getDetailsLink(StaplerRequest2 req, Item context, String fileId) {
         String link = req.getContextPath();
         link = StringUtils.isNotBlank(context.getUrl()) ? link + "/" + context.getUrl() : link;
         link = link + "configfiles/show?id=" + fileId;
