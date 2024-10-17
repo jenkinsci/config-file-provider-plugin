@@ -14,7 +14,7 @@ import org.jenkinsci.plugins.configfiles.ConfigByNameComparator;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.ConfigProviderComparator;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 import java.io.IOException;
 import java.util.*;
@@ -123,7 +123,7 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
         return this;
     }
 
-    public FolderConfigFileProperty reconfigure(StaplerRequest req, JSONObject form) throws Descriptor.FormException {
+    public FolderConfigFileProperty reconfigure(StaplerRequest2 req, JSONObject form) throws Descriptor.FormException {
         return this;
     }
 

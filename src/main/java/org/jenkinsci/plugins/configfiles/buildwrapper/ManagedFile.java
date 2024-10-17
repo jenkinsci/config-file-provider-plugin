@@ -134,7 +134,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
          * @param fileId  the id of the config file
          * @return a validation result / description
          */
-        public HttpResponse doCheckFileId(StaplerRequest req, @AncestorInPath Item context, @AncestorInPath AccessControlled ac, @QueryParameter String fileId) {
+        public HttpResponse doCheckFileId(StaplerRequest2 req, @AncestorInPath Item context, @AncestorInPath AccessControlled ac, @QueryParameter String fileId) {
             // You should have permission to configure your project in order to check whether the selected file id is
             // allowed to you
             if (context != null) {

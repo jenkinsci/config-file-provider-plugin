@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
@@ -23,8 +23,8 @@ import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerProxy;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import hudson.Extension;
 import hudson.Util;
@@ -116,7 +116,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     @POST
-    public HttpResponse doSaveConfig(StaplerRequest req) throws IOException, ServletException {
+    public HttpResponse doSaveConfig(StaplerRequest2 req) throws IOException, ServletException {
         checkPermission(Item.CONFIGURE);
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
@@ -155,7 +155,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     }
 
     @Override
-    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
+    public void doShow(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         folder.checkPermission(Item.EXTENDED_READ);
         Config config = getStore().getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
@@ -164,7 +164,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     }
 
     @Override
-    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
+    public void doEditConfig(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         checkPermission(Job.CONFIGURE);
         Config config = getStore().getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
@@ -176,7 +176,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     @POST
-    public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
+    public void doAddConfig(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
         checkPermission(Item.CONFIGURE);
 
         FormValidation error = null;
@@ -219,7 +219,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     }
 
     @Override
-    public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
+    public void doSelectProvider(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException, ServletException {
         checkPermission(Job.CONFIGURE);
         req.setAttribute("providers", getProviders());
         req.setAttribute("configId", UUID.randomUUID().toString());
@@ -228,7 +228,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @RequirePOST
     @Override
-    public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
+    public HttpResponse doRemoveConfig(StaplerRequest2 res, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException {
         checkPermission(Job.CONFIGURE);
 
         getStore().remove(configId);
