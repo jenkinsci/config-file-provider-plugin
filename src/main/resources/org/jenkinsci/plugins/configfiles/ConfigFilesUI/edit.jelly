@@ -61,7 +61,8 @@ THE SOFTWARE.
 			org.jenkinsci.plugins.configfiles.ConfigFilesUI.setup-codemirror"/>
 
 			<f:invisibleEntry>
-				<f:textbox field="contentType" value="${contentType.mime}"/>
+<!--				<f:textbox field="contentType" value="${contentType.mime}"/>-->
+				<span data-content-type="${contentType.mime}" />
 			</f:invisibleEntry>
     </j:if>
 </j:jelly>

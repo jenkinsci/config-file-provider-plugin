@@ -50,8 +50,12 @@ THE SOFTWARE.
 	        org.jenkinsci.plugins.configfiles.ConfigFilesUI.setup-codemirror"/>
 
 		<f:invisibleEntry>
-			<f:checkbox name="readOnlyFlag" checked="true"/>
-			<f:textbox field="contentType" value="${contentType.mime}"/>
+			<span data-content-type="${contentType.mime}" data-read-only="true" />
 		</f:invisibleEntry>
+
+<!--		<f:invisibleEntry>-->
+<!--			<f:checkbox name="readOnlyFlag" checked="true"/>-->
+<!--			<f:textbox field="contentType" value="${contentType.mime}"/>-->
+<!--		</f:invisibleEntry>-->
     </j:if>	
 </j:jelly>

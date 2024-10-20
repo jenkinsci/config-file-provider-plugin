@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
     const textarea = document.querySelector("textarea#config\\.content");
-    const contentTypeElement = document.getElementsByName("_.contentType")[0];
-    const readOnlyFlag = document.getElementsByName("readOnlyFlag")[0];
+    const contentTypeElement = document.querySelector('span[data-content-type]');
 
-    if (textarea && contentTypeElement && contentTypeElement.value !== "") {
-        const contentTypeVal = contentTypeElement.value;
+    if (textarea && contentTypeElement) {
+        const contentTypeVal = contentTypeElement.getAttribute('data-content-type');
+        const isReadOnly = contentTypeElement.hasAttribute('data-read-only');
 
-        var editor = CodeMirror.fromTextArea(textarea, {
+        CodeMirror.fromTextArea(textarea, {
             lineNumbers: true,
             matchBrackets: true,
             mode: contentTypeVal,
-            readOnly: !!readOnlyFlag
+            readOnly: isReadOnly
         });
     }
 });
