@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const textarea = document.querySelector("textarea#config\\.content");
+    const textarea = document.getElementById("config.content");
     const contentTypeElement = document.querySelector("span[data-content-type]");
 
     if (textarea && contentTypeElement) {
