@@ -57,10 +57,10 @@ THE SOFTWARE.
 	<j:if test="${contentType!=null}">
 		<st:adjunct includes="
 	        org.kohsuke.stapler.codemirror.mode.${contentType.cmMode}.${contentType.cmMode},
-			org.kohsuke.stapler.codemirror.theme.default,
-			org.jenkinsci.plugins.configfiles.ConfigFilesUI.setup-codemirror"/>
+	        org.kohsuke.stapler.codemirror.theme.default,
+	        org.jenkinsci.plugins.configfiles.ConfigFilesUI.setup-codemirror"/>
 		<f:invisibleEntry>
 			<span data-content-type="${contentType.mime}" />
 		</f:invisibleEntry>
-    </j:if>
+    </j:if>	
 </j:jelly>
