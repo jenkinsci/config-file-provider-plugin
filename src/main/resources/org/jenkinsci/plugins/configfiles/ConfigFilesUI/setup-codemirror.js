@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const contentTypeElement = document.querySelector("span[data-content-type]");
 
     const contentType = contentTypeElement.getAttribute("data-content-type");
-    const readOnly = contentTypeElement.hasAttribute("data-read-only");
+    const readOnly = contentTypeElement.getAttribute("data-read-only") === "true";
 
     CodeMirror.fromTextArea(textarea, {
         lineNumbers: true,

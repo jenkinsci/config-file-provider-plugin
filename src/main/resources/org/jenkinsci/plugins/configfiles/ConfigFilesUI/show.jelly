@@ -49,7 +49,7 @@ THE SOFTWARE.
 	        org.kohsuke.stapler.codemirror.theme.default,
 	        org.jenkinsci.plugins.configfiles.ConfigFilesUI.setup-codemirror"/>
 		<f:invisibleEntry>
-			<span data-content-type="${contentType.mime}" data-read-only="" />
+			<span data-content-type="${contentType.mime}" data-read-only="true" />
 		</f:invisibleEntry>
     </j:if>	
 </j:jelly>
