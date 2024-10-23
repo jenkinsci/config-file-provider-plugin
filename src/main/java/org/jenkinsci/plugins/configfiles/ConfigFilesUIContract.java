@@ -29,7 +29,7 @@ import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.kohsuke.stapler.*;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -60,9 +60,9 @@ public interface ConfigFilesUIContract {
      * @param req request
      * @return
      */
-    public HttpResponse doSaveConfig(StaplerRequest req) throws IOException, ServletException ;
+    public HttpResponse doSaveConfig(StaplerRequest2 req) throws IOException, ServletException ;
 
-    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException;
+    public void doShow(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException;
 
     /**
      * Loads the config by its id and forwards the request to "edit.jelly".
@@ -76,7 +76,7 @@ public interface ConfigFilesUIContract {
      * @throws IOException
      * @throws ServletException
      */
-    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException;
+    public void doEditConfig(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException;
 
     /**
      * Requests a new config object from provider (defined by the given id) and forwards the request to "edit.jelly".
@@ -92,9 +92,9 @@ public interface ConfigFilesUIContract {
      * @throws IOException
      * @throws ServletException
      */
-    public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException;
+    public void doAddConfig(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException;
 
-    public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException;
+    public void doSelectProvider(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException, ServletException;
 
     /**
      * Removes a script from the config and filesystem.
@@ -108,7 +108,7 @@ public interface ConfigFilesUIContract {
      * @return forward to 'index'
      * @throws IOException
      */
-    public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException;
+    public HttpResponse doRemoveConfig(StaplerRequest2 res, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException;
 
     public FormValidation doCheckConfigId(@QueryParameter("configId") String configId);
 }

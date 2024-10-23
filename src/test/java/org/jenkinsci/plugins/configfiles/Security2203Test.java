@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -85,7 +85,7 @@ public class Security2203Test {
     }
 
     /**
-     * The {@link ManagedFile.DescriptorImpl#doCheckFileId(StaplerRequest, Item, AccessControlled, String)} is only accessible by people
+     * The {@link ManagedFile.DescriptorImpl#doCheckFileId(StaplerRequest2, Item, AccessControlled, String)} is only accessible by people
      * able to configure the job.
      */
     @Issue("SECURITY-2203")
