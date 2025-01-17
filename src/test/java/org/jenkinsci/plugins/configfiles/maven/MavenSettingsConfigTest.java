@@ -37,6 +37,7 @@ import java.util.logging.Logger;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
+import hudson.model.Descriptor;
 import hudson.model.Computer;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
@@ -79,14 +80,14 @@ public class MavenSettingsConfigTest {
         assertThat(computer.getLog(), not(containsString("An agent attempted to look up secret patterns from the controller")));
     }
 
-    private UsernamePasswordCredentialsImpl createCredential(String id, String username, String password) {
+    private UsernamePasswordCredentialsImpl createCredential(String id, String username, String password) throws Descriptor.FormException {
         UsernamePasswordCredentialsImpl credentials = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, id, "", username, password);
         credentials.setUsernameSecret(true);
         SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
         return credentials;
     }
     @Before
-    public void before() {
+    public void before() throws Exception {
         GlobalConfigFiles.get().save(new MavenSettingsConfig("m2settings", "m2settings", "", "<settings/>", true, 
                 Collections.singletonList(new ServerCredentialMapping("myserver", createCredential("creds", "bot-user-name", "bot-user-s3cr3t").getId()))));
         GlobalConfigFiles.get().save(new GlobalMavenSettingsConfig("m2GlobalSettings", "m2GlobalSettings", "", "<settings/>", true, 

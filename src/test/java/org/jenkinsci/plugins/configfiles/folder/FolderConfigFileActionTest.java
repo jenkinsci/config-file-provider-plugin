@@ -5,6 +5,7 @@ import org.hamcrest.CoreMatchers;
 import org.htmlunit.html.HtmlAnchor;
 import org.htmlunit.html.HtmlElement;
 import org.htmlunit.html.HtmlPage;
+import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.util.VersionNumber;
 import jenkins.model.Jenkins;
@@ -298,7 +299,7 @@ public class FolderConfigFileActionTest {
         MatcherAssert.assertThat(page, notNullValue());
     }
     
-    private CpsFlowDefinition getNewJobDefinition() {
+    private CpsFlowDefinition getNewJobDefinition() throws Descriptor.FormException {
         return new CpsFlowDefinition("" +
                 "node {\n" +
                 "  configFileProvider([configFile(fileId: 'my-file-id', variable: 'MY_FILE')]) {\n" +

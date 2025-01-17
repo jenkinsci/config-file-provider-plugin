@@ -9,10 +9,10 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerProxy;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 
 /**
@@ -47,7 +47,7 @@ public class ConfigFilesAction implements Action, StaplerProxy {
         return this;
     }
 
-    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String fileId, @AncestorInPath ItemGroup group) throws IOException, ServletException {
+    public void doShow(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String fileId, @AncestorInPath ItemGroup group) throws IOException, ServletException {
         Config config = ConfigFiles.getByIdOrNull(group, fileId);
         if (config != null) {
             req.setAttribute("contentType", config.getProvider().getContentType());

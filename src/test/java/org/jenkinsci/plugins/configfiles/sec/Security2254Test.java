@@ -27,7 +27,6 @@ import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 
-import java.io.IOException;
 import java.util.function.Supplier;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -45,7 +44,7 @@ public class Security2254Test {
     private Folder folder;
     
     @Before
-    public void setUpAuthorizationAndProject() throws IOException {
+    public void setUpAuthorizationAndProject() throws Exception {
         // A folder and a project inside
         folder = r.jenkins.createProject(Folder.class, "f");
         project = folder.createProject(WorkflowJob.class, "p");
