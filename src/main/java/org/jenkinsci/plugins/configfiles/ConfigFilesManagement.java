@@ -26,7 +26,7 @@ package org.jenkinsci.plugins.configfiles;
 import java.io.IOException;
 import java.util.*;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
@@ -46,8 +46,8 @@ import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerProxy;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.verb.POST;
 
@@ -155,7 +155,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      * @return
      */
     @POST
-    public HttpResponse doSaveConfig(StaplerRequest req) {
+    public HttpResponse doSaveConfig(StaplerRequest2 req) {
         // permission handled in getTarget
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
@@ -174,7 +174,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         return new HttpRedirect("index");
     }
 
-    public void doShow(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
+    public void doShow(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         // permission handled in getTarget
 
         Config config = store.getById(configId);
@@ -192,7 +192,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      * @throws IOException
      * @throws ServletException
      */
-    public void doEditConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
+    public void doEditConfig(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         // permission handled in getTarget
 
         Config config = store.getById(configId);
@@ -212,7 +212,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      * @throws ServletException
      */
     @POST
-    public void doAddConfig(StaplerRequest req, StaplerResponse rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
+    public void doAddConfig(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
         // permission handled in getTarget
 
         FormValidation error = null;
@@ -254,7 +254,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         req.getView(this, JELLY_RESOURCES_PATH + "edit.jelly").forward(req, rsp);
     }
 
-    public void doSelectProvider(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
+    public void doSelectProvider(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException, ServletException {
         // permission handled in getTarget
         req.setAttribute("providers", ConfigProvider.all());
         req.setAttribute("configId", UUID.randomUUID().toString());
@@ -275,7 +275,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
      * @throws IOException
      */
     @RequirePOST
-    public HttpResponse doRemoveConfig(StaplerRequest res, StaplerResponse rsp, @QueryParameter("id") String configId) throws IOException {
+    public HttpResponse doRemoveConfig(StaplerRequest2 res, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException {
         // permission handled in getTarget
 
         store.remove(configId);
