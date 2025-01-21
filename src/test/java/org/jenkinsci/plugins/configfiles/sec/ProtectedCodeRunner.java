@@ -1,13 +1,12 @@
 package org.jenkinsci.plugins.configfiles.sec;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.User;
 import hudson.security.ACL;
 import hudson.security.ACLContext;
-
 import java.util.function.Supplier;
-
-import static org.junit.Assert.fail;
 
 /**
  * Class to run a code returning something with a specific user. You can get the result or the {@link Throwable} thrown
@@ -17,6 +16,7 @@ import static org.junit.Assert.fail;
 public class ProtectedCodeRunner<Result> {
     @NonNull
     private final Supplier<Result> code;
+
     @NonNull
     private String user;
 
@@ -39,20 +39,23 @@ public class ProtectedCodeRunner<Result> {
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName(user))) {
             return code.get();
         } catch (Throwable t) {
-            fail(String.format("The code executed by %s didn't run successfully. The throwable thrown is: %s", user, t));
+            fail(String.format(
+                    "The code executed by %s didn't run successfully. The throwable thrown is: %s", user, t));
             return null;
         }
     }
 
     /**
-     * We run the code expecting an exception to be thrown. If it's not the case, the test fails with a descriptive 
+     * We run the code expecting an exception to be thrown. If it's not the case, the test fails with a descriptive
      * message.
      * @return The {@link Throwable} thrown by the execution.
      */
     public Throwable getThrowable() {
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName(user))) {
             Result result = code.get();
-            fail(String.format("The code executed by %s was successful but we were expecting it to fail. The result of the execution was: %s", user, result));
+            fail(String.format(
+                    "The code executed by %s was successful but we were expecting it to fail. The result of the execution was: %s",
+                    user, result));
             return null;
         } catch (Throwable t) {
             return t;

@@ -1,5 +1,12 @@
 package org.jenkinsci.plugins.configfiles;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import hudson.model.FreeStyleProject;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
@@ -9,8 +16,14 @@ import hudson.security.ACLContext;
 import hudson.security.AccessControlled;
 import hudson.security.Permission;
 import hudson.util.ListBoxModel;
+import jakarta.inject.Inject;
+import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import jenkins.model.Jenkins;
-import org.springframework.security.access.AccessDeniedException;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
@@ -19,54 +32,47 @@ import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.job.MvnGlobalSettingsProvider;
 import org.jenkinsci.plugins.configfiles.maven.job.MvnSettingsProvider;
 import org.jenkinsci.plugins.configfiles.sec.ProtectedCodeRunner;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.kohsuke.stapler.StaplerRequest2;
-
-import jakarta.inject.Inject;
-import java.io.IOException;
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.fail;
+import org.springframework.security.access.AccessDeniedException;
 
 /**
  * Testing there is no information disclosure.
  */
-public class Security2203Test {
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
+@WithJenkins
+class Security2203Test {
+
+    private JenkinsRule r;
 
     @Inject
     MavenSettingsConfig.MavenSettingsConfigProvider mavenSettingConfigProvider;
-    
+
     @Inject
     GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider globalMavenSettingsConfigProvider;
-    
+
     private FreeStyleProject project;
 
-    @Before
-    public void setUpAuthorizationAndProject() throws IOException {
+    @BeforeEach
+    void setUpAuthorizationAndProject(JenkinsRule r) throws IOException {
+        this.r = r;
         project = r.jenkins.createProject(FreeStyleProject.class, "j");
 
         r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().
-                grant(Jenkins.READ, Item.READ).everywhere().to("reader").
-                grant(Item.CONFIGURE).onItems(project).to("projectConfigurer").
-                grant(Jenkins.ADMINISTER).everywhere().to("administer")
-        );
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                .grant(Jenkins.READ, Item.READ)
+                .everywhere()
+                .to("reader")
+                .grant(Item.CONFIGURE)
+                .onItems(project)
+                .to("projectConfigurer")
+                .grant(Jenkins.ADMINISTER)
+                .everywhere()
+                .to("administer"));
     }
 
     /**
@@ -75,13 +81,14 @@ public class Security2203Test {
      */
     @Issue("SECURITY-2203")
     @Test
-    public void managedFileDoFillFiledIdItemsProtected() {
+    void managedFileDoFillFiledIdItemsProtected() {
         Runnable run = () -> {
-            ManagedFile.DescriptorImpl descriptor = (ManagedFile.DescriptorImpl) Jenkins.get().getDescriptorOrDie(ManagedFile.class);
+            ManagedFile.DescriptorImpl descriptor =
+                    (ManagedFile.DescriptorImpl) Jenkins.get().getDescriptorOrDie(ManagedFile.class);
             descriptor.doFillFileIdItems(Jenkins.get(), project, project);
         };
 
-        assertWhoCanExecute(run,Item.CONFIGURE, "ManagedFile.DescriptorImpl#doFillFileIdItems");
+        assertWhoCanExecute(run, Item.CONFIGURE, "ManagedFile.DescriptorImpl#doFillFileIdItems");
     }
 
     /**
@@ -90,22 +97,23 @@ public class Security2203Test {
      */
     @Issue("SECURITY-2203")
     @Test
-    public void managedFileDoCheckFileIdProtected() {
+    void managedFileDoCheckFileIdProtected() {
         Runnable run = () -> {
-            ManagedFile.DescriptorImpl descriptor = (ManagedFile.DescriptorImpl) Jenkins.get().getDescriptorOrDie(ManagedFile.class);
+            ManagedFile.DescriptorImpl descriptor =
+                    (ManagedFile.DescriptorImpl) Jenkins.get().getDescriptorOrDie(ManagedFile.class);
             descriptor.doCheckFileId(null, project, project, "fileId"); // request won't be used, we can use null
         };
 
         assertWhoCanExecute(run, Item.CONFIGURE, "ManagedFile.DescriptorImpl#doCheckFileId");
     }
-    
+
     /**
-     * The {@link MvnSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item, String)} is only accessible by 
+     * The {@link MvnSettingsProvider.DescriptorImpl#doFillSettingsConfigIdItems(ItemGroup, Item, String)} is only accessible by
      * administers.
      */
     @Issue({"SECURITY-2203", "JENKINS-65436"})
     @Test
-    public void mvnSettingsProviderDoFillSettingsConfigIdItemsProtectedGlobalConfiguration() {
+    void mvnSettingsProviderDoFillSettingsConfigIdItemsProtectedGlobalConfiguration() {
         r.jenkins.getInjector().injectMembers(this);
 
         // Create a maven settings config file that will only be returned by the administer user
@@ -115,11 +123,13 @@ public class Security2203Test {
 
         // Code called from a project
         Supplier<ListBoxModel> settingsConfigListSupplier = () -> {
-            MvnSettingsProvider.DescriptorImpl descriptor = (MvnSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnSettingsProvider.class);
-            return descriptor.doFillSettingsConfigIdItems(Jenkins.get(), null, CURRENT); // no project, global configuration
-
+            MvnSettingsProvider.DescriptorImpl descriptor =
+                    (MvnSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnSettingsProvider.class);
+            return descriptor.doFillSettingsConfigIdItems(
+                    Jenkins.get(), null, CURRENT); // no project, global configuration
         };
-        ProtectedCodeRunner<ListBoxModel> projectChecker = new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
+        ProtectedCodeRunner<ListBoxModel> projectChecker =
+                new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
 
         ListBoxModel result;
 
@@ -134,7 +144,7 @@ public class Security2203Test {
         assertThat(result, hasSize(2));
         assertThat(result.get(0).value, equalTo(""));
         assertThat(result.get(1).value, equalTo(CURRENT));
-        
+
         result = projectChecker.withUser("administer").getResult();
         assertThat(result, hasSize(2));
         assertThat(result.get(0).value, equalTo(""));
@@ -147,7 +157,7 @@ public class Security2203Test {
      */
     @Issue({"SECURITY-2203", "JENKINS-65436"})
     @Test
-    public void mvnSettingsProviderDoFillSettingsConfigIdItemsProtectedForProject() {
+    void mvnSettingsProviderDoFillSettingsConfigIdItemsProtectedForProject() {
         r.jenkins.getInjector().injectMembers(this);
 
         // Create a maven settings config file that will only be returned by the administer user
@@ -157,11 +167,12 @@ public class Security2203Test {
 
         // Code called from a project
         Supplier<ListBoxModel> settingsConfigListSupplier = () -> {
-            MvnSettingsProvider.DescriptorImpl descriptor = (MvnSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnSettingsProvider.class);
+            MvnSettingsProvider.DescriptorImpl descriptor =
+                    (MvnSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnSettingsProvider.class);
             return descriptor.doFillSettingsConfigIdItems(Jenkins.get(), project, CURRENT); // we pass the project
-
         };
-        ProtectedCodeRunner<ListBoxModel> projectChecker = new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
+        ProtectedCodeRunner<ListBoxModel> projectChecker =
+                new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
 
         ListBoxModel result;
 
@@ -190,7 +201,7 @@ public class Security2203Test {
      */
     @Issue({"SECURITY-2203", "JENKINS-65436"})
     @Test
-    public void mvnGlobalSettingsProviderDoFillSettingsConfigIdItemsProtectedGlobalConfiguration() {
+    void mvnGlobalSettingsProviderDoFillSettingsConfigIdItemsProtectedGlobalConfiguration() {
         r.jenkins.getInjector().injectMembers(this);
 
         // Create a maven settings config file that will only be returned by the administer user
@@ -200,11 +211,13 @@ public class Security2203Test {
 
         // Code called from a project
         Supplier<ListBoxModel> settingsConfigListSupplier = () -> {
-            MvnGlobalSettingsProvider.DescriptorImpl descriptor = (MvnGlobalSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnGlobalSettingsProvider.class);
-            return descriptor.doFillSettingsConfigIdItems(Jenkins.get(), null, CURRENT); // from global configuration, no project
-
+            MvnGlobalSettingsProvider.DescriptorImpl descriptor = (MvnGlobalSettingsProvider.DescriptorImpl)
+                    Jenkins.get().getDescriptorOrDie(MvnGlobalSettingsProvider.class);
+            return descriptor.doFillSettingsConfigIdItems(
+                    Jenkins.get(), null, CURRENT); // from global configuration, no project
         };
-        ProtectedCodeRunner<ListBoxModel> projectChecker = new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
+        ProtectedCodeRunner<ListBoxModel> projectChecker =
+                new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
 
         ListBoxModel result;
 
@@ -232,7 +245,7 @@ public class Security2203Test {
      */
     @Issue({"SECURITY-2203", "JENKINS-65436"})
     @Test
-    public void mvnGlobalSettingsProviderDoFillSettingsConfigIdItemsProtectedForProject() {
+    void mvnGlobalSettingsProviderDoFillSettingsConfigIdItemsProtectedForProject() {
         r.jenkins.getInjector().injectMembers(this);
 
         // Create a maven settings config file that will only be returned by the administer user
@@ -242,11 +255,12 @@ public class Security2203Test {
 
         // Code called from a project
         Supplier<ListBoxModel> settingsConfigListSupplier = () -> {
-            MvnGlobalSettingsProvider.DescriptorImpl descriptor = (MvnGlobalSettingsProvider.DescriptorImpl) Jenkins.get().getDescriptorOrDie(MvnGlobalSettingsProvider.class);
+            MvnGlobalSettingsProvider.DescriptorImpl descriptor = (MvnGlobalSettingsProvider.DescriptorImpl)
+                    Jenkins.get().getDescriptorOrDie(MvnGlobalSettingsProvider.class);
             return descriptor.doFillSettingsConfigIdItems(Jenkins.get(), project, CURRENT); // we pass the project
-
         };
-        ProtectedCodeRunner<ListBoxModel> projectChecker = new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
+        ProtectedCodeRunner<ListBoxModel> projectChecker =
+                new ProtectedCodeRunner<>(settingsConfigListSupplier, "reader");
 
         ListBoxModel result;
 
@@ -268,45 +282,49 @@ public class Security2203Test {
         assertThat(result.get(0).value, equalTo(""));
         assertThat(result.get(1).value, startsWith(c.id)); // The config created is successfully returned
     }
-    
+
     private Config createSetting(ConfigProvider provider) {
         Config c1 = provider.newConfig();
-        GlobalConfigFiles globalConfigFiles = r.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles =
+                r.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
         return c1;
     }
-    
+
     /**
      * The {@link ConfigFilesManagement#getTarget()} is only accessible by people able to administer jenkins. It guarantees
      * all methods in the class require {@link Jenkins#ADMINISTER}.
      */
     @Issue("SECURITY-2203")
     @Test
-    public void configFilesManagementAllMethodsProtected() {
+    void configFilesManagementAllMethodsProtected() {
         Runnable run = () -> {
-            ConfigFilesManagement configFilesManagement = Jenkins.get().getExtensionList(ConfigFilesManagement.class).get(0);
+            ConfigFilesManagement configFilesManagement =
+                    Jenkins.get().getExtensionList(ConfigFilesManagement.class).get(0);
             configFilesManagement.getTarget();
         };
 
         assertWhoCanExecute(run, Jenkins.ADMINISTER, "ConfigFilesManagement#getTarget");
     }
-    
+
     /**
-     * Common logic to check a specific method is accessible by people with Configure permission and not by any person 
+     * Common logic to check a specific method is accessible by people with Configure permission and not by any person
      * with just read permission. We don't care about the result. If you don't have permission, the method with fail.
      * @param run The method to check.
      * @param checkedMethod The name of the method for logging purposes.
      */
     private void assertWhoCanExecute(Runnable run, Permission permission, String checkedMethod) {
         final Map<Permission, String> userWithPermission = Stream.of(
-                new AbstractMap.SimpleEntry<>(Jenkins.READ, "reader"),
-                new AbstractMap.SimpleEntry<>(Item.CONFIGURE, "projectConfigurer"),
-                new AbstractMap.SimpleEntry<>(Jenkins.ADMINISTER, "administer"))
+                        new AbstractMap.SimpleEntry<>(Jenkins.READ, "reader"),
+                        new AbstractMap.SimpleEntry<>(Item.CONFIGURE, "projectConfigurer"),
+                        new AbstractMap.SimpleEntry<>(Jenkins.ADMINISTER, "administer"))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName("reader"))) {
             run.run(); // The method should fail
-            fail(String.format("%s should be only accessible by people with the permission %s, but it's accessible by a person with %s", checkedMethod, permission, Item.READ));
+            fail(String.format(
+                    "%s should be only accessible by people with the permission %s, but it's accessible by a person with %s",
+                    checkedMethod, permission, Item.READ));
         } catch (AccessDeniedException e) {
             assertThat(e.getMessage(), containsString(permission.group.title + "/" + permission.name));
         }
@@ -314,7 +332,9 @@ public class Security2203Test {
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName(userWithPermission.get(permission)))) {
             run.run(); // The method doesn't fail
         } catch (AccessDeniedException e) {
-            fail(String.format("%s should be accessible to people with the permission %s but it failed with the exception: %s", checkedMethod, permission, e));
+            fail(String.format(
+                    "%s should be accessible to people with the permission %s but it failed with the exception: %s",
+                    checkedMethod, permission, e));
         }
     }
 }

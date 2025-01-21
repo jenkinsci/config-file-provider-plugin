@@ -1,27 +1,32 @@
 package org.jenkinsci.plugins.configfiles.sec;
 
 import jenkins.model.Jenkins;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class PermissionCheckerTests {
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
+@WithJenkins
+class PermissionCheckerTests {
 
-    @Before
-    public void setUpAuthorizationAndProject() {
+    private JenkinsRule r;
+
+    @BeforeEach
+    void setUpAuthorizationAndProject(JenkinsRule r) {
+        this.r = r;
         r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().
-                grant(Jenkins.READ).everywhere().to("reader").
-                grant(Jenkins.ADMINISTER).everywhere().to("administer")
-        );
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                .grant(Jenkins.READ)
+                .everywhere()
+                .to("reader")
+                .grant(Jenkins.ADMINISTER)
+                .everywhere()
+                .to("administer"));
     }
-    
+
     @Test
-    public void protectedCodeCheckerTest() {
+    void protectedCodeCheckerTest() {
         Runnable run = () -> r.jenkins.checkPermission(Jenkins.ADMINISTER);
 
         // The administer passes
