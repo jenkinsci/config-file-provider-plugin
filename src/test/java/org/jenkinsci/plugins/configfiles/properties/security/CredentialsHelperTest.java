@@ -1,90 +1,110 @@
 package org.jenkinsci.plugins.configfiles.properties.security;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class CredentialsHelperTest {
+@WithJenkins
+class CredentialsHelperTest {
 
-    private final static String PWD = "bot-user-s3cr3t";
-
-    @Rule
-    public JenkinsRule jenkins = new JenkinsRule();
+    private static final String PWD = "bot-user-s3cr3t";
 
     @Test
-    public void testPropertiesIsReplacedWhenReplaceTrue() throws Exception {
+    void testPropertiesIsReplacedWhenReplaceTrue(JenkinsRule jenkins) throws Exception {
         Map<String, StandardUsernameCredentials> credentials = new HashMap<>();
-        credentials.put("myProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
+        credentials.put(
+                "myProp",
+                new UsernamePasswordCredentialsImpl(
+                        CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
 
-        final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
+        final String settingsContent =
+                IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
 
         final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.TRUE, credentials);
 
-        Assert.assertTrue("replaced settings_test.properties must contain new password", replacedContent.contains(PWD));
+        assertTrue(replacedContent.contains(PWD), "replaced settings_test.properties must contain new password");
     }
 
     @Test
-    public void testPropertiesIsNotReplacedWhenReplaceFalse() throws Exception {
+    void testPropertiesIsNotReplacedWhenReplaceFalse(JenkinsRule jenkins) throws Exception {
         Map<String, StandardUsernameCredentials> credentials = new HashMap<>();
-        credentials.put("myProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
+        credentials.put(
+                "myProp",
+                new UsernamePasswordCredentialsImpl(
+                        CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
 
-        final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
+        final String settingsContent =
+                IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
 
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, credentials);
+        final String replacedContent =
+                CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, credentials);
 
-        Assert.assertEquals("no changes should have been made to the settings_test.properties", settingsContent, replacedContent);
+        assertEquals(
+                settingsContent, replacedContent, "no changes should have been made to the settings_test.properties");
     }
 
     @Test
-    public void testPropertiesIsAddedWhenReplaceTrue() throws Exception {
+    void testPropertiesIsAddedWhenReplaceTrue(JenkinsRule jenkins) throws Exception {
         Map<String, StandardUsernameCredentials> credentials = new HashMap<>();
-        credentials.put("myNewProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
+        credentials.put(
+                "myNewProp",
+                new UsernamePasswordCredentialsImpl(
+                        CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
 
-        final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
+        final String settingsContent =
+                IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
 
         final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.TRUE, credentials);
 
-        Assert.assertTrue("replaced settings_test.properties must contain new password", replacedContent.contains(PWD));
+        assertTrue(replacedContent.contains(PWD), "replaced settings_test.properties must contain new password");
     }
 
     @Test
-    public void testPropertiesIsAddedWhenReplaceFalse() throws Exception {
+    void testPropertiesIsAddedWhenReplaceFalse(JenkinsRule jenkins) throws Exception {
         Map<String, StandardUsernameCredentials> credentials = new HashMap<>();
-        credentials.put("myNewProp", new UsernamePasswordCredentialsImpl(CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
+        credentials.put(
+                "myNewProp",
+                new UsernamePasswordCredentialsImpl(
+                        CredentialsScope.SYSTEM, "my-credentials", "some desc", "bot-user-name", PWD));
 
-        final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
+        final String settingsContent =
+                IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
 
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, credentials);
+        final String replacedContent =
+                CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, credentials);
 
-        Assert.assertTrue("replaced settings_test.properties must contain new password", replacedContent.contains(PWD));
+        assertTrue(replacedContent.contains(PWD), "replaced settings_test.properties must contain new password");
     }
 
     @Test
-    public void testSettingsPropertiesIsNotChangedWithoutCredentialsWhenReplaceTrue() throws Exception {
+    void testSettingsPropertiesIsNotChangedWithoutCredentialsWhenReplaceTrue(JenkinsRule jenkins) throws Exception {
         Map<String, StandardUsernameCredentials> credentials = new HashMap<>();
 
-        final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
+        final String settingsContent =
+                IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
         final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.TRUE, credentials);
 
-        Assert.assertEquals("no changes should have been made to the settings", settingsContent, replacedContent);
+        assertEquals(settingsContent, replacedContent, "no changes should have been made to the settings");
     }
 
     @Test
-    public void testSettingsPropertiesIsNotChangedWithoutCredentialsWhenReplaceFalse() throws Exception {
+    void testSettingsPropertiesIsNotChangedWithoutCredentialsWhenReplaceFalse(JenkinsRule jenkins) throws Exception {
         Map<String, StandardUsernameCredentials> credentials = new HashMap<>();
 
-        final String settingsContent = IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
-        final String replacedContent = CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, credentials);
+        final String settingsContent =
+                IOUtils.toString(CredentialsHelperTest.class.getResourceAsStream("/settings_test.properties"));
+        final String replacedContent =
+                CredentialsHelper.fillAuthentication(settingsContent, Boolean.FALSE, credentials);
 
-        Assert.assertEquals("no changes should have been made to the settings", settingsContent, replacedContent);
+        assertEquals(settingsContent, replacedContent, "no changes should have been made to the settings");
     }
-
 }

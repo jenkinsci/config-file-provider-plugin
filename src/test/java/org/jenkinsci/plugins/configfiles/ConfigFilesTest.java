@@ -1,52 +1,49 @@
 package org.jenkinsci.plugins.configfiles;
 
-import hudson.model.Item;
-import hudson.model.ItemGroup;
-import jenkins.model.Jenkins;
-import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.hudson.test.TestExtension;
-import org.springframework.security.access.AccessDeniedException;
+import static org.junit.jupiter.api.Assertions.*;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+import hudson.model.Item;
+import hudson.model.ItemGroup;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import jenkins.model.Jenkins;
+import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
+import org.junit.jupiter.api.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.TestExtension;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.springframework.security.access.AccessDeniedException;
 
-public class ConfigFilesTest {
+@WithJenkins
+class ConfigFilesTest {
 
     private static final String CONFIG_ID = "ConfigFilesTestId";
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
-
     @Test
-    public void testConfigContextResolver() {
-        GlobalConfigFiles store = j.getInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
-        Assert.assertTrue(store.getConfigs().isEmpty());
+    void testConfigContextResolver(JenkinsRule j) {
+        GlobalConfigFiles store =
+                j.getInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        assertTrue(store.getConfigs().isEmpty());
 
         CustomConfig config = new CustomConfig(CONFIG_ID, "name", "comment", "content");
         store.save(config);
 
-        try {
-            ConfigFiles.getByIdOrNull(new TestItemGroup(), CONFIG_ID);
-            Assert.fail("should have thrown");
-        } catch(IllegalArgumentException e) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ConfigFiles.getByIdOrNull(new TestItemGroup(), CONFIG_ID),
+                "should have thrown");
 
         j.getInstance().getExtensionList(ConfigContextResolver.class).get(TestResolver.class).isActive = true;
 
         Config retrievedConfig = ConfigFiles.getByIdOrNull(new TestItemGroup(), CONFIG_ID);
-        Assert.assertNotNull(retrievedConfig);
+        assertNotNull(retrievedConfig);
     }
 
     @TestExtension
-    public static class TestResolver extends ConfigContextResolver
-    {
+    public static class TestResolver extends ConfigContextResolver {
         private boolean isActive = false;
 
         @Override
@@ -58,8 +55,7 @@ public class ConfigFilesTest {
         }
     }
 
-    private class TestItemGroup implements ItemGroup<Item>
-    {
+    private class TestItemGroup implements ItemGroup<Item> {
         @Override
         public String getFullName() {
             return null;
@@ -97,14 +93,10 @@ public class ConfigFilesTest {
         }
 
         @Override
-        public void onRenamed(Item item, String oldName, String newName) throws IOException {
-
-        }
+        public void onRenamed(Item item, String oldName, String newName) throws IOException {}
 
         @Override
-        public void onDeleted(Item item) throws IOException {
-
-        }
+        public void onDeleted(Item item) throws IOException {}
 
         @Override
         public String getDisplayName() {
@@ -117,8 +109,6 @@ public class ConfigFilesTest {
         }
 
         @Override
-        public void save() throws IOException {
-
-        }
+        public void save() throws IOException {}
     }
 }
