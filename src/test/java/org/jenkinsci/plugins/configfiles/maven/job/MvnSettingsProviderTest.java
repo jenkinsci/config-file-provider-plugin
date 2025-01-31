@@ -1,56 +1,50 @@
 package org.jenkinsci.plugins.configfiles.maven.job;
 
-import org.htmlunit.html.HtmlPage;
-import org.htmlunit.html.HtmlTextInput;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+
 import hudson.maven.MavenModuleSet;
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
 import hudson.model.Item;
 import hudson.model.Result;
 import hudson.tasks.Maven;
+import jakarta.inject.Inject;
+import org.htmlunit.html.HtmlPage;
+import org.htmlunit.html.HtmlTextInput;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.Bug;
 import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
 import org.jvnet.hudson.test.ToolInstallations;
-
-import jakarta.inject.Inject;
-
-import static org.junit.Assert.assertNotSame;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 /**
  * @author Kohsuke Kawaguchi
  * @author Dominik Bartholdi (imod)
  */
-public class MvnSettingsProviderTest {
-    @Rule
-    public JenkinsRule                jenkins = new JenkinsRule();
+@WithJenkins
+class MvnSettingsProviderTest {
 
     @Inject
-    ConfigFilesManagement             config;
-
-    @Inject
-    MavenSettingsConfigProvider       mavenSettingProvider;
+    MavenSettingsConfigProvider mavenSettingProvider;
 
     @Inject
     GlobalMavenSettingsConfigProvider globalMavenSettingsConfigProvider;
 
     @Test
     @Bug(15976)
-    public void testConfigRoundtrip() throws Exception {
+    void testConfigRoundtrip(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
-        Config c1 = createSetting(mavenSettingProvider);
-        Config c2 = createSetting(globalMavenSettingsConfigProvider);
+        Config c1 = createSetting(jenkins, mavenSettingProvider);
+        Config c2 = createSetting(jenkins, globalMavenSettingsConfigProvider);
 
         FreeStyleProject p = jenkins.createFreeStyleProject();
         MvnSettingsProvider s1 = new MvnSettingsProvider(c1.id);
@@ -66,20 +60,21 @@ public class MvnSettingsProviderTest {
         assertNotSame(m.getGlobalSettings(), s2);
     }
 
-    private Config createSetting(ConfigProvider provider) {
+    private Config createSetting(JenkinsRule jenkins, ConfigProvider provider) {
         Config c1 = provider.newConfig();
-        GlobalConfigFiles globalConfigFiles = jenkins.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles =
+                jenkins.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
         return c1;
     }
 
     @Test
     @Bug(15976)
-    public void testConfigRoundtripMavenJob() throws Exception {
+    void testConfigRoundtripMavenJob(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
-        Config c1 = createSetting(mavenSettingProvider);
-        Config c2 = createSetting(globalMavenSettingsConfigProvider);
+        Config c1 = createSetting(jenkins, mavenSettingProvider);
+        Config c2 = createSetting(jenkins, globalMavenSettingsConfigProvider);
 
         MavenModuleSet p = jenkins.createProject(MavenModuleSet.class);
         MvnSettingsProvider s1 = new MvnSettingsProvider(c1.id);
@@ -96,43 +91,43 @@ public class MvnSettingsProviderTest {
 
     @Test
     @Bug(20403)
-    public void configMustBeVisibleFromConfigPage() throws Exception {
+    void configMustBeVisibleFromConfigPage(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
         final WebClient client = jenkins.createWebClient();
         {
-            Config c1 = createSetting(mavenSettingProvider);
+            Config c1 = createSetting(jenkins, mavenSettingProvider);
             // http://localhost:8080/configfiles/show?id=org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig1383601194902
             final HtmlPage page = client.goTo("configfiles/show?id=" + c1.id);
 
             final HtmlTextInput name = page.getElementByName("config.name");
             final HtmlTextInput comment = page.getElementByName("config.comment");
-            Assert.assertEquals("name NOK", c1.name, name.getValue());
-            Assert.assertEquals("comment NOK", c1.comment, comment.getValue());
+            assertEquals(c1.name, name.getValue(), "name NOK");
+            assertEquals(c1.comment, comment.getValue(), "comment NOK");
         }
         {
             // GlobalMavenSettingsConfig
-            Config c2 = createSetting(globalMavenSettingsConfigProvider);
+            Config c2 = createSetting(jenkins, globalMavenSettingsConfigProvider);
             // http://localhost:8080/configfiles/show?id=org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig23435346436324
             final HtmlPage page = client.goTo("configfiles/show?id=" + c2.id);
 
             final HtmlTextInput name = page.getElementByName("config.name");
             final HtmlTextInput comment = page.getElementByName("config.comment");
-            Assert.assertEquals("name NOK", c2.name, name.getValue());
-            Assert.assertEquals("comment NOK", c2.comment, comment.getValue());
+            assertEquals(c2.name, name.getValue(), "name NOK");
+            assertEquals(c2.comment, comment.getValue(), "comment NOK");
         }
     }
 
     @Test
     @Bug(40737)
-    public void mavenSettingsMustBeFoundInFreestyleProject() throws Exception {
+    void mavenSettingsMustBeFoundInFreestyleProject(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
         final FreeStyleProject p = jenkins.createFreeStyleProject();
 
         String mvnName = ToolInstallations.configureMaven35().getName();
-        Config c1 = createSetting(mavenSettingProvider);
-        Config c2 = createSetting(globalMavenSettingsConfigProvider);
+        Config c1 = createSetting(jenkins, mavenSettingProvider);
+        Config c2 = createSetting(jenkins, globalMavenSettingsConfigProvider);
 
         MvnSettingsProvider s1 = new MvnSettingsProvider(c1.id);
         MvnGlobalSettingsProvider s2 = new MvnGlobalSettingsProvider(c2.id);
@@ -141,12 +136,13 @@ public class MvnSettingsProviderTest {
         p.getBuildersList().add(m);
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
 
-        jenkins.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new Cause.UserIdCause()).get());
+        jenkins.assertBuildStatus(
+                Result.SUCCESS, p.scheduleBuild2(0, new Cause.UserIdCause()).get());
     }
 
     @Test
     @Bug(40737)
-    public void notFoundMavenSettingsMustCauseBuildToFail() throws Exception {
+    void notFoundMavenSettingsMustCauseBuildToFail(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
         final FreeStyleProject p = jenkins.createFreeStyleProject();
@@ -160,6 +156,7 @@ public class MvnSettingsProviderTest {
         p.getBuildersList().add(m);
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
 
-        jenkins.assertBuildStatus(Result.FAILURE, p.scheduleBuild2(0, new Cause.UserIdCause()).get());
+        jenkins.assertBuildStatus(
+                Result.FAILURE, p.scheduleBuild2(0, new Cause.UserIdCause()).get());
     }
 }
