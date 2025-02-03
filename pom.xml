@@ -36,6 +36,9 @@
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
         <!-- Needed to use Jenkins.MANAGE -->
         <useBeta>true</useBeta>
+
+        <!-- TODO removes once integrated into parent-pom -->
+        <jenkins-test-harness.version>2391.v9b_3e2d3351a_2</jenkins-test-harness.version>
     </properties>
 
     <developers>
