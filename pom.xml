@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>5.6</version>
+        <version>5.7</version>
         <relativePath />
     </parent>
 
@@ -36,9 +36,6 @@
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
         <!-- Needed to use Jenkins.MANAGE -->
         <useBeta>true</useBeta>
-
-        <!-- TODO removes once integrated into parent-pom -->
-        <jenkins-test-harness.version>2391.v9b_3e2d3351a_2</jenkins-test-harness.version>
     </properties>
 
     <developers>
