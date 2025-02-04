@@ -1,16 +1,26 @@
 package org.jenkinsci.plugins.configfiles.folder;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.cloudbees.hudson.plugins.folder.Folder;
-import org.hamcrest.CoreMatchers;
-import org.htmlunit.html.HtmlAnchor;
-import org.htmlunit.html.HtmlElement;
-import org.htmlunit.html.HtmlPage;
 import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.util.VersionNumber;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import jenkins.model.Jenkins;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.htmlunit.html.HtmlAnchor;
+import org.htmlunit.html.HtmlElement;
+import org.htmlunit.html.HtmlPage;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
@@ -22,47 +32,27 @@ import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.BuildWatcher;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 /**
  * Created by domi on 11/10/16.
  */
-public class FolderConfigFileActionTest {
-
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
-    @Rule
-    public BuildWatcher buildWatcher = new BuildWatcher();
+@WithJenkins
+class FolderConfigFileActionTest {
 
     @Test
-    public void foldersHaveTheirOwnListOfConfigs() throws Exception {
-        Folder f1 = createFolder();
-        getStore(f1).save(newCustomFile());
+    void foldersHaveTheirOwnListOfConfigs(JenkinsRule r) throws Exception {
+        Folder f1 = createFolder(r);
+        getStore(f1).save(newCustomFile(r));
 
         Map<ConfigProvider, Collection<Config>> groupedConfigs1 = getStore(f1).getGroupedConfigs();
         assertNotNull(groupedConfigs1);
-        Folder f2 = createFolder();
-        getStore(f2).save(newCustomFile());
+        Folder f2 = createFolder(r);
+        getStore(f2).save(newCustomFile(r));
 
         Map<ConfigProvider, Collection<Config>> groupedConfigs2 = getStore(f2).getGroupedConfigs();
         assertNotNull(groupedConfigs2);
@@ -70,19 +60,20 @@ public class FolderConfigFileActionTest {
     }
 
     @Test
-    public void foldersConfigListIsOrderedByName() throws Exception {
-        Folder f1 = createFolder();
-        getStore(f1).save(newCustomFileWithName("aaaa1", "zzzz"));
-        getStore(f1).save(newCustomFileWithName("bbbb1", "yyyy"));
-        getStore(f1).save(newCustomFileWithName("zzzz1", "aaaa"));
-        getStore(f1).save(newCustomFileWithName("yyyy1", "bbbb"));
+    void foldersConfigListIsOrderedByName(JenkinsRule r) throws Exception {
+        Folder f1 = createFolder(r);
+        getStore(f1).save(newCustomFileWithName(r, "aaaa1", "zzzz"));
+        getStore(f1).save(newCustomFileWithName(r, "bbbb1", "yyyy"));
+        getStore(f1).save(newCustomFileWithName(r, "zzzz1", "aaaa"));
+        getStore(f1).save(newCustomFileWithName(r, "yyyy1", "bbbb"));
 
         Map<ConfigProvider, Collection<Config>> groupedConfigs1 = getStore(f1).getGroupedConfigs();
         assertNotNull(groupedConfigs1);
 
         assertEquals(1, groupedConfigs1.entrySet().size());
         // casting to ease test case, List is not in the public API
-        List<Config> configs = (List<Config>) groupedConfigs1.entrySet().iterator().next().getValue();
+        List<Config> configs =
+                (List<Config>) groupedConfigs1.entrySet().iterator().next().getValue();
         assertEquals("aaaa", configs.get(0).name);
         assertEquals("bbbb", configs.get(1).name);
         assertEquals("yyyy", configs.get(2).name);
@@ -90,21 +81,23 @@ public class FolderConfigFileActionTest {
     }
 
     @Test
-    public void globalConfigListIsOrderedByName() throws Exception {
+    void globalConfigListIsOrderedByName(JenkinsRule r) throws Exception {
 
-        GlobalConfigFiles globalConfigFiles = r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles =
+                r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
 
-        globalConfigFiles.save(newCustomFileWithName("aaaa1", "zzzz"));
-        globalConfigFiles.save(newCustomFileWithName("bbbb1", "yyyy"));
-        globalConfigFiles.save(newCustomFileWithName("zzzz1", "aaaa"));
-        globalConfigFiles.save(newCustomFileWithName("yyyy1", "bbbb"));
+        globalConfigFiles.save(newCustomFileWithName(r, "aaaa1", "zzzz"));
+        globalConfigFiles.save(newCustomFileWithName(r, "bbbb1", "yyyy"));
+        globalConfigFiles.save(newCustomFileWithName(r, "zzzz1", "aaaa"));
+        globalConfigFiles.save(newCustomFileWithName(r, "yyyy1", "bbbb"));
 
         Map<ConfigProvider, Collection<Config>> groupedConfigs1 = globalConfigFiles.getGroupedConfigs();
         assertNotNull(groupedConfigs1);
 
         assertEquals(1, groupedConfigs1.entrySet().size());
         // casting to ease test case, List is not in the public API
-        List<Config> configs = (List<Config>) groupedConfigs1.entrySet().iterator().next().getValue();
+        List<Config> configs =
+                (List<Config>) groupedConfigs1.entrySet().iterator().next().getValue();
         assertEquals("aaaa", configs.get(0).name);
         assertEquals("bbbb", configs.get(1).name);
         assertEquals("yyyy", configs.get(2).name);
@@ -112,16 +105,18 @@ public class FolderConfigFileActionTest {
     }
 
     @Test
-    public void configsInContextAreOrderedByName() throws Exception {
+    void configsInContextAreOrderedByName(JenkinsRule r) throws Exception {
 
-        GlobalConfigFiles globalConfigFiles = r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles =
+                r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
 
-        globalConfigFiles.save(newCustomFileWithName("aaaa1", "zzzz"));
-        globalConfigFiles.save(newCustomFileWithName("bbbb1", "yyyy"));
-        globalConfigFiles.save(newCustomFileWithName("zzzz1", "aaaa"));
-        globalConfigFiles.save(newCustomFileWithName("yyyy1", "bbbb"));
+        globalConfigFiles.save(newCustomFileWithName(r, "aaaa1", "zzzz"));
+        globalConfigFiles.save(newCustomFileWithName(r, "bbbb1", "yyyy"));
+        globalConfigFiles.save(newCustomFileWithName(r, "zzzz1", "aaaa"));
+        globalConfigFiles.save(newCustomFileWithName(r, "yyyy1", "bbbb"));
 
-        List<Config> configsInContext = ConfigFiles.getConfigsInContext(r.jenkins, CustomConfig.CustomConfigProvider.class);
+        List<Config> configsInContext =
+                ConfigFiles.getConfigsInContext(r.jenkins, CustomConfig.CustomConfigProvider.class);
 
         assertEquals("aaaa", configsInContext.get(0).name);
         assertEquals("bbbb", configsInContext.get(1).name);
@@ -133,46 +128,47 @@ public class FolderConfigFileActionTest {
      * see details to this test: https://gist.github.com/cyrille-leclerc/5571fdc443d6f7bff4e5ec10d614a15d
      */
     @Test
-    public void accessGlobalFilesFromWithinFolder() throws Exception {
-        GlobalConfigFiles globalConfigFiles = r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
+    void accessGlobalFilesFromWithinFolder(JenkinsRule r) throws Exception {
+        GlobalConfigFiles globalConfigFiles =
+                r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
         Collection<Config> configs = globalConfigFiles.getConfigs();
         assertNotNull(configs);
         assertTrue(configs.isEmpty());
-        globalConfigFiles.save(newMvnSettings("my-file-id"));
+        globalConfigFiles.save(newMvnSettings(r, "my-file-id"));
 
         WorkflowJob jobInRoot = r.jenkins.createProject(WorkflowJob.class, "p");
         jobInRoot.setDefinition(getNewJobDefinition());
 
-        Folder folder1 = createFolder();
-        getStore(folder1).save(newMvnSettings("my-file-id"));
+        Folder folder1 = createFolder(r);
+        getStore(folder1).save(newMvnSettings(r, "my-file-id"));
 
         WorkflowJob jobInFolder1 = folder1.createProject(WorkflowJob.class, "p");
         jobInFolder1.setDefinition(getNewJobDefinition());
 
-        Folder folder2 = createFolder();
-
+        Folder folder2 = createFolder(r);
 
         WorkflowJob jobInFolder2 = folder2.createProject(WorkflowJob.class, "p");
         jobInFolder2.setDefinition(getNewJobDefinition());
 
-        WorkflowRun b0 = r.assertBuildStatusSuccess(jobInRoot.scheduleBuild2(0));
-        WorkflowRun b1 = r.assertBuildStatusSuccess(jobInFolder1.scheduleBuild2(0));
-        WorkflowRun b2 = r.assertBuildStatusSuccess(jobInFolder2.scheduleBuild2(0));
+        r.assertBuildStatusSuccess(jobInRoot.scheduleBuild2(0));
+        r.assertBuildStatusSuccess(jobInFolder1.scheduleBuild2(0));
+        r.assertBuildStatusSuccess(jobInFolder2.scheduleBuild2(0));
     }
 
     @Test
-    public void correctFileMustBeSelectedInHierarchy() throws Exception {
-        GlobalConfigFiles globalConfigFiles = r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
+    void correctFileMustBeSelectedInHierarchy(JenkinsRule r) throws Exception {
+        GlobalConfigFiles globalConfigFiles =
+                r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
         Collection<Config> configs = globalConfigFiles.getConfigs();
         assertNotNull(configs);
         assertTrue(configs.isEmpty());
-        globalConfigFiles.save(newCustomFile("my-file-id", "Hello Root"));
+        globalConfigFiles.save(newCustomFile(r, "my-file-id", "Hello Root"));
 
         WorkflowJob jobInRoot = r.jenkins.createProject(WorkflowJob.class, "p");
         jobInRoot.setDefinition(getNewJobDefinition());
 
-        Folder folder1 = createFolder();
-        getStore(folder1).save(newCustomFile("my-file-id", "Hello Folder1"));
+        Folder folder1 = createFolder(r);
+        getStore(folder1).save(newCustomFile(r, "my-file-id", "Hello Folder1"));
 
         WorkflowJob jobInFolder1 = folder1.createProject(WorkflowJob.class, "p");
         jobInFolder1.setDefinition(getNewJobDefinition());
@@ -184,9 +180,9 @@ public class FolderConfigFileActionTest {
     }
 
     @Test
-    public void testSaveFolderConfigFiles() throws Exception {
+    void testSaveFolderConfigFiles(JenkinsRule r) throws Exception {
 
-        Folder f1 = createFolder();
+        Folder f1 = createFolder(r);
         ConfigFileStore store = getStore(f1);
 
         CustomConfig config = new CustomConfig("myid", "name", "comment", "content");
@@ -206,12 +202,11 @@ public class FolderConfigFileActionTest {
         assertEquals("new name", savedConfig.name);
         assertEquals("new comment", savedConfig.comment);
         assertEquals("new content", savedConfig.content);
-
     }
 
     @Test
-    public void sameFolderPropertyAfterConfiguration() throws Exception {
-        Folder f1 = createFolder();
+    void sameFolderPropertyAfterConfiguration(JenkinsRule r) throws Exception {
+        Folder f1 = createFolder(r);
         ConfigFileStore store = getStore(f1);
 
         r.configRoundtrip(f1);
@@ -221,12 +216,12 @@ public class FolderConfigFileActionTest {
 
     @Test
     @Issue("SECURITY-2202")
-    public void xssPreventionInFolder() throws Exception {
+    void xssPreventionInFolder(JenkinsRule r) throws Exception {
         final String CONFIG_ID = "myid";
 
         // ----------
         // Create a new configuration in a new folder
-        Folder f1 = createFolder();
+        Folder f1 = createFolder(r);
         ConfigFileStore store = getStore(f1);
 
         CustomConfig config = new CustomConfig(CONFIG_ID, "name", "comment", "content");
@@ -239,14 +234,16 @@ public class FolderConfigFileActionTest {
         JenkinsRule.WebClient wc = r.createWebClient();
 
         // If we try to call the URL directly (via GET), it fails with a 405 - Method not allowed
-        wc.assertFails(f1.getUrl() +  "configfiles/removeConfig?id=" + CONFIG_ID, 405);
+        wc.assertFails(f1.getUrl() + "configfiles/removeConfig?id=" + CONFIG_ID, 405);
         assertEquals(1, store.getConfigs().size());
 
         // ----------
         // Clicking the button works
         // If we click on the link, it goes via POST, therefore it removes it successfully
         HtmlPage configFiles = wc.goTo(f1.getUrl() + "configfiles");
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
+        HtmlAnchor removeAnchor = configFiles
+                .getDocumentElement()
+                .getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
 
         if (r.jenkins.getVersion().isOlderThan(new VersionNumber("2.415"))) {
             AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
@@ -267,10 +264,10 @@ public class FolderConfigFileActionTest {
 
     @Test
     @Issue("SECURITY-2203")
-    public void folderCheckConfigIdProtected() throws Exception {
+    void folderCheckConfigIdProtected(JenkinsRule r) throws Exception {
         // ----------
         // Create a new folder
-        Folder f1 = createFolder();
+        Folder f1 = createFolder(r);
         f1.save();
 
         // ----------
@@ -278,73 +275,86 @@ public class FolderConfigFileActionTest {
         r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
         r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
                 // read access to everyone
-                .grant(Jenkins.READ).everywhere().toEveryone()
-                .grant(Item.DISCOVER).everywhere().toAuthenticated()
-                .grant(Item.READ).onItems(f1).toEveryone()
-                        
+                .grant(Jenkins.READ)
+                .everywhere()
+                .toEveryone()
+                .grant(Item.DISCOVER)
+                .everywhere()
+                .toAuthenticated()
+                .grant(Item.READ)
+                .onItems(f1)
+                .toEveryone()
+
                 // config access on the folder to this user
-                .grant(Item.CONFIGURE).onFolders(f1).to("folderConfigurer")
-        );
+                .grant(Item.CONFIGURE)
+                .onFolders(f1)
+                .to("folderConfigurer"));
 
         // ----------
         // An user without permission cannot see the form to add a new config file
         JenkinsRule.WebClient wc = r.createWebClient();
         wc.login("reader");
-        wc.assertFails(f1.getUrl() +  "configfiles/selectProvider", 404);
+        wc.assertFails(f1.getUrl() + "configfiles/selectProvider", 404);
 
         // ----------
         // The person with permission can access
         wc.login("folderConfigurer");
-        HtmlPage page = wc.goTo(f1.getUrl() +  "configfiles/selectProvider");
+        HtmlPage page = wc.goTo(f1.getUrl() + "configfiles/selectProvider");
         MatcherAssert.assertThat(page, notNullValue());
     }
-    
-    private CpsFlowDefinition getNewJobDefinition() throws Descriptor.FormException {
-        return new CpsFlowDefinition("" +
-                "node {\n" +
-                "  configFileProvider([configFile(fileId: 'my-file-id', variable: 'MY_FILE')]) {\n" +
-                "    if (isUnix()) {\n" +
-                "      sh '''\n" +
-                "      ls -al \"$MY_FILE\"\n" +
-                "      cat \"$MY_FILE\"\n" +
-                "      '''\n" +
-                "    } else {\n" +
-                "      bat '''\n" +
-                "      dir /a \"%MY_FILE%\"\n" +
-                "      type \"%MY_FILE%\"\n" +
-                "      '''\n" +
-                "    }\n" +
-                "  }\n" +
-                "}", true);
-    }
 
+    private CpsFlowDefinition getNewJobDefinition() throws Descriptor.FormException {
+        return new CpsFlowDefinition(
+                "" + "node {\n"
+                        + "  configFileProvider([configFile(fileId: 'my-file-id', variable: 'MY_FILE')]) {\n"
+                        + "    if (isUnix()) {\n"
+                        + "      sh '''\n"
+                        + "      ls -al \"$MY_FILE\"\n"
+                        + "      cat \"$MY_FILE\"\n"
+                        + "      '''\n"
+                        + "    } else {\n"
+                        + "      bat '''\n"
+                        + "      dir /a \"%MY_FILE%\"\n"
+                        + "      type \"%MY_FILE%\"\n"
+                        + "      '''\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}",
+                true);
+    }
 
     private ConfigFileStore getStore(Folder f) {
         FolderConfigFileAction action = f.getAction(FolderConfigFileAction.class);
         return action.getStore();
     }
 
-    private Folder createFolder() throws IOException {
-        return r.jenkins.createProject(Folder.class, "folder" + r.jenkins.getItems().size());
+    private Folder createFolder(JenkinsRule r) throws IOException {
+        return r.jenkins.createProject(
+                Folder.class, "folder" + r.jenkins.getItems().size());
     }
 
-    private Config newCustomFile() {
-        CustomConfig.CustomConfigProvider configProvider = r.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
+    private Config newCustomFile(JenkinsRule r) {
+        CustomConfig.CustomConfigProvider configProvider =
+                r.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
         return configProvider.newConfig("custom_" + System.currentTimeMillis());
     }
 
-    private Config newCustomFile(String id, String content) {
-        CustomConfig.CustomConfigProvider configProvider = r.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
+    private Config newCustomFile(JenkinsRule r, String id, String content) {
+        CustomConfig.CustomConfigProvider configProvider =
+                r.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
         return new CustomConfig(id, "custom.txt", "custom file", content, configProvider.getProviderId());
     }
 
-    private Config newCustomFileWithName(String id, String name) {
-        CustomConfig.CustomConfigProvider configProvider = r.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
+    private Config newCustomFileWithName(JenkinsRule r, String id, String name) {
+        CustomConfig.CustomConfigProvider configProvider =
+                r.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
         return new CustomConfig(id, name, "custom file", "dummy content", configProvider.getProviderId());
     }
 
-    private Config newMvnSettings(String settingsId) {
-        MavenSettingsConfig.MavenSettingsConfigProvider configProvider = r.jenkins.getExtensionList(ConfigProvider.class).get(MavenSettingsConfig.MavenSettingsConfigProvider.class);
+    private Config newMvnSettings(JenkinsRule r, String settingsId) {
+        MavenSettingsConfig.MavenSettingsConfigProvider configProvider = r.jenkins
+                .getExtensionList(ConfigProvider.class)
+                .get(MavenSettingsConfig.MavenSettingsConfigProvider.class);
         return configProvider.newConfig(settingsId);
     }
 }
