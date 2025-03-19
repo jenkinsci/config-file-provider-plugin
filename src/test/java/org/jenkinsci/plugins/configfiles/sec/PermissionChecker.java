@@ -1,17 +1,17 @@
 package org.jenkinsci.plugins.configfiles.sec;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.security.Permission;
-import org.springframework.security.access.AccessDeniedException;
-import java.util.function.Supplier;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.security.Permission;
+import java.util.function.Supplier;
+import org.springframework.security.access.AccessDeniedException;
 
 /**
  * A class to run pieces of code with a certain user and assert either the code runs successfully, without even worrying
- * about the result, or the code fails with an {@link AccessDeniedException} with the specified {@link Permission} reason. 
+ * about the result, or the code fails with an {@link AccessDeniedException} with the specified {@link Permission} reason.
  */
 public class PermissionChecker extends ProtectedCodeRunner<Void> {
     /**
@@ -34,7 +34,9 @@ public class PermissionChecker extends ProtectedCodeRunner<Void> {
         if (t instanceof AccessDeniedException) {
             assertThat(t.getMessage(), containsString(permission.group.title + "/" + permission.name));
         } else {
-            fail(String.format("The code run by %s didn't throw an AccessDeniedException with %s. If failed with the unexpected throwable: %s", getUser(), permission, t));
+            fail(String.format(
+                    "The code run by %s didn't throw an AccessDeniedException with %s. If failed with the unexpected throwable: %s",
+                    getUser(), permission, t));
         }
     }
 

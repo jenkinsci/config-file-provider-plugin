@@ -1,5 +1,7 @@
 package org.jenkinsci.lib.configprovider;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.plugins.emailext.JellyTemplateConfig;
 import jenkins.model.Jenkins;
@@ -12,82 +14,111 @@ import org.jenkinsci.plugins.configfiles.groovy.GroovyScript;
 import org.jenkinsci.plugins.configfiles.json.JsonConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.xml.XmlConfig;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestExtension;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.hudson.test.recipes.LocalData;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * Created by domi on 17/09/16.
  */
-public class SystemConfigFilesManagementTest {
-
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+@WithJenkins
+class SystemConfigFilesManagementTest {
 
     @Test
     @LocalData
-    public void testLoadAndMergeOldData() {
+    void testLoadAndMergeOldData(JenkinsRule j) {
 
         for (ConfigProvider cp : ConfigProvider.all()) {
             // as all the config files have been moved to global config,
             // all providers must not hold any files any more
             AbstractConfigProviderImpl acp = (AbstractConfigProviderImpl) cp;
-            Assert.assertTrue("configs for " + acp.getProviderId() + " should be empty", acp.getConfigs().isEmpty());
-            Assert.assertFalse("file for " + acp.getProviderId() + " still exists", acp.getConfigXml().getFile().exists());
+            assertTrue(acp.getConfigs().isEmpty(), "configs for " + acp.getProviderId() + " should be empty");
+            assertFalse(acp.getConfigXml().getFile().exists(), "file for " + acp.getProviderId() + " still exists");
         }
 
-        Assert.assertEquals(1, getProvider(MavenSettingsConfig.MavenSettingsConfigProvider.class).getAllConfigs().size());
-        Assert.assertEquals(1, getProvider(JsonConfig.JsonConfigProvider.class).getAllConfigs().size());
-        Assert.assertEquals(1, getProvider(XmlConfig.XmlConfigProvider.class).getAllConfigs().size());
-        Assert.assertEquals(1, getProvider(GroovyScript.GroovyConfigProvider.class).getAllConfigs().size());
-        Assert.assertEquals(1, getProvider(CustomConfig.CustomConfigProvider.class).getAllConfigs().size());
-        Assert.assertEquals(1, getProvider(JellyTemplateConfig.JellyTemplateConfigProvider.class).getAllConfigs().size());
+        assertEquals(
+                1,
+                getProvider(j, MavenSettingsConfig.MavenSettingsConfigProvider.class)
+                        .getAllConfigs()
+                        .size());
+        assertEquals(
+                1,
+                getProvider(j, JsonConfig.JsonConfigProvider.class)
+                        .getAllConfigs()
+                        .size());
+        assertEquals(
+                1,
+                getProvider(j, XmlConfig.XmlConfigProvider.class)
+                        .getAllConfigs()
+                        .size());
+        assertEquals(
+                1,
+                getProvider(j, GroovyScript.GroovyConfigProvider.class)
+                        .getAllConfigs()
+                        .size());
+        assertEquals(
+                1,
+                getProvider(j, CustomConfig.CustomConfigProvider.class)
+                        .getAllConfigs()
+                        .size());
+        assertEquals(
+                1,
+                getProvider(j, JellyTemplateConfig.JellyTemplateConfigProvider.class)
+                        .getAllConfigs()
+                        .size());
 
-        Assert.assertEquals(6, GlobalConfigFiles.get().getConfigs().size());
+        assertEquals(6, GlobalConfigFiles.get().getConfigs().size());
     }
 
-    private <T> T getProvider(Class<T> providerClass) {
+    private <T> T getProvider(JenkinsRule j, Class<T> providerClass) {
         return j.getInstance().getExtensionList(providerClass).get(providerClass);
     }
 
-
     @Test
-    public void testDynamicCreationOfConfigs() {
+    void testDynamicCreationOfConfigs(JenkinsRule j) {
         for (ConfigProvider cp : ConfigProvider.all()) {
             Config config = cp.newConfig("myid", "myname", "mycomment", "mycontent");
-            Assert.assertNotNull(config);
-            Assert.assertEquals(config.id, "myid");
-            Assert.assertEquals(config.name, "myname");
-            Assert.assertEquals(config.comment, "mycomment");
-            Assert.assertEquals(config.content, "mycontent");
-            Assert.assertNotNull(config.getProviderId());
+            assertNotNull(config);
+            assertEquals("myid", config.id);
+            assertEquals("myname", config.name);
+            assertEquals("mycomment", config.comment);
+            assertEquals("mycontent", config.content);
+            assertNotNull(config.getProviderId());
         }
     }
 
     @Test
-    public void testDynamicCreationOfConfigs2() {
+    void testDynamicCreationOfConfigs2(JenkinsRule j) {
         final String id = "ExtensionPointTestConfigProvider-file-id";
 
-        ExtensionPointTestConfig.ExtensionPointTestConfigProvider configProvider = getProvider(ExtensionPointTestConfig.ExtensionPointTestConfigProvider.class);
+        ExtensionPointTestConfig.ExtensionPointTestConfigProvider configProvider =
+                getProvider(j, ExtensionPointTestConfig.ExtensionPointTestConfigProvider.class);
         Config newConfig = configProvider.newConfig(id);
-        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles =
+                j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(newConfig);
 
-        Assert.assertEquals(1, GlobalConfigFiles.get().getConfigs(ExtensionPointTestConfig.ExtensionPointTestConfigProvider.class).size());
+        assertEquals(
+                1,
+                GlobalConfigFiles.get()
+                        .getConfigs(ExtensionPointTestConfig.ExtensionPointTestConfigProvider.class)
+                        .size());
 
-        ExtensionPointTestConfig savedConfig = (ExtensionPointTestConfig) GlobalConfigFiles.get().getConfigs(ExtensionPointTestConfig.ExtensionPointTestConfigProvider.class).iterator().next();
-        Assert.assertEquals(savedConfig.id, id);
-        Assert.assertEquals(savedConfig.name, ExtensionPointTestConfig.TEST_NAME_VALUE);
-        Assert.assertEquals(savedConfig.comment, ExtensionPointTestConfig.TEST_COMMENT_VALUE);
-        Assert.assertEquals(savedConfig.content, ExtensionPointTestConfig.TEST_CONTENT_VALUE);
-        Assert.assertEquals(savedConfig.newParam1, ExtensionPointTestConfig.TEST_PARAM_VALUE);
-        Assert.assertEquals(savedConfig.newParam2, ExtensionPointTestConfig.TEST_PARAM_VALUE);
-        Assert.assertEquals(savedConfig.newParam3, ExtensionPointTestConfig.TEST_PARAM_VALUE);
-        Assert.assertNotNull(savedConfig.getProviderId());
+        ExtensionPointTestConfig savedConfig = (ExtensionPointTestConfig) GlobalConfigFiles.get()
+                .getConfigs(ExtensionPointTestConfig.ExtensionPointTestConfigProvider.class)
+                .iterator()
+                .next();
+        assertEquals(id, savedConfig.id);
+        assertEquals(ExtensionPointTestConfig.TEST_NAME_VALUE, savedConfig.name);
+        assertEquals(ExtensionPointTestConfig.TEST_COMMENT_VALUE, savedConfig.comment);
+        assertEquals(ExtensionPointTestConfig.TEST_CONTENT_VALUE, savedConfig.content);
+        assertEquals(ExtensionPointTestConfig.TEST_PARAM_VALUE, savedConfig.newParam1);
+        assertEquals(ExtensionPointTestConfig.TEST_PARAM_VALUE, savedConfig.newParam2);
+        assertEquals(ExtensionPointTestConfig.TEST_PARAM_VALUE, savedConfig.newParam3);
+        assertNotNull(savedConfig.getProviderId());
     }
 
     public static class ExtensionPointTestConfig extends Config {
@@ -117,7 +148,15 @@ public class SystemConfigFilesManagementTest {
             newParam3 = TEST_PARAM_VALUE;
         }
 
-        public ExtensionPointTestConfig(String id, String name, String comment, String content, String providerId, String newParam1, String newParam2, String newParam3) {
+        public ExtensionPointTestConfig(
+                String id,
+                String name,
+                String comment,
+                String content,
+                String providerId,
+                String newParam1,
+                String newParam2,
+                String newParam3) {
             super(id, name, comment, content, providerId);
             this.newParam1 = newParam1;
             this.newParam2 = newParam2;
@@ -144,7 +183,15 @@ public class SystemConfigFilesManagementTest {
             @NonNull
             @Override
             public Config newConfig(@NonNull String id) {
-                return new ExtensionPointTestConfig(id, TEST_NAME_VALUE, TEST_COMMENT_VALUE, TEST_CONTENT_VALUE, getProviderId(), TEST_PARAM_VALUE, TEST_PARAM_VALUE, TEST_PARAM_VALUE);
+                return new ExtensionPointTestConfig(
+                        id,
+                        TEST_NAME_VALUE,
+                        TEST_COMMENT_VALUE,
+                        TEST_CONTENT_VALUE,
+                        getProviderId(),
+                        TEST_PARAM_VALUE,
+                        TEST_PARAM_VALUE,
+                        TEST_PARAM_VALUE);
             }
 
             // ======================
@@ -157,10 +204,11 @@ public class SystemConfigFilesManagementTest {
             }
 
             static {
-                Jenkins.XSTREAM.alias("org.jenkinsci.lib.configprovider.ExtensionPointTestConfigProvider", ExtensionPointTestConfigProvider.class);
+                Jenkins.XSTREAM.alias(
+                        "org.jenkinsci.lib.configprovider.ExtensionPointTestConfigProvider",
+                        ExtensionPointTestConfigProvider.class);
             }
             // ======================
         }
-
     }
 }
