@@ -1,52 +1,38 @@
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
-import org.htmlunit.html.DomElement;
-import org.htmlunit.html.DomNodeList;
-import org.htmlunit.html.HtmlOption;
-import org.htmlunit.html.HtmlPage;
+import static org.junit.jupiter.api.Assertions.*;
+
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.*;
 import hudson.model.Cause.UserIdCause;
 import hudson.tasks.Builder;
-import org.apache.commons.io.IOUtils;
-import org.jenkinsci.lib.configprovider.ConfigProvider;
-import org.jenkinsci.lib.configprovider.model.Config;
-import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
-import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
-import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
-import org.jenkinsci.plugins.configfiles.custom.CustomConfig.CustomConfigProvider;
-import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
-import org.jenkinsci.plugins.configfiles.xml.XmlConfig.XmlConfigProvider;
-import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
-import org.jenkinsci.plugins.tokenmacro.TokenMacro;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.BuildWatcher;
-import org.jvnet.hudson.test.ExtractResourceSCM;
-import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.hudson.test.JenkinsRule.WebClient;
-import org.jvnet.hudson.test.ToolInstallations;
-
 import jakarta.inject.Inject;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
+import org.apache.commons.io.IOUtils;
+import org.htmlunit.html.DomElement;
+import org.htmlunit.html.DomNodeList;
+import org.htmlunit.html.HtmlOption;
+import org.htmlunit.html.HtmlPage;
+import org.jenkinsci.lib.configprovider.ConfigProvider;
+import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
+import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
+import org.jenkinsci.plugins.configfiles.custom.CustomConfig.CustomConfigProvider;
+import org.jenkinsci.plugins.configfiles.xml.XmlConfig.XmlConfigProvider;
+import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
+import org.jenkinsci.plugins.tokenmacro.TokenMacro;
+import org.junit.jupiter.api.Test;
+import org.jvnet.hudson.test.ExtractResourceSCM;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.JenkinsRule.WebClient;
+import org.jvnet.hudson.test.ToolInstallations;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class ConfigFileBuildWrapperTest {
-
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
-
-    @Rule
-    public BuildWatcher buildWatcher = new BuildWatcher();
-
-    @Inject
-    ConfigFilesManagement configManagement;
-
-    @Inject
-    MavenSettingsConfigProvider mavenSettingProvider;
+@WithJenkins
+class ConfigFileBuildWrapperTest {
 
     @Inject
     XmlConfigProvider xmlProvider;
@@ -54,11 +40,8 @@ public class ConfigFileBuildWrapperTest {
     @Inject
     CustomConfigProvider customConfigProvider;
 
-    @Inject
-    ConfigFilesManagement configFilesManagement;
-
     @Test
-    public void envVariableMustBeAvailableInMavenModuleSetBuild() throws Exception {
+    void envVariableMustBeAvailableInMavenModuleSetBuild(JenkinsRule j) throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
         final MavenModuleSet p = j.createProject(MavenModuleSet.class);
@@ -68,23 +51,26 @@ public class ConfigFileBuildWrapperTest {
         p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
         p.setGoals("initialize"); // -s ${MVN_SETTING}
 
-        final Config settings = createSetting("config-id", xmlProvider);
+        final Config settings = createSetting(j, "config-id", xmlProvider);
         final ManagedFile mSettings = new ManagedFile(settings.id, "/tmp/new_settings.xml", "MY_SETTINGS");
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mSettings));
         p.getBuildWrappersList().add(bw);
 
-        ParametersDefinitionProperty parametersDefinitionProperty = new ParametersDefinitionProperty(new StringParameterDefinition("MVN_SETTING", "/tmp/settings.xml"));
+        ParametersDefinitionProperty parametersDefinitionProperty =
+                new ParametersDefinitionProperty(new StringParameterDefinition("MVN_SETTING", "/tmp/settings.xml"));
         p.addProperty(parametersDefinitionProperty);
         p.getPostbuilders().add(new VerifyEnvVariableBuilder("MVN_SETTING", "/tmp/settings.xml"));
 
-        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
+        j.assertBuildStatus(
+                Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
     }
 
     @Test
-    public void envVariableMustBeReplacedInFileContent() throws Exception {
+    void envVariableMustBeReplacedInFileContent(JenkinsRule j) throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final Config customFile = createCustomFile("config-id", customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
+        final Config customFile =
+                createCustomFile(j, "config-id", customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
 
         final FreeStyleProject p = j.createFreeStyleProject("free");
 
@@ -94,14 +80,16 @@ public class ConfigFileBuildWrapperTest {
 
         p.getBuildersList().add(new VerifyFileContentBuilder(mCustom.getTargetLocation(), "echo free"));
 
-        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
+        j.assertBuildStatus(
+                Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
     }
 
     @Test
-    public void envVariableMustNotBeReplacedInFileContentIfNotRequested() throws Exception {
+    void envVariableMustNotBeReplacedInFileContentIfNotRequested(JenkinsRule j) throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
-        final Config customFile = createCustomFile("config-id", customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
+        final Config customFile =
+                createCustomFile(j, "config-id", customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
 
         final FreeStyleProject p = j.createFreeStyleProject("free");
 
@@ -109,9 +97,11 @@ public class ConfigFileBuildWrapperTest {
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mCustom));
         p.getBuildWrappersList().add(bw);
 
-        p.getBuildersList().add(new VerifyFileContentBuilder(mCustom.getTargetLocation(), "echo ${ENV, var=\"JOB_NAME\"}"));
+        p.getBuildersList()
+                .add(new VerifyFileContentBuilder(mCustom.getTargetLocation(), "echo ${ENV, var=\"JOB_NAME\"}"));
 
-        j.assertBuildStatus(Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
+        j.assertBuildStatus(
+                Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
     }
 
     private static final class VerifyEnvVariableBuilder extends Builder {
@@ -123,12 +113,13 @@ public class ConfigFileBuildWrapperTest {
         }
 
         @Override
-        public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+        public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
+                throws InterruptedException, IOException {
             try {
                 final String expanded = TokenMacro.expandAll(build, listener, "${ENV, var=\"" + var + "\"}");
-                Assert.assertEquals(expectedValue, expanded);
+                assertEquals(expectedValue, expanded);
             } catch (MacroEvaluationException e) {
-                Assert.fail("not able to expand var: " + e.getMessage());
+                fail("not able to expand var: " + e.getMessage());
             }
             return true;
         }
@@ -144,36 +135,39 @@ public class ConfigFileBuildWrapperTest {
         }
 
         @Override
-        public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+        public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
+                throws InterruptedException, IOException {
             final String fileContent = IOUtils.toString(new FileReader(filePath));
-            Assert.assertEquals("file content not correct", expectedContent, fileContent);
+            assertEquals(expectedContent, fileContent, "file content not correct");
             return true;
         }
     }
 
-    private Config createSetting(String configId, ConfigProvider provider) {
+    private Config createSetting(JenkinsRule j, String configId, ConfigProvider provider) {
         Config c1 = provider.newConfig(configId);
-        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles =
+                j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
         return c1;
     }
 
-    private Config createCustomFile(String configId, CustomConfigProvider provider, String content) {
+    private Config createCustomFile(JenkinsRule j, String configId, CustomConfigProvider provider, String content) {
         Config c1 = provider.newConfig(configId);
         c1 = new CustomConfig(c1.id, c1.name, c1.comment, content);
-        GlobalConfigFiles globalConfigFiles = j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        GlobalConfigFiles globalConfigFiles =
+                j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
         return c1;
     }
 
     @Test
-    public void correctConfigMustBeActiveInDropdown() throws Exception {
+    void correctConfigMustBeActiveInDropdown(JenkinsRule j) throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 
         FreeStyleProject p = j.createFreeStyleProject("someJob");
 
-        final Config activeConfig = createSetting("config-id-1", xmlProvider);
-        final Config secondConfig = createSetting("config-id-2", xmlProvider);
+        final Config activeConfig = createSetting(j, "config-id-1", xmlProvider);
+        final Config secondConfig = createSetting(j, "config-id-2", xmlProvider);
         final ManagedFile mSettings = new ManagedFile(activeConfig.id, "/tmp/new_settings.xml", "MY_SETTINGS");
         ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mSettings));
         p.getBuildWrappersList().add(bw);
@@ -187,15 +181,15 @@ public class ConfigFileBuildWrapperTest {
         for (DomElement htmlElement : option) {
             final HtmlOption htmlOption = (HtmlOption) htmlElement;
             if (htmlOption.getValueAttribute().equals(activeConfig.id)) {
-                Assert.assertTrue("correct config is not selected", htmlOption.isSelected());
+                assertTrue(htmlOption.isSelected(), "correct config is not selected");
                 foundActive = true;
             }
             if (htmlOption.getValueAttribute().equals(secondConfig.id)) {
-                Assert.assertFalse("wrong config is selected", htmlOption.isSelected());
+                assertFalse(htmlOption.isSelected(), "wrong config is selected");
                 foundSecond = true;
             }
         }
-        Assert.assertTrue("configured active setting was not available as option", foundActive);
-        Assert.assertTrue("configured second setting was not available as option", foundSecond);
+        assertTrue(foundActive, "configured active setting was not available as option");
+        assertTrue(foundSecond, "configured second setting was not available as option");
     }
 }

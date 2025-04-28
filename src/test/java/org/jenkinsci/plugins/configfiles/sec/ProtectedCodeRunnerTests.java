@@ -1,47 +1,51 @@
 package org.jenkinsci.plugins.configfiles.sec;
 
-import jenkins.model.Jenkins;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.hudson.test.MockAuthorizationStrategy;
-import org.springframework.security.access.AccessDeniedException;
-
-import java.util.function.Supplier;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
+import java.util.function.Supplier;
+import jenkins.model.Jenkins;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.MockAuthorizationStrategy;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.springframework.security.access.AccessDeniedException;
+
 /**
  * Check the {@link ProtectedCodeRunner} class works correctly.
  */
-public class ProtectedCodeRunnerTests {
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
+@WithJenkins
+class ProtectedCodeRunnerTests {
 
-    @Before
-    public void setUpAuthorizationAndProject() {
+    private JenkinsRule r;
+
+    @BeforeEach
+    void setUpAuthorizationAndProject(JenkinsRule r) {
+        this.r = r;
         r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
-        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().
-                grant(Jenkins.READ).everywhere().to("reader").
-                grant(Jenkins.ADMINISTER).everywhere().to("administer")
-        );
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                .grant(Jenkins.READ)
+                .everywhere()
+                .to("reader")
+                .grant(Jenkins.ADMINISTER)
+                .everywhere()
+                .to("administer"));
     }
-    
+
     @Test
-    public void protectedCodeCheckerTest() {
+    void protectedCodeCheckerTest() {
         Supplier<String> supplier = () -> {
             r.jenkins.checkPermission(Jenkins.ADMINISTER);
             return "allowed";
         };
-        
+
         ProtectedCodeRunner<String> checker = new ProtectedCodeRunner<>(supplier, "administer");
         assertThat(checker.getResult(), is("allowed"));
 
-        Throwable t = checker.withUser("reader").getThrowable(); 
+        Throwable t = checker.withUser("reader").getThrowable();
         assertThat(t, instanceOf(AccessDeniedException.class));
         assertThat(t.getMessage(), containsString(Jenkins.ADMINISTER.group.title + "/" + Jenkins.ADMINISTER.name));
     }

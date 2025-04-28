@@ -1,44 +1,44 @@
 package org.jenkinsci.plugins.configfiles;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import hudson.util.VersionNumber;
+import java.util.concurrent.atomic.AtomicReference;
 import org.htmlunit.html.HtmlAnchor;
-import org.htmlunit.html.HtmlButton;
 import org.htmlunit.html.HtmlElement;
 import org.htmlunit.html.HtmlForm;
 import org.htmlunit.html.HtmlInput;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.html.HtmlRadioButtonInput;
-import hudson.util.VersionNumber;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
-public class ConfigFilesSEC1253Test {
+@WithJenkins
+class ConfigFilesSEC1253Test {
 
     private static final String CONFIG_ID = "ConfigFilesTestId";
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
-
     @Test
     @Issue("SECURITY-1253")
-    public void regularCaseStillWorking() throws Exception {
-        GlobalConfigFiles store = j.getInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+    void regularCaseStillWorking(JenkinsRule j) throws Exception {
+        GlobalConfigFiles store =
+                j.getInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         assertNotNull(store);
         assertThat(store.getConfigs(), empty());
 
         JenkinsRule.WebClient wc = j.createWebClient();
         HtmlPage createConfig = wc.goTo("configfiles/selectProvider");
-        HtmlRadioButtonInput groovyRadioButton = createConfig.getDocumentElement().getOneHtmlElementByAttribute("input", "value", "org.jenkinsci.plugins.configfiles.groovy.GroovyScript");
+        HtmlRadioButtonInput groovyRadioButton = createConfig
+                .getDocumentElement()
+                .getOneHtmlElementByAttribute(
+                        "input", "value", "org.jenkinsci.plugins.configfiles.groovy.GroovyScript");
         groovyRadioButton.click();
         HtmlForm addConfigForm = createConfig.getFormByName("addConfig");
 
@@ -58,7 +58,9 @@ public class ConfigFilesSEC1253Test {
         assertThat(store.getConfigs(), hasSize(1));
 
         HtmlPage configFiles = wc.goTo("configfiles");
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
+        HtmlAnchor removeAnchor = configFiles
+                .getDocumentElement()
+                .getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
 
         if (j.jenkins.getVersion().isOlderThan(new VersionNumber("2.415"))) {
             AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
@@ -79,8 +81,9 @@ public class ConfigFilesSEC1253Test {
 
     @Test
     @Issue("SECURITY-1253")
-    public void xssPrevention() throws Exception {
-        GlobalConfigFiles store = j.getInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+    void xssPrevention(JenkinsRule j) throws Exception {
+        GlobalConfigFiles store =
+                j.getInstance().getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         assertNotNull(store);
         assertThat(store.getConfigs(), empty());
 
@@ -92,12 +95,12 @@ public class ConfigFilesSEC1253Test {
         JenkinsRule.WebClient wc = j.createWebClient();
 
         HtmlPage configFiles = wc.goTo("configfiles");
-        HtmlAnchor removeAnchor = configFiles.getDocumentElement().getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
+        HtmlAnchor removeAnchor = configFiles
+                .getDocumentElement()
+                .getFirstByXPath("//a[contains(@data-url, 'removeConfig?id=" + CONFIG_ID + "')]");
 
         AtomicReference<Boolean> alertCalled = new AtomicReference<>(false);
-        wc.setAlertHandler((page, s) -> {
-            alertCalled.set(true);
-        });
+        wc.setAlertHandler((page, s) -> alertCalled.set(true));
         assertThat(alertCalled.get(), is(false));
         if (j.jenkins.getVersion().isOlderThan(new VersionNumber("2.415"))) {
             AtomicReference<Boolean> confirmCalled = new AtomicReference<>(false);
