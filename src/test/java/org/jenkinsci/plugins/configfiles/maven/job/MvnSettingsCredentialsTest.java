@@ -10,6 +10,7 @@ import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.EnvVars;
 import hudson.FilePath;
+import hudson.Functions;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.maven.MavenModuleSetBuild;
@@ -99,6 +100,10 @@ class MvnSettingsCredentialsTest {
         j.assertLogNotContains("<username>dude</username>", build);
         j.assertLogContains("<username>****</username>", build);
         j.assertLogContains("<password>****</password>", build);
+        if (Functions.isWindows()) {
+            // Wait before exiting the test so that files close before cleanup
+            Thread.sleep(3011);
+        }
     }
 
     private static final class DelegatingMvnSettingsProvider extends MvnSettingsProvider {

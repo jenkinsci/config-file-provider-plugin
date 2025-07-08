@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.configfiles.maven.job;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
+import hudson.Functions;
 import hudson.maven.MavenModuleSet;
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
@@ -87,6 +88,10 @@ class MvnSettingsProviderTest {
         jenkins.assertEqualDataBoundBeans(p.getGlobalSettings(), s2);
         assertNotSame(p.getSettings(), s1);
         assertNotSame(p.getGlobalSettings(), s2);
+        if (Functions.isWindows()) {
+            // Wait before exiting the test so that files close before cleanup
+            Thread.sleep(3011);
+        }
     }
 
     @Test
