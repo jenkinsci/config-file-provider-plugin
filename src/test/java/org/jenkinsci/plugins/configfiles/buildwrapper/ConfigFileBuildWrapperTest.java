@@ -2,6 +2,7 @@ package org.jenkinsci.plugins.configfiles.buildwrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import hudson.Functions;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.*;
@@ -63,6 +64,10 @@ class ConfigFileBuildWrapperTest {
 
         j.assertBuildStatus(
                 Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
+        if (Functions.isWindows()) {
+            // Wait before exiting the test so that files close before cleanup
+            Thread.sleep(3011);
+        }
     }
 
     @Test
