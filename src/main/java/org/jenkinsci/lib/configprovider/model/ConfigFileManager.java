@@ -48,6 +48,7 @@ import hudson.slaves.WorkspaceList;
 
 public class ConfigFileManager {
     private final static Logger LOGGER = Logger.getLogger(ConfigFileManager.class.getName());
+    private final static boolean isVerbose = !("false".equalsIgnoreCase(System.getenv("CFP_IS_VERBOSE"))) //Negative checking to retain existing behaviour
 
     /**
      * Provisions (publishes) the given file to the workspace.
@@ -122,7 +123,9 @@ public class ConfigFileManager {
         }
 
         LOGGER.log(Level.FINE, "Create file {0} for configuration {1} mapped as {2}", new Object[]{target.getRemote(), config, configFile});
-        listener.getLogger().println(Messages.console_output(config.name, target.toURI()));
+        if (isVerbose) {
+            listener.getLogger().println(Messages.console_output(config.name, target.toURI()));
+        }
         // check if empty file
         if (fileContent != null) {
             ByteArrayInputStream bs = new ByteArrayInputStream(fileContent.getBytes("UTF-8"));
