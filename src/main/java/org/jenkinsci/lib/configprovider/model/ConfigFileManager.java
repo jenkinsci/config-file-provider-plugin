@@ -45,6 +45,7 @@ import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.slaves.WorkspaceList;
+import jenkins.util.SystemProperties;
 
 public class ConfigFileManager {
     private final static Logger LOGGER = Logger.getLogger(ConfigFileManager.class.getName());
