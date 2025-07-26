@@ -48,7 +48,7 @@ import hudson.slaves.WorkspaceList;
 
 public class ConfigFileManager {
     private final static Logger LOGGER = Logger.getLogger(ConfigFileManager.class.getName());
-    private final static boolean isVerbose = SystemProperties.getBoolean(BindingStep.class.getName() + ".CFP_IS_VERBOSE", true);
+    private final static boolean isVerbose = SystemProperties.getBoolean(ConfigFileManager.class.getName() + ".CFP_IS_VERBOSE", true);
 
     /**
      * Provisions (publishes) the given file to the workspace.
