@@ -23,19 +23,31 @@ THE SOFTWARE.
 -->
 
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
-    xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
-    <cf:sitepanel />
-
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:cf="/lib/configfiles">
     <l:main-panel>
-        <h1>
-            <l:icon src="symbol-cfg-logo plugin-config-file-provider" class="icon-xlg" />
-            <j:out value=" " />
-            ${%Config File Management}
-        </h1>
+        <j:set var="hasConfigs" value="${it.groupedConfigs.size() gt 0}" />
 
-        <j:out value="${%intro}" />
+        <l:app-bar title="${it.displayName}" subtitle="${hasConfigs ? it.configs.size() : null}">
+            <j:if test="${hasConfigs}">
+                <a class="jenkins-button jenkins-button--primary" href="selectProvider">
+                    <l:icon src="symbol-add" />
+                    ${%New configuration}
+                </a>
+            </j:if>
+        </l:app-bar>
 
-        <cf:configfiles groupedConfigs="${it.groupedConfigs}" />
+        <j:choose>
+            <j:when test="${hasConfigs}">
+                <cf:configfiles groupedConfigs="${it.groupedConfigs}" />
+            </j:when>
+            <j:otherwise>
+                <l:notice icon="symbol-cfg-logo plugin-config-file-provider"
+                          title="${%noConfigs}">
+                    <a href="selectProvider">
+                        ${%New configuration}
+                    </a>
+                </l:notice>
+            </j:otherwise>
+        </j:choose>
     </l:main-panel>
 </j:jelly>
