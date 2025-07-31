@@ -66,13 +66,20 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
             }
 
             // @formatter:off
-            return new StandardUsernameListBoxModel().includeAs(
-                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication() : ACL.SYSTEM,
+            return propertyKey != null ?
+                new StandardUsernameListBoxModel().includeAs(
+                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication2() : ACL.SYSTEM2,
                     context,
                     StandardUsernameCredentials.class,
                     domainRequirements
-            )
-                    .includeCurrentValue(propertyKey);
+                )
+                .includeCurrentValue(propertyKey) :
+                new StandardUsernameListBoxModel().includeAs(
+                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication2() : ACL.SYSTEM2,
+                    context,
+                    StandardUsernameCredentials.class,
+                    domainRequirements
+                );
             // @formatter:on
         }
 

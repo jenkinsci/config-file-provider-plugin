@@ -66,13 +66,20 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
             }
 
             // @formatter:off
-            return new StandardUsernameListBoxModel().includeAs(
-                        context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication() : ACL.SYSTEM, 
-                        context, 
-                        StandardUsernameCredentials.class, 
-                        domainRequirements
-                    )
-                    .includeCurrentValue(serverId);
+            return serverId != null ?
+                new StandardUsernameListBoxModel().includeAs(
+                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication2() : ACL.SYSTEM2,
+                    context,
+                    StandardUsernameCredentials.class,
+                    domainRequirements
+                )
+                .includeCurrentValue(serverId) :
+                new StandardUsernameListBoxModel().includeAs(
+                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication2() : ACL.SYSTEM2,
+                    context,
+                    StandardUsernameCredentials.class,
+                    domainRequirements
+                );
             // @formatter:on
         }
 
