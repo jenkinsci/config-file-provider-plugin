@@ -31,7 +31,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.buildwrapper.Messages;
@@ -78,19 +77,19 @@ public class ConfigFileManager {
         }
         workDir.mkdirs();
 
-        boolean createTempFile = StringUtils.isBlank(configFile.getTargetLocation());
+        final String targetLocation = configFile.getTargetLocation();
+        boolean createTempFile = targetLocation == null || targetLocation.isBlank();
 
         FilePath target;
         if (createTempFile) {
             target = workDir.createTempFile("config", "tmp");
         } else {
-
-            String expandedTargetLocation = configFile.getTargetLocation();
+            String expandedTargetLocation;
             try {
-                expandedTargetLocation = TokenMacro.expandAll(build, workspace, listener, configFile.getTargetLocation());
+                expandedTargetLocation = TokenMacro.expandAll(build, workspace, listener, targetLocation);
             } catch (MacroEvaluationException e) {
-                listener.getLogger().println("[ERROR] failed to expand variables in target location '" + configFile.getTargetLocation() + "' : " + e.getMessage());
-                expandedTargetLocation = configFile.getTargetLocation();
+                listener.getLogger().println("[ERROR] failed to expand variables in target location '" + targetLocation + "' : " + e.getMessage());
+                expandedTargetLocation = targetLocation;
             }
 
             // Should treat given path as the actual filename unless it has a trailing slash (implying a

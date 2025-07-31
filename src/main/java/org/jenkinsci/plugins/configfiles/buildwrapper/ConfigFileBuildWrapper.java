@@ -51,7 +51,6 @@ import java.util.regex.Pattern;
 
 import jenkins.tasks.SimpleBuildWrapper;
 
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -76,10 +75,11 @@ public class ConfigFileBuildWrapper extends SimpleBuildWrapper {
         for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
             ManagedFile mf = entry.getKey();
             FilePath fp = entry.getValue();
-            if (!StringUtils.isBlank(mf.variable)) {
+            if (!(mf.variable == null || mf.variable.isBlank())) {
                 context.env(mf.variable, fp.getRemote());
             }
-            boolean noTargetGiven = StringUtils.isBlank(entry.getKey().getTargetLocation());
+            final String targetLocation = entry.getKey().getTargetLocation();
+            boolean noTargetGiven = targetLocation == null || targetLocation.isBlank();
             if (noTargetGiven) {
                 tempFiles.add(entry.getValue().getRemote());
             }

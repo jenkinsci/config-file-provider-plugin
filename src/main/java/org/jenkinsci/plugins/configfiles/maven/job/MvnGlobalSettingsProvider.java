@@ -22,7 +22,6 @@ import jenkins.model.Jenkins;
 import jenkins.mvn.GlobalSettingsProvider;
 import jenkins.mvn.GlobalSettingsProviderDescriptor;
 
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
@@ -75,7 +74,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
 
     @CheckForNull
     private GlobalMavenSettingsConfig getGlobalMavenSettingsConfig(AbstractBuild<?, ?> build, TaskListener listener) {
-        if (StringUtils.isNotBlank(settingsConfigId)) {
+        if (settingsConfigId != null && !settingsConfigId.isBlank()) {
             Config c = ConfigFiles.getByIdOrNull(build.getRootBuild(), settingsConfigId);
 
             if (c == null) {
@@ -98,7 +97,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
         if (config != null) {
             listener.getLogger().println("using global settings config with name " + config.name);
             listener.getLogger().println("Replacing all maven server entries not found in credentials list is " + config.getIsReplaceAll());
-            if (StringUtils.isNotBlank(config.content)) {
+            if (config.content != null && !config.content.isBlank()) {
                 try {
 
                     FilePath workspace = build.getWorkspace();

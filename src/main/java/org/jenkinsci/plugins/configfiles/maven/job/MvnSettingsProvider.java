@@ -11,7 +11,6 @@ import hudson.model.Item;
 import hudson.security.AccessControlled;
 import hudson.security.Permission;
 import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
@@ -72,7 +71,7 @@ public class MvnSettingsProvider extends SettingsProvider {
 
     @CheckForNull
     private MavenSettingsConfig getMavenSettingsConfig(AbstractBuild<?, ?> build, TaskListener listener) {
-        if (StringUtils.isNotBlank(settingsConfigId)) {
+        if (settingsConfigId != null && !settingsConfigId.isBlank()) {
 
             Config c = ConfigFiles.getByIdOrNull(build.getRootBuild(), settingsConfigId);
 
@@ -96,7 +95,7 @@ public class MvnSettingsProvider extends SettingsProvider {
         if (config != null) {
             listener.getLogger().println("using settings config with name " + config.name);
             listener.getLogger().println("Replacing all maven server entries not found in credentials list is " + config.getIsReplaceAll());
-            if (StringUtils.isNotBlank(config.content)) {
+            if (config.content != null && !config.content.isBlank()) {
                 try {
 
                     FilePath workspace = build.getWorkspace();
