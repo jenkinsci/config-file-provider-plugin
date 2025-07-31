@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.configfiles.maven.job;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import hudson.Functions;
 import hudson.Launcher;
 import hudson.maven.MavenModuleSet;
 import hudson.model.AbstractBuild;
@@ -56,6 +57,10 @@ class SettingsEnvVarTest {
 
         j.assertBuildStatus(
                 Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
+        if (Functions.isWindows()) {
+            // Wait before exiting the test so that files close before cleanup
+            Thread.sleep(3011);
+        }
     }
 
     private static final class VerifyBuilder extends Builder {
