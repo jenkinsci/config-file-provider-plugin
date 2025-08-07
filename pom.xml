@@ -53,6 +53,18 @@
         </license>
     </licenses>
 
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <!-- TODO removes once in plugin-pom -->
+                    <groupId>io.jenkins.tools.maven</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>184.v19c87b_6b_a_9a_c</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
     <dependencyManagement>
         <dependencies>
             <dependency>
