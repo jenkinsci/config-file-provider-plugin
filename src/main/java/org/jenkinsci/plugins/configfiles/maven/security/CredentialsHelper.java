@@ -25,6 +25,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import hudson.Util;
 import jenkins.util.xml.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -300,8 +301,7 @@ public class CredentialsHelper {
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             String name = node.getNodeName().toLowerCase();
-            final String trimmedTextContent = node.getTextContent().trim();
-            String content = trimmedTextContent.isEmpty() ? null : trimmedTextContent;
+            String content = Util.fixEmptyAndTrim(node.getTextContent());
             if ("id".equals(name)) {
                 return content;
             }
