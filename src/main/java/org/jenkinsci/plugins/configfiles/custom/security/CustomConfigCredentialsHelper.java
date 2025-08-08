@@ -26,23 +26,18 @@ package org.jenkinsci.plugins.configfiles.custom.security;
 import com.cloudbees.jenkins.plugins.sshcredentials.SSHUserPrivateKey;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.IdCredentials;
-import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
-import org.jenkinsci.plugins.configfiles.custom.security.TokenValueMacro;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +63,7 @@ public class CustomConfigCredentialsHelper {
             final String tokenKey = customizedCredentialMapping.getTokenKey();
 
             List<DomainRequirement> domainRequirements = Collections.emptyList();
-            if (StringUtils.isNotBlank(tokenKey)) {
+            if (tokenKey != null && !tokenKey.isBlank()) {
                 domainRequirements = Collections.singletonList(new TokenKeyRequirement(tokenKey));
             }
 

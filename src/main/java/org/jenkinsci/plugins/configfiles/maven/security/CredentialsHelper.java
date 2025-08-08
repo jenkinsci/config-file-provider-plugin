@@ -25,8 +25,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import hudson.Util;
 import jenkins.util.xml.XMLUtils;
-import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -72,7 +72,7 @@ public class CredentialsHelper {
             final String serverId = serverCredentialMapping.getServerId();
             
             List<DomainRequirement> domainRequirements = Collections.emptyList();
-            if (StringUtils.isNotBlank(serverId)) {
+            if (serverId != null && !serverId.isBlank()) {
                 domainRequirements = Collections.singletonList(new MavenServerIdRequirement(serverId));
             }
 
@@ -258,7 +258,8 @@ public class CredentialsHelper {
         NodeList nodes = from.getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
-            String name = StringUtils.trimToNull(node.getNodeName());
+            final String trimmedNodeName = node.getNodeName().trim();
+            String name = trimmedNodeName.isEmpty() ? null : trimmedNodeName;
             if (ATTRIBUTES_TO_KEEP.contains(name)) {
                 to.appendChild(node);
             }
@@ -299,8 +300,8 @@ public class CredentialsHelper {
         NodeList nodes = server.getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
-            String name = StringUtils.lowerCase(node.getNodeName());
-            String content = StringUtils.trimToNull(node.getTextContent());
+            String name = node.getNodeName().toLowerCase();
+            String content = Util.fixEmptyAndTrim(node.getTextContent());
             if ("id".equals(name)) {
                 return content;
             }

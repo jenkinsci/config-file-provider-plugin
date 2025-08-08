@@ -8,7 +8,6 @@ import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public class CredentialsHelper {
             final String propertyKey = propertiesCredentialMapping.getPropertyKey();
 
             List<DomainRequirement> domainRequirements = Collections.emptyList();
-            if (StringUtils.isNotBlank(propertyKey)) {
+            if (propertyKey != null && !propertyKey.isBlank()) {
                 domainRequirements = Collections.singletonList(new PropertyKeyRequirement(propertyKey));
             }
 

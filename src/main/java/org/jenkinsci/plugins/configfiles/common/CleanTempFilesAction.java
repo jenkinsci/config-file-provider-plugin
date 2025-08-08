@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
 
 /**
@@ -74,7 +73,7 @@ public class CleanTempFilesAction extends InvisibleAction implements Environment
         for (Map.Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
             ManagedFile mf = entry.getKey();
             FilePath fp = entry.getValue();
-            if (!StringUtils.isBlank(mf.variable)) {
+            if (!(mf.variable == null || mf.variable.isBlank())) {
                 env.put(mf.variable, fp.getRemote());
             }
         }
@@ -88,7 +87,8 @@ public class CleanTempFilesAction extends InvisibleAction implements Environment
     List<String> getTempFiles() {
         List<String> tempFiles = new ArrayList<String>();
         for (Entry<ManagedFile, FilePath> entry : file2Path.entrySet()) {
-            boolean noTargetGiven = StringUtils.isBlank(entry.getKey().getTargetLocation());
+            final String targetLocation = entry.getKey().getTargetLocation();
+            boolean noTargetGiven = targetLocation == null || targetLocation.isBlank();
             if (noTargetGiven) {
                 tempFiles.add(entry.getValue().getRemote());
             }

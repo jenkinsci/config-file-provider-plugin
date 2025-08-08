@@ -1,7 +1,6 @@
 package org.jenkinsci.plugins.configfiles.utils;
 
 import hudson.util.FormValidation;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
@@ -18,7 +17,7 @@ public class DescriptionResponse implements HttpResponse {
     private String html = "div/>";
 
     public DescriptionResponse(String html) {
-        if (StringUtils.isNotBlank(html)) {
+        if (html != null && !html.isBlank()) {
             this.html = html;
         }
     }
