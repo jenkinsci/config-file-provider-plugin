@@ -8,7 +8,6 @@ import java.util.List;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import hudson.model.*;
 import hudson.security.Permission;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -62,18 +61,25 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
             }
             
             List<DomainRequirement> domainRequirements = Collections.emptyList();
-            if (StringUtils.isNotBlank(serverId)) {
+            if (serverId != null && !serverId.isBlank()) {
                 domainRequirements = Collections.singletonList(new MavenServerIdRequirement(serverId));
             }
 
             // @formatter:off
-            return new StandardUsernameListBoxModel().includeAs(
-                        context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication() : ACL.SYSTEM, 
-                        context, 
-                        StandardUsernameCredentials.class, 
-                        domainRequirements
-                    )
-                    .includeCurrentValue(serverId);
+            return serverId != null ?
+                new StandardUsernameListBoxModel().includeAs(
+                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication2() : ACL.SYSTEM2,
+                    context,
+                    StandardUsernameCredentials.class,
+                    domainRequirements
+                )
+                .includeCurrentValue(serverId) :
+                new StandardUsernameListBoxModel().includeAs(
+                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication2() : ACL.SYSTEM2,
+                    context,
+                    StandardUsernameCredentials.class,
+                    domainRequirements
+                );
             // @formatter:on
         }
 

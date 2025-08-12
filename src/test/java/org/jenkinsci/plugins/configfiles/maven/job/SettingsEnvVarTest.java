@@ -13,7 +13,6 @@ import hudson.model.Result;
 import hudson.tasks.Builder;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
@@ -73,8 +72,8 @@ class SettingsEnvVarTest {
                 final String userSettings = TokenMacro.expandAll(build, listener, "${ENV, var=\"MVN_SETTINGS\"}");
                 final String globalSettings =
                         TokenMacro.expandAll(build, listener, "${ENV, var=\"MVN_GLOBALSETTINGS\"}");
-                assertTrue(StringUtils.isNotBlank(userSettings), "env variable for user settings is not set");
-                assertTrue(StringUtils.isNotBlank(globalSettings), "env variable for global settings is not set");
+                assertTrue(userSettings != null && !userSettings.isBlank(), "env variable for user settings is not set");
+                assertTrue(globalSettings != null && !globalSettings.isBlank(), "env variable for global settings is not set");
             } catch (MacroEvaluationException e) {
                 fail("not able to expand var: " + e.getMessage());
             }

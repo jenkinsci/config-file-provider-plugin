@@ -4,8 +4,6 @@ import hudson.model.Environment;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * A simple environment implementation to provide env variables
  * 
@@ -31,7 +29,7 @@ class SimpleEnvironment extends Environment {
 
     @Override
     public void buildEnvVars(Map<String, String> env) {
-        if (StringUtils.isNotBlank(var) && StringUtils.isNotBlank(value)) {
+        if ((var != null && !var.isBlank()) && (value != null && !value.isBlank())) {
             env.put(var, value);
         }
     }

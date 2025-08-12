@@ -14,7 +14,6 @@ import hudson.security.AccessControlled;
 import hudson.security.Permission;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -62,18 +61,25 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
             }
             
             List<DomainRequirement> domainRequirements = Collections.emptyList();
-            if (StringUtils.isNotBlank(propertyKey)) {
+            if (propertyKey != null && !propertyKey.isBlank()) {
                 domainRequirements = Collections.singletonList(new PropertyKeyRequirement(propertyKey));
             }
 
             // @formatter:off
-            return new StandardUsernameListBoxModel().includeAs(
-                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication() : ACL.SYSTEM,
+            return propertyKey != null ?
+                new StandardUsernameListBoxModel().includeAs(
+                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication2() : ACL.SYSTEM2,
                     context,
                     StandardUsernameCredentials.class,
                     domainRequirements
-            )
-                    .includeCurrentValue(propertyKey);
+                )
+                .includeCurrentValue(propertyKey) :
+                new StandardUsernameListBoxModel().includeAs(
+                    context instanceof Queue.Task ? ((Queue.Task) context).getDefaultAuthentication2() : ACL.SYSTEM2,
+                    context,
+                    StandardUsernameCredentials.class,
+                    domainRequirements
+                );
             // @formatter:on
         }
 

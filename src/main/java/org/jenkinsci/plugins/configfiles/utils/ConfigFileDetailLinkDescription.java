@@ -2,7 +2,6 @@ package org.jenkinsci.plugins.configfiles.utils;
 
 import hudson.model.Item;
 import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest2;
 
 public class ConfigFileDetailLinkDescription extends DescriptionResponse {
@@ -16,7 +15,8 @@ public class ConfigFileDetailLinkDescription extends DescriptionResponse {
 
     private static String getDetailsLink(StaplerRequest2 req, Item context, String fileId) {
         String link = req.getContextPath();
-        link = StringUtils.isNotBlank(context.getUrl()) ? link + "/" + context.getUrl() : link;
+        final String url = context.getUrl();
+        link = url != null && !url.isBlank() ? link + "/" + url : link;
         link = link + "configfiles/show?id=" + fileId;
         String linkHtml = "<a target=\"_blank\" href=\"" + link + "\">view selected file</a>";
 

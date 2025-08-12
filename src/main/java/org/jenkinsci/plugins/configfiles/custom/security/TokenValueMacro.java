@@ -29,11 +29,8 @@ import hudson.FilePath;
 import hudson.model.*;
 
 import java.io.IOException;
-import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.jenkinsci.plugins.tokenmacro.DataBoundTokenMacro;
