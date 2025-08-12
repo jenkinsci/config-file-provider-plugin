@@ -24,7 +24,6 @@
 
 package org.jenkinsci.plugins.configfiles.buildwrapper;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
@@ -43,117 +42,112 @@ import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jenkinsci.plugins.workflow.steps.CoreWrapperStep;
 import org.jenkinsci.plugins.workflow.steps.StepConfigTester;
 import org.jenkinsci.plugins.workflow.test.steps.SemaphoreStep;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.hudson.test.RestartableJenkinsRule;
-import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.jvnet.hudson.test.junit.jupiter.JenkinsSessionExtension;
 
-public class ConfigFileBuildWrapperWorkflowTest {
+class ConfigFileBuildWrapperWorkflowTest {
 
-    @Rule
-    public RestartableJenkinsRule story = new RestartableJenkinsRule();
-
-    @Test
-    @WithJenkins
-    void configRoundTrip(JenkinsRule rule) throws Exception {
-        String id = createConfig(rule).id;
-        CoreWrapperStep step = new CoreWrapperStep(
-                new ConfigFileBuildWrapper(Collections.singletonList(new ManagedFile(id, "myfile.txt", "MYFILE"))));
-        step = new StepConfigTester(rule).configRoundTrip(step);
-        SimpleBuildWrapper delegate = step.getDelegate();
-        assertInstanceOf(ConfigFileBuildWrapper.class, delegate, String.valueOf(delegate));
-        ConfigFileBuildWrapper w = (ConfigFileBuildWrapper) delegate;
-        assertEquals(
-                "[[ManagedFile: id=" + id + ", targetLocation=myfile.txt, variable=MYFILE]]",
-                w.getManagedFiles().toString());
-
-        // test pipeline snippet generator
-        List<ManagedFile> managedFiles = new ArrayList<>();
-        managedFiles.add(new ManagedFile("myid"));
-        w = new ConfigFileBuildWrapper(managedFiles);
-
-        DescribableModel<ConfigFileBuildWrapper> model = new DescribableModel<>(ConfigFileBuildWrapper.class);
-        Map<String, Object> args = model.uninstantiate(w);
-        assertEquals(1, ((List) args.get("managedFiles")).size());
-        rule.assertEqualDataBoundBeans(w, model.instantiate(args));
-    }
+    @RegisterExtension
+    private final JenkinsSessionExtension story = new JenkinsSessionExtension();
 
     @Test
-    @WithJenkins
-    void withTargetLocation_Pipeline(JenkinsRule rule) throws Exception {
-        WorkflowJob p = rule.jenkins.createProject(WorkflowJob.class, "p");
-        p.setDefinition(new CpsFlowDefinition(
-                ""
-                        + "def xsh(file) { if (isUnix()) {sh \"cat $file\"} else {bat \"type $file\"} }\n"
-                        + "node {\n"
-                        + "  wrap([$class: 'ConfigFileBuildWrapper', managedFiles: [[fileId: '" + createConfig(rule).id
-                        + "', targetLocation: 'myfile.txt']]]) {\n"
-                        + "    xsh 'myfile.txt'\n"
-                        + "  }\n"
-                        + "}",
-                true));
-        WorkflowRun b = rule.assertBuildStatusSuccess(p.scheduleBuild2(0));
-        rule.assertLogContains("some content", b);
-        rule.assertLogNotContains("temporary files", b);
-    }
+    void configRoundTrip() throws Throwable {
+        story.then(j -> {
+            String id = createConfig(j).id;
+            CoreWrapperStep step = new CoreWrapperStep(
+                    new ConfigFileBuildWrapper(Collections.singletonList(new ManagedFile(id, "myfile.txt", "MYFILE"))));
+            step = new StepConfigTester(j).configRoundTrip(step);
+            SimpleBuildWrapper delegate = step.getDelegate();
+            assertInstanceOf(ConfigFileBuildWrapper.class, delegate, String.valueOf(delegate));
+            ConfigFileBuildWrapper w = (ConfigFileBuildWrapper) delegate;
+            assertEquals(
+                    "[[ManagedFile: id=" + id + ", targetLocation=myfile.txt, variable=MYFILE]]",
+                    w.getManagedFiles().toString());
 
-    @Test
-    @WithJenkins
-    void symbolWithTargetLocation(JenkinsRule rule) throws Exception {
-        WorkflowJob p = rule.jenkins.createProject(WorkflowJob.class, "p");
-        p.setDefinition(new CpsFlowDefinition(
-                ""
-                        + "def xsh(file) { if (isUnix()) {sh \"cat $file\"} else {bat \"type $file\"} }\n"
-                        + "node {\n"
-                        + "  configFileProvider([configFile(fileId: '" + createConfig(rule).id
-                        + "', targetLocation: 'myfile.txt')]) {\n"
-                        + "    xsh 'myfile.txt'\n"
-                        + "  }\n"
-                        + "}",
-                true));
-        WorkflowRun b = rule.assertBuildStatusSuccess(p.scheduleBuild2(0));
-        rule.assertLogContains("some content", b);
-        rule.assertLogNotContains("temporary files", b);
-    }
+            // test pipeline snippet generator
+            List<ManagedFile> managedFiles = new ArrayList<>();
+            managedFiles.add(new ManagedFile("myid"));
+            w = new ConfigFileBuildWrapper(managedFiles);
 
-    @org.junit.Test
-    public void withTempFilesAfterRestart() {
-        story.addStep(new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                WorkflowJob p = story.j.jenkins.createProject(WorkflowJob.class, "p");
-                p.setDefinition(new CpsFlowDefinition(
-                        ""
-                                + "node {\n"
-                                + "  wrap([$class: 'ConfigFileBuildWrapper', managedFiles: [[fileId: '"
-                                + createConfig(story.j).id + "', variable: 'MYFILE']]]) {\n"
-                                + "    semaphore 'withTempFilesAfterRestart'\n"
-                                + "    if (isUnix()) {sh 'cat \"$MYFILE\"'} else {bat 'type \"%MYFILE%\"'}\n"
-                                + "  }\n"
-                                + "}",
-                        true));
-                WorkflowRun b = p.scheduleBuild2(0).waitForStart();
-                SemaphoreStep.waitForStart("withTempFilesAfterRestart/1", b);
-            }
-        });
-        story.addStep(new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                SemaphoreStep.success("withTempFilesAfterRestart/1", null);
-                WorkflowJob p = story.j.jenkins.getItemByFullName("p", WorkflowJob.class);
-                assertNotNull(p);
-                WorkflowRun b = p.getBuildByNumber(1);
-                assertNotNull(b);
-                story.j.assertBuildStatusSuccess(story.j.waitForCompletion(b));
-                story.j.assertLogContains("some content", b);
-                story.j.assertLogContains("Deleting 1 temporary files", b);
-            }
+            DescribableModel<ConfigFileBuildWrapper> model = new DescribableModel<>(ConfigFileBuildWrapper.class);
+            Map<String, Object> args = model.uninstantiate(w);
+            assertEquals(1, ((List) args.get("managedFiles")).size());
+            j.assertEqualDataBoundBeans(w, model.instantiate(args));
         });
     }
 
-    private Config createConfig(JenkinsRule rule) {
+    @Test
+    void withTargetLocation_Pipeline() throws Throwable {
+        story.then(j -> {
+            WorkflowJob p = j.jenkins.createProject(WorkflowJob.class, "p");
+            p.setDefinition(new CpsFlowDefinition(
+                    ""
+                            + "def xsh(file) { if (isUnix()) {sh \"cat $file\"} else {bat \"type $file\"} }\n"
+                            + "node {\n"
+                            + "  wrap([$class: 'ConfigFileBuildWrapper', managedFiles: [[fileId: '" + createConfig(j).id
+                            + "', targetLocation: 'myfile.txt']]]) {\n"
+                            + "    xsh 'myfile.txt'\n"
+                            + "  }\n"
+                            + "}",
+                    true));
+            WorkflowRun b = j.assertBuildStatusSuccess(p.scheduleBuild2(0));
+            j.assertLogContains("some content", b);
+            j.assertLogNotContains("temporary files", b);
+        });
+    }
+
+    @Test
+    void symbolWithTargetLocation() throws Throwable {
+        story.then(j -> {
+            WorkflowJob p = j.jenkins.createProject(WorkflowJob.class, "p");
+            p.setDefinition(new CpsFlowDefinition(
+                    ""
+                            + "def xsh(file) { if (isUnix()) {sh \"cat $file\"} else {bat \"type $file\"} }\n"
+                            + "node {\n"
+                            + "  configFileProvider([configFile(fileId: '" + createConfig(j).id
+                            + "', targetLocation: 'myfile.txt')]) {\n"
+                            + "    xsh 'myfile.txt'\n"
+                            + "  }\n"
+                            + "}",
+                    true));
+            WorkflowRun b = j.assertBuildStatusSuccess(p.scheduleBuild2(0));
+            j.assertLogContains("some content", b);
+            j.assertLogNotContains("temporary files", b);
+        });
+    }
+
+    @Test
+    void withTempFilesAfterRestart() throws Throwable {
+        story.then(j -> {
+            WorkflowJob p = j.jenkins.createProject(WorkflowJob.class, "p");
+            p.setDefinition(new CpsFlowDefinition(
+                    ""
+                            + "node {\n"
+                            + "  wrap([$class: 'ConfigFileBuildWrapper', managedFiles: [[fileId: '"
+                            + createConfig(j).id + "', variable: 'MYFILE']]]) {\n"
+                            + "    semaphore 'withTempFilesAfterRestart'\n"
+                            + "    if (isUnix()) {sh 'cat \"$MYFILE\"'} else {bat 'type \"%MYFILE%\"'}\n"
+                            + "  }\n"
+                            + "}",
+                    true));
+            WorkflowRun b = p.scheduleBuild2(0).waitForStart();
+            SemaphoreStep.waitForStart("withTempFilesAfterRestart/1", b);
+        });
+        story.then(j -> {
+            SemaphoreStep.success("withTempFilesAfterRestart/1", null);
+            WorkflowJob p = j.jenkins.getItemByFullName("p", WorkflowJob.class);
+            assertNotNull(p);
+            WorkflowRun b = p.getBuildByNumber(1);
+            assertNotNull(b);
+            j.assertBuildStatusSuccess(j.waitForCompletion(b));
+            j.assertLogContains("some content", b);
+            j.assertLogContains("Deleting 1 temporary files", b);
+        });
+    }
+
+    private static Config createConfig(JenkinsRule rule) {
         ConfigProvider configProvider =
                 rule.jenkins.getExtensionList(ConfigProvider.class).get(CustomConfig.CustomConfigProvider.class);
         String id = configProvider.getProviderId() + "myfile";
