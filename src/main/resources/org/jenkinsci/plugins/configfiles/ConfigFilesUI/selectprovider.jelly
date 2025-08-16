@@ -25,15 +25,10 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
-	<l:layout title="${%filetype}" norefresh="true">
-		<cf:sitepanel />
+	<l:layout title="${%filetype}" norefresh="true" type="one-column">
 
 		<l:main-panel>
-			<div class="jenkins-app-bar">
-				<div class="jenkins-app-bar__content">
-					<h1>${%New configuration}</h1>
-				</div>
-			</div>
+      <l:app-bar title="${%New configuration}"/>
 
 			<cf:selectprovider providers="${providers}"/>
 		</l:main-panel>

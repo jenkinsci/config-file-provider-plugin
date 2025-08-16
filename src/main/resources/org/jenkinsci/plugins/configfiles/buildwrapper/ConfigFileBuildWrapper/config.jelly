@@ -10,7 +10,8 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
 	<f:entry title="${%Managed Files}">
-		<f:repeatableProperty field="managedFiles"  minimum="1" noAddButton="true">
+		<f:repeatableProperty field="managedFiles"  minimum="1" add="${%Add file}">
+			<f:repeatableDeleteButton/>
 		</f:repeatableProperty>
     </f:entry>
 

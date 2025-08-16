@@ -25,16 +25,18 @@ THE SOFTWARE.
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
     xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
-    <cf:sitepanel />
 
     <l:main-panel>
-        <h1>
-            <l:icon src="symbol-cfg-logo plugin-config-file-provider" class="icon-xlg" />
-            <j:out value=" " />
-            ${%Config File Management}
-        </h1>
+      <l:app-bar title="${%Config File Management}">
+        <a href="selectProvider" class="jenkins-button">
+          <l:icon src="symbol-add-outline plugin-ionicons-api"/>
+          ${%Add a new Config}
+        </a>
 
-        <j:out value="${%intro}" />
+      </l:app-bar>
+        <div class="jenkins-!-margin-bottom-2">
+          <j:out value="${%intro}" />
+        </div>
 
         <cf:configfiles groupedConfigs="${it.groupedConfigs}" />
     </l:main-panel>
