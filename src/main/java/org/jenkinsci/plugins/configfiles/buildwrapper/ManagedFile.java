@@ -32,7 +32,6 @@ import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.security.AccessControlled;
-import hudson.security.Permission;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
@@ -110,16 +109,23 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
             return "";
         }
 
-        public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, @AncestorInPath AccessControlled ac) {
+        public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, @AncestorInPath AccessControlled ac,
+                                              @QueryParameter String fileId) {
             // You should have permission to configure your project in order to get the available managed files
-            if (project != null) {
-                project.checkPermission(Item.CONFIGURE);
-            } else {
-                ac.checkPermission(Item.CREATE); // This to get the first parent to validate the authorization (Folder, View or Jenkins)
-            }
-
             ListBoxModel items = new ListBoxModel();
             items.add("please select", "");
+            if (project != null) {
+                if (!project.hasPermission(Item.EXTENDED_READ)) {
+                    items.add(fileId);
+                    return items;
+                }
+            } else {
+                if (!ac.hasPermission(Item.CONFIGURE)) {// This to get the first parent to validate the authorization (Folder, View or Jenkins)
+                    items.add(fileId);
+                    return items;
+                }
+            }
+
             for (Config config : ConfigFiles.getConfigsInContext(context, null)) {
                 items.add(config.name, config.id);
             }
@@ -138,9 +144,13 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
             // You should have permission to configure your project in order to check whether the selected file id is
             // allowed to you
             if (context != null) {
-                context.checkPermission(Item.CONFIGURE);
+                if (!context.hasPermission(Item.CONFIGURE)) {
+                    return FormValidation.ok();
+                }
             } else {
-                ac.checkPermission(Item.CREATE);
+                if (!ac.hasPermission(Item.CONFIGURE)) {
+                    return FormValidation.ok();
+                }
             }
 
             Config config;

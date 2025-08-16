@@ -15,11 +15,13 @@ import hudson.security.ACL;
 import hudson.security.ACLContext;
 import hudson.security.AccessControlled;
 import hudson.security.Permission;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,6 +29,7 @@ import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
+import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.job.MvnGlobalSettingsProvider;
@@ -38,6 +41,7 @@ import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -48,6 +52,9 @@ import org.springframework.security.access.AccessDeniedException;
 class Security2203Test {
 
     private JenkinsRule r;
+
+    @Inject
+    CustomConfig.CustomConfigProvider customConfigProvider;
 
     @Inject
     MavenSettingsConfig.MavenSettingsConfigProvider mavenSettingConfigProvider;
@@ -76,19 +83,33 @@ class Security2203Test {
     }
 
     /**
-     * The {@link ManagedFile.DescriptorImpl#doFillFileIdItems(ItemGroup, Item, AccessControlled)} is only accessible by people able to
+     * The {@link ManagedFile.DescriptorImpl#doFillFileIdItems(ItemGroup, Item, AccessControlled, String)} is only accessible by people able to
      * configure the job.
      */
     @Issue("SECURITY-2203")
     @Test
     void managedFileDoFillFiledIdItemsProtected() {
-        Runnable run = () -> {
+        r.jenkins.getInjector().injectMembers(this);
+        final Config c = createSetting(customConfigProvider, "fileId");
+        final String CURRENT = "current-value";
+
+        Callable<ListBoxModel> run = () -> {
             ManagedFile.DescriptorImpl descriptor =
                     (ManagedFile.DescriptorImpl) Jenkins.get().getDescriptorOrDie(ManagedFile.class);
-            descriptor.doFillFileIdItems(Jenkins.get(), project, project);
+            return descriptor.doFillFileIdItems(Jenkins.get(), project, project, CURRENT);
         };
 
-        assertWhoCanExecute(run, Item.CONFIGURE, "ManagedFile.DescriptorImpl#doFillFileIdItems");
+        assertWhoCanExecute(run, "ManagedFile.DescriptorImpl#doFillFileIdItems", result ->
+                {
+                    assertThat(result, hasSize(2));
+                    assertThat(result.get(0).value, equalTo(""));
+                    assertThat(result.get(1).value, equalTo(CURRENT));
+                }, result -> {
+                    assertThat(result, hasSize(2));
+                    assertThat(result.get(0).value, equalTo(""));
+                    assertThat(result.get(1).value, equalTo(c.id));
+                }
+        );
     }
 
     /**
@@ -98,13 +119,27 @@ class Security2203Test {
     @Issue("SECURITY-2203")
     @Test
     void managedFileDoCheckFileIdProtected() {
-        Runnable run = () -> {
+        Callable<HttpResponse> run = () -> {
             ManagedFile.DescriptorImpl descriptor =
                     (ManagedFile.DescriptorImpl) Jenkins.get().getDescriptorOrDie(ManagedFile.class);
-            descriptor.doCheckFileId(null, project, project, "fileId"); // request won't be used, we can use null
+            return descriptor.doCheckFileId(null, project, project, "fileId"); // request won't be used, we can use null
         };
 
-        assertWhoCanExecute(run, Item.CONFIGURE, "ManagedFile.DescriptorImpl#doCheckFileId");
+        assertWhoCanExecute(run, "ManagedFile.DescriptorImpl#doCheckFileId",
+                result -> {
+                    if (result instanceof FormValidation v) {
+                        assertThat(v.kind, equalTo(FormValidation.Kind.OK)); // The user has no permission so it must be of Kind.OK
+                    } else {
+                        fail("Expected FormValidation but got: " + result.getClass().getName());
+                    }
+                },
+                result -> {
+                    if (result instanceof FormValidation v) {
+                        assertThat(v.kind, equalTo(FormValidation.Kind.ERROR)); // The user has permission but the fileId doesn't exist -> Kind.ERROR
+                    } else {
+                        fail("Expected FormValidation but got: " + result.getClass().getName());
+                    }
+                });
     }
 
     /**
@@ -283,12 +318,21 @@ class Security2203Test {
         assertThat(result.get(1).value, startsWith(c.id)); // The config created is successfully returned
     }
 
-    private Config createSetting(ConfigProvider provider) {
-        Config c1 = provider.newConfig();
+    private Config createSetting(ConfigProvider provider, String id) {
+        Config c1;
+        if (id != null) {
+             c1 = provider.newConfig(id);
+        } else {
+             c1 = provider.newConfig();
+        }
         GlobalConfigFiles globalConfigFiles =
                 r.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
         globalConfigFiles.save(c1);
         return c1;
+
+    }
+    private Config createSetting(ConfigProvider provider) {
+        return createSetting(provider, null);
     }
 
     /**
@@ -298,22 +342,44 @@ class Security2203Test {
     @Issue("SECURITY-2203")
     @Test
     void configFilesManagementAllMethodsProtected() {
+        Permission permission = Jenkins.ADMINISTER;
         Runnable run = () -> {
             ConfigFilesManagement configFilesManagement =
                     Jenkins.get().getExtensionList(ConfigFilesManagement.class).get(0);
             configFilesManagement.getTarget();
         };
 
-        assertWhoCanExecute(run, Jenkins.ADMINISTER, "ConfigFilesManagement#getTarget");
+        try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName("reader"))) {
+            run.run(); // The method should fail
+            fail(String.format( "%s should be only accessible by people with the permission %s, but it's accessible by a person with %s",
+                                        "ConfigFilesManagement#getTarget", Jenkins.ADMINISTER, Item.READ));
+
+        } catch (AccessDeniedException e) {
+            assertThat(e.getMessage(), containsString(permission.group.title + "/" + permission.name));
+        }
+
+        try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName("administer"))) {
+            run.run(); // The method doesn't fail
+        } catch (AccessDeniedException e) {
+            fail(String.format(
+                    "%s should be accessible to people with the permission %s but it failed with the exception: %s",
+                    "ConfigFilesManagement#getTarget", Jenkins.ADMINISTER, e));
+        }
+    }
+
+    @FunctionalInterface
+    interface Callback<T> {
+        void call(T arg);
     }
 
     /**
      * Common logic to check a specific method is accessible by people with Configure permission and not by any person
      * with just read permission. We don't care about the result. If you don't have permission, the method with fail.
-     * @param run The method to check.
+     *
+     * @param run           The method to check.
      * @param checkedMethod The name of the method for logging purposes.
      */
-    private void assertWhoCanExecute(Runnable run, Permission permission, String checkedMethod) {
+    private <T> void assertWhoCanExecute(Callable<T> run, String checkedMethod, Callback<T> failChecker, Callback<T> successChecker) {
         final Map<Permission, String> userWithPermission = Stream.of(
                         new AbstractMap.SimpleEntry<>(Jenkins.READ, "reader"),
                         new AbstractMap.SimpleEntry<>(Item.CONFIGURE, "projectConfigurer"),
@@ -321,20 +387,21 @@ class Security2203Test {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName("reader"))) {
-            run.run(); // The method should fail
-            fail(String.format(
-                    "%s should be only accessible by people with the permission %s, but it's accessible by a person with %s",
-                    checkedMethod, permission, Item.READ));
-        } catch (AccessDeniedException e) {
-            assertThat(e.getMessage(), containsString(permission.group.title + "/" + permission.name));
+            T result = run.call(); // The method should fail
+            failChecker.call(result);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
-        try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName(userWithPermission.get(permission)))) {
-            run.run(); // The method doesn't fail
+        try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName(userWithPermission.get(Item.CONFIGURE)))) {
+            T result = run.call(); // The method doesn't fail
+            successChecker.call(result);
         } catch (AccessDeniedException e) {
             fail(String.format(
                     "%s should be accessible to people with the permission %s but it failed with the exception: %s",
-                    checkedMethod, permission, e));
+                    checkedMethod, Item.CONFIGURE, e));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
