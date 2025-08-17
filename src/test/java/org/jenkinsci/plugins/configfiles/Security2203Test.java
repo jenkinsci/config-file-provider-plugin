@@ -398,11 +398,7 @@ class Security2203Test {
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName(userWithPermission.get(Item.CONFIGURE)))) {
             T result = run.call(); // The method doesn't fail
             successChecker.call(result);
-        } catch (AccessDeniedException e) {
-            fail(String.format(
-                    "%s should be accessible to people with the permission %s but it failed with the exception: %s",
-                    checkedMethod, Item.CONFIGURE, e));
-        } catch (Exception e) {
+        }  catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
