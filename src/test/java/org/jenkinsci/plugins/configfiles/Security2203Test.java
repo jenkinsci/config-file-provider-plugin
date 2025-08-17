@@ -378,6 +378,8 @@ class Security2203Test {
      *
      * @param run           The method to check.
      * @param checkedMethod The name of the method for logging purposes.
+     * @param failChecker   The method to call for checking the result when the user doesn't have permission.
+     * @param successChecker The method to call for checking the result when the user has permission
      */
     private <T> void assertWhoCanExecute(Callable<T> run, String checkedMethod, Callback<T> failChecker, Callback<T> successChecker) {
         final Map<Permission, String> userWithPermission = Stream.of(
