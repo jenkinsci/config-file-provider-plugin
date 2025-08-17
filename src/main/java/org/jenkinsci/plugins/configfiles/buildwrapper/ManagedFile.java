@@ -41,6 +41,7 @@ import org.jenkinsci.lib.configprovider.model.ConfigFile;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
 import org.jenkinsci.plugins.configfiles.utils.ConfigFileDetailLinkDescription;
 import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.verb.POST;
 
 import java.io.Serializable;
 
@@ -109,6 +110,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
             return "";
         }
 
+        @POST
         public ListBoxModel doFillFileIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, @AncestorInPath AccessControlled ac,
                                               @QueryParameter String fileId) {
             // You should have permission to configure your project in order to get the available managed files
@@ -120,7 +122,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
                     return items;
                 }
             } else {
-                if (!ac.hasPermission(Item.CONFIGURE)) {// This to get the first parent to validate the authorization (Folder, View or Jenkins)
+                if (!ac.hasPermission(Item.CONFIGURE)) { // This to get the first parent to validate the authorization (Folder, View or Jenkins)
                     items.add(fileId);
                     return items;
                 }
