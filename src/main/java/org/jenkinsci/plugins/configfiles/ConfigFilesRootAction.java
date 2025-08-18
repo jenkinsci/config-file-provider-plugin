@@ -33,6 +33,7 @@ public class ConfigFilesRootAction implements RootAction {
 
     @GET
     public void doIndex(StaplerResponse2 rsp) throws IOException {
+        Jenkins.get().checkPermission(ConfigFilesManagement.MANAGE_FILES);
         rsp.sendRedirect2("../configfiles");
 
     }
