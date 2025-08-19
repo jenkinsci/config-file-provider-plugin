@@ -122,7 +122,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
                     return items;
                 }
             } else {
-                if (!ac.hasPermission(Item.CONFIGURE)) { // This to get the first parent to validate the authorization (Folder, View or Jenkins)
+                if (!ac.hasAnyPermission(Item.CONFIGURE, Item.CREATE)) { // This to get the first parent to validate the authorization (Folder, View or Jenkins)
                     items.add(fileId);
                     return items;
                 }
@@ -150,7 +150,7 @@ public class ManagedFile extends ConfigFile implements ExtensionPoint, Describab
                     return FormValidation.ok();
                 }
             } else {
-                if (!ac.hasPermission(Item.CONFIGURE)) {
+                if (!ac.hasAnyPermission(Item.CONFIGURE, Item.CREATE)) {
                     return FormValidation.ok();
                 }
             }
