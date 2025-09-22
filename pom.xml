@@ -165,7 +165,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.jenkins-ci.plugins</groupId>
-                    <artifactId>gradle/</artifactId>
+                    <artifactId>gradle</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
