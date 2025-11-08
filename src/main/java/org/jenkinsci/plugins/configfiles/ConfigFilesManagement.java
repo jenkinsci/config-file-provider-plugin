@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.plugins.configfiles;
 
+import hudson.security.PermissionGroup;
+import hudson.security.PermissionScope;
 import java.io.IOException;
 import java.util.*;
 
@@ -68,20 +70,26 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         this.store = GlobalConfigFiles.get();
     }
 
+    public static final PermissionGroup GROUP = new PermissionGroup(ConfigFilesManagement.class, Messages._ConfigFilesManagement_PermissionGroup_title());
+    public static final Permission MANAGE_FILES = new Permission(GROUP, "ManageFiles", Messages._ConfigFilesManagement_Permission_description(),
+            Jenkins.MANAGE, PermissionScope.JENKINS);
+    public static final Permission MANAGE_FOLDER_FILES = new Permission(GROUP, "ManageFolderFiles", Messages._ConfigFilesManagement_FolderPermission_description(),
+            Item.CONFIGURE, PermissionScope.ITEM_GROUP);
+
     /**
      * The global configuration actions are exclusive to Overall/Manage permission.
      * @return The target.
      */
     @Override
     public Object getTarget() {
-        checkPermission(Jenkins.MANAGE);
+        checkPermission(MANAGE_FILES);
         return this;
     }
 
     @NonNull
     @Override
     public Permission getRequiredPermission() {
-        return Jenkins.MANAGE;
+        return MANAGE_FILES;
     }
 
     /**
@@ -228,7 +236,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
 
         if (error != null) {
             req.setAttribute("error", error);
-            checkPermission(Jenkins.MANAGE);
+            checkPermission(MANAGE_FILES);
             req.setAttribute("providers", ConfigProvider.all());
             req.setAttribute("configId", configId);
             req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);

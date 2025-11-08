@@ -13,6 +13,7 @@ import hudson.security.Permission;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
+import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
 import org.jenkinsci.plugins.configfiles.common.CleanTempFilesAction;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
@@ -160,13 +161,13 @@ public class MvnSettingsProvider extends SettingsProvider {
         }
 
         public ListBoxModel doFillSettingsConfigIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item project, @QueryParameter String settingsConfigId) {
-            Permission permToCheck = project == null ? Jenkins.MANAGE : Item.EXTENDED_READ;
+            List<Permission> permToCheck = project == null ? List.of(ConfigFilesManagement.MANAGE_FILES) : List.of(ConfigFilesManagement.MANAGE_FOLDER_FILES, Item.EXTENDED_READ);
             AccessControlled contextToCheck = project == null ? Jenkins.get() : project;
 
             ListBoxModel items = new ListBoxModel();
             items.add(Messages.MvnSettingsProvider_PleaseSelect(), "");
 
-            if (!contextToCheck.hasPermission(permToCheck)) {
+            if (!contextToCheck.hasAnyPermission(permToCheck.toArray(new Permission[0]))) {
                 items.add(new ListBoxModel.Option("current", settingsConfigId, true)); // we just add what they send
                 return items;
             }
