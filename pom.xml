@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>5.19</version>
+        <version>5.28</version>
         <relativePath />
     </parent>
 
@@ -32,8 +32,9 @@
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.baseline>2.504</jenkins.baseline>
-        <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+        <jenkins.version>${jenkins.baseline}.3</jenkins.version>
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
+        <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
     </properties>
 
     <developers>
@@ -58,7 +59,7 @@
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-${jenkins.baseline}.x</artifactId>
-                <version>5043.v855ff4819a_0f</version>
+                <version>5622.vc9c3051619f5</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -161,6 +162,12 @@
             <artifactId>jenkins-test-harness-tools</artifactId>
             <version>2.2</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>gradle</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
