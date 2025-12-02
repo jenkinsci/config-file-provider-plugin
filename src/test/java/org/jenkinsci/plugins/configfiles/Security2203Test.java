@@ -32,6 +32,7 @@ import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig;
 import org.jenkinsci.plugins.configfiles.maven.job.MvnGlobalSettingsProvider;
 import org.jenkinsci.plugins.configfiles.maven.job.MvnSettingsProvider;
 import org.jenkinsci.plugins.configfiles.sec.ProtectedCodeRunner;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.Issue;
@@ -57,6 +58,12 @@ class Security2203Test {
 
     private FreeStyleProject project;
 
+    @BeforeAll
+    static void enableManagePermission() {
+        // TODO remove when baseline contains https://github.com/jenkinsci/jenkins/pull/23873
+        Jenkins.MANAGE.setEnabled(true);
+    }
+
     @BeforeEach
     void setUpAuthorizationAndProject(JenkinsRule r) throws IOException {
         this.r = r;
@@ -72,7 +79,10 @@ class Security2203Test {
                 .to("projectConfigurer")
                 .grant(Jenkins.ADMINISTER)
                 .everywhere()
-                .to("administer"));
+                .to("administer")
+                .grant(Jenkins.MANAGE)
+                .everywhere()
+                .to("manager"));
     }
 
     /**
@@ -292,8 +302,8 @@ class Security2203Test {
     }
 
     /**
-     * The {@link ConfigFilesManagement#getTarget()} is only accessible by people able to administer jenkins. It guarantees
-     * all methods in the class require {@link Jenkins#ADMINISTER}.
+     * The {@link ConfigFilesManagement#getTarget()} is only accessible by people able to manage jenkins. It guarantees
+     * all methods in the class require {@link Jenkins#MANAGE}.
      */
     @Issue("SECURITY-2203")
     @Test
@@ -304,7 +314,7 @@ class Security2203Test {
             configFilesManagement.getTarget();
         };
 
-        assertWhoCanExecute(run, Jenkins.ADMINISTER, "ConfigFilesManagement#getTarget");
+        assertWhoCanExecute(run, Jenkins.MANAGE, "ConfigFilesManagement#getTarget");
     }
 
     /**
@@ -317,7 +327,7 @@ class Security2203Test {
         final Map<Permission, String> userWithPermission = Stream.of(
                         new AbstractMap.SimpleEntry<>(Jenkins.READ, "reader"),
                         new AbstractMap.SimpleEntry<>(Item.CONFIGURE, "projectConfigurer"),
-                        new AbstractMap.SimpleEntry<>(Jenkins.ADMINISTER, "administer"))
+                        new AbstractMap.SimpleEntry<>(Jenkins.MANAGE, "manager"))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName("reader"))) {
