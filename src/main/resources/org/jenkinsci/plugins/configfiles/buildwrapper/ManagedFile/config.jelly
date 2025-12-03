@@ -27,8 +27,12 @@
 
     <f:entry>
         <div align="right">
-            <input type="button" value="${%Add file}" class="repeatable-add show-if-last" />
-            <input type="button" value="${%Delete}" class="repeatable-delete show-if-not-only" style="margin-left: 1em;" />
+            <button type="button" class="jenkins-button repeatable-add show-if-last">
+                ${%Add file}
+            </button>
+            <div class="show-if-not-only">
+                <f:repeatableDeleteButton />
+            </div>
         </div>
     </f:entry>
 
