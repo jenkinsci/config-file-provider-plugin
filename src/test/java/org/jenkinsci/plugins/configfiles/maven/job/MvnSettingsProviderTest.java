@@ -19,7 +19,7 @@ import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig.GlobalMavenSettingsConfigProvider;
 import org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig.MavenSettingsConfigProvider;
 import org.junit.jupiter.api.Test;
-import org.jvnet.hudson.test.Bug;
+import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.ExtractResourceSCM;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
@@ -40,7 +40,7 @@ class MvnSettingsProviderTest {
     GlobalMavenSettingsConfigProvider globalMavenSettingsConfigProvider;
 
     @Test
-    @Bug(15976)
+    @Issue("JENKINS-15976")
     void testConfigRoundtrip(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
@@ -70,7 +70,7 @@ class MvnSettingsProviderTest {
     }
 
     @Test
-    @Bug(15976)
+    @Issue("JENKINS-15976")
     void testConfigRoundtripMavenJob(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
@@ -95,7 +95,7 @@ class MvnSettingsProviderTest {
     }
 
     @Test
-    @Bug(20403)
+    @Issue("20403")
     void configMustBeVisibleFromConfigPage(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
@@ -124,7 +124,7 @@ class MvnSettingsProviderTest {
     }
 
     @Test
-    @Bug(40737)
+    @Issue("JENKINS-40737")
     void mavenSettingsMustBeFoundInFreestyleProject(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
@@ -146,7 +146,7 @@ class MvnSettingsProviderTest {
     }
 
     @Test
-    @Bug(40737)
+    @Issue("JENKINS-40737")
     void notFoundMavenSettingsMustCauseBuildToFail(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
