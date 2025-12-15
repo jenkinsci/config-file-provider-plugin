@@ -25,7 +25,7 @@
     <f:entry title="${%Server Credentials}" field="serverCredentialMappings">
         <f:repeatableProperty field="serverCredentialMappings" noAddButton="true" />
     </f:entry>	
-	<f:entry title="${%Content}">
+	<f:entry title="${%Content}" class="jenkins-!-margin-bottom-0">
 		<f:textarea readonly="readonly" id="config.content" name="config.content" value="${config.content}" />
 	</f:entry>
 
