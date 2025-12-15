@@ -95,7 +95,7 @@ class MvnSettingsProviderTest {
     }
 
     @Test
-    @Issue("20403")
+    @Issue("JENKINS-20403")
     void configMustBeVisibleFromConfigPage(JenkinsRule jenkins) throws Exception {
         jenkins.jenkins.getInjector().injectMembers(this);
 
