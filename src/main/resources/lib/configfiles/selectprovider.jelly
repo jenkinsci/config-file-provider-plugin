@@ -27,7 +27,6 @@ THE SOFTWARE.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <j:set var="providers" value="${attrs.providers}" />
 
-    <st:adjunct includes="org.jenkinsci.plugins.configfiles.styles"/>
     <f:form name="addConfig" method="post" action="addConfig">
         <j:if test="${error != null}">
             <j:out value="${error.renderHtml()}" />
@@ -51,8 +50,8 @@ THE SOFTWARE.
             <f:textbox name="configId" value="${configId}" checkUrl="checkConfigId" checkDependsOn="configId"/>
         </f:entry>
 
-        <f:block>
+        <f:bottomButtonBar>
             <f:submit value="${%Next}" />
-        </f:block>
+        </f:bottomButtonBar>
     </f:form>
 </j:jelly>
