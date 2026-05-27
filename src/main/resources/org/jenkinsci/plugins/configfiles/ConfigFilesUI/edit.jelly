@@ -24,20 +24,14 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
-	<l:layout norefresh="true">
-		<cf:sitepanel />
+	<l:layout title="${%Edit Configuration File}" type="one-column">
+		<l:breadcrumb title="${%Edit Configuration File}" />
 
 		<l:main-panel>
-			<div class="jenkins-app-bar">
-				<div class="jenkins-app-bar__content">
-					<h1>
-						${%Edit Configuration File}
-					</h1>
-				</div>
-			</div>
+			<l:app-bar title="${%Edit Configuration File}" />
 
 			<f:form method="post" action="saveConfig">
-			   <f:section title="${%The configuration}" name="config">
+			   <f:section name="config">
 			   		<input type="hidden" name="stapler-class" value="${config.class.name}" />
 			   		<j:choose>
 			          <j:when test="${config.class.name == 'org.jenkinsci.lib.configprovider.model.Config'}">
@@ -47,9 +41,9 @@ THE SOFTWARE.
 			            	<st:include page="edit-config.jelly" from="${config}" it="${config}"/>
 			          </j:otherwise>
 			        </j:choose>
-					<f:block>
+					<f:bottomButtonBar>
 						<f:submit value="${%Submit}" />
-					</f:block>
+					</f:bottomButtonBar>
 				</f:section>
 			</f:form>
 		</l:main-panel>

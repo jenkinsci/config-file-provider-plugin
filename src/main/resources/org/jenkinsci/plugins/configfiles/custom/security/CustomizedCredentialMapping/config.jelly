@@ -34,9 +34,5 @@ THE SOFTWARE.
              <c:select />
          </f:entry>
 
-         <f:entry title="" >
-            <div align="right">
-                <f:repeatableDeleteButton />
-             </div>
-         </f:entry>
+    <f:repeatableDeleteButton />
 </j:jelly>

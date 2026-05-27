@@ -23,48 +23,23 @@ THE SOFTWARE.
 -->
 
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
-         xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
-
-    <st:adjunct includes="org.jenkinsci.plugins.configfiles.styles"/>
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:f="/lib/form">
     <j:set var="groupedConfigs" value="${attrs.groupedConfigs}"/>
 
-    <div class="excerpt">
-
-        <table class="jenkins-table cfp-table">
-            <j:forEach var="pEntry" items="${groupedConfigs}">
+    <j:forEach var="pEntry" items="${groupedConfigs}">
+        <f:section title="${pEntry.key.displayName}">
+            <table class="jenkins-table">
+                <thead>
+                    <th>${%Name}</th>
+                    <th>${%ID}</th>
+                    <th>${%Comment}</th>
+                    <th>${%Content Type}</th>
+                    <th />
+                    <th />
+                </thead>
                 <tbody>
-                    <tr class="cfp-table__section-header cfp-table__section-header--title">
-                        <td colspan="6" >
-                            ${pEntry.key.displayName}
-                        </td>
-                    </tr>
-                    <tr class="cfp-table__section-header cfp-table__section-header--fields">
-                        <td class="jenkins-table__cell--tight cfp-table__icon">
-                            ${%E}
-                        </td>
-                        <td class="jenkins-table__cell--tight cfp-table__icon">
-                            ${%D}
-                        </td>
-                        <td>${%Name}</td>
-                        <td>${%ID}</td>
-                        <td>${%Comment}</td>
-                        <td>${%Content Type}</td>
-                    </tr>
                     <j:forEach var="t" items="${pEntry.value}">
                         <tr>
-                            <td class="jenkins-table__cell--tight cfp-table__icon">
-                                <a href="editConfig?id=${t.id}">
-                                    <l:icon tooltip="${%Edit script} ${t.name}" src="symbol-create-outline plugin-ionicons-api"
-                                         class="icon-md"/>
-                                </a>
-                            </td>
-                            <td class="jenkins-table__cell--tight cfp-table__icon">
-                                <l:confirmationLink href="removeConfig?id=${t.id}" post="true" message="Sure you want to delete [${t.name}]?">
-                                    <l:icon tooltip="${%Remove script} ${t.name}" src="symbol-trash-outline plugin-ionicons-api"
-                                            class="icon-md"/>
-                                </l:confirmationLink>
-                            </td>
                             <td>
                                 ${t.name}
                             </td>
@@ -77,10 +52,29 @@ THE SOFTWARE.
                             <td>
                                 ${t.contentType}
                             </td>
+                            <td class="jenkins-table__cell--tight">
+                                <div class="jenkins-table__cell__button-wrapper">
+                                    <a href="editConfig?id=${t.id}" class="jenkins-button jenkins-button--tertiary">
+                                        <l:icon tooltip="${%Edit script} ${t.name}"
+                                                src="symbol-edit" />
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="jenkins-table__cell--tight">
+                                <div class="jenkins-table__cell__button-wrapper">
+                                    <l:confirmationLink href="removeConfig?id=${t.id}"
+                                                        post="true"
+                                                        title="Are you sure you want to delete ${t.name}?"
+                                                        destructive="true"
+                                                        class="jenkins-button jenkins-button--tertiary jenkins-!-destructive-color">
+                                        <l:icon tooltip="${%Delete script} ${t.name}" src="symbol-trash-outline plugin-ionicons-api" />
+                                    </l:confirmationLink>
+                                </div>
+                            </td>
                         </tr>
                     </j:forEach>
                 </tbody>
-            </j:forEach>
-        </table>
-    </div>
+            </table>
+        </f:section>
+    </j:forEach>
 </j:jelly>

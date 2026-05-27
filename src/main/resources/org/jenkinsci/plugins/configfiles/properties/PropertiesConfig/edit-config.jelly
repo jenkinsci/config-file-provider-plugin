@@ -41,7 +41,7 @@ THE SOFTWARE.
         <f:repeatableProperty field="propertiesCredentialMappings" />
     </f:entry>
 
-    <f:entry title="${%Content}">
+    <f:entry title="${%Content}" class="jenkins-!-margin-bottom-0">
         <f:textarea id="config.content" name="config.content" value="${config.content}" />
     </f:entry>
 
