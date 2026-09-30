@@ -58,7 +58,7 @@ THE SOFTWARE.
                             </a>
                         </td>
                         <td class="jenkins-table__cell jenkins-table__cell--tight">
-                            <l:confirmationLink href="removeConfig?id=${t.id}" post="true" message="Sure you want to delete [${t.name}]?">
+                            <l:confirmationLink href="removeConfig?id=${t.id}" post="true" message="Sure you want to delete [${t.name}]?" destructive="true">
                                 <l:icon tooltip="${%Remove script} ${t.name}" src="symbol-trash-outline plugin-ionicons-api"
                                         class="icon-md"/>
                             </l:confirmationLink>

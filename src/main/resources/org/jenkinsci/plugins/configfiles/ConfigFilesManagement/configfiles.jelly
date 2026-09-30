@@ -25,13 +25,21 @@ THE SOFTWARE.
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:cf="/lib/configfiles">
-	<l:settings-subpage title="${%Config File Management}" permission="${app.MANAGE}">
-        <div class="jenkins-buttons-row" style="margin: 1rem 0 1.5rem 0">
-            <a href="selectProvider" class="jenkins-button jenkins-button--primary">
-                <l:icon src="symbol-add" />
-                ${%Add a new Config}
-            </a>
-        </div>
+    <j:set var="header">
+        <l:view>
+            <l:app-bar title="${%Config File Management}">
+                <a href="selectProvider" class="jenkins-button jenkins-button--primary">
+                    <l:icon src="symbol-add" />
+                    ${%Add a new Config}
+                </a>
+            </l:app-bar>
+            <div class="jenkins-page-description">
+                ${it.description}
+            </div>
+        </l:view>
+    </j:set>
+
+	<l:settings-subpage title="${%Config File Management}" permission="${app.MANAGE}" header="${header}">
         <cf:configfiles groupedConfigs="${it.groupedConfigs}" />
 	</l:settings-subpage>
 </j:jelly>
