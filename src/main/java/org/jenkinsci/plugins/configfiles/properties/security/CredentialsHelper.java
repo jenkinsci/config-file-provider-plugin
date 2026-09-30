@@ -44,6 +44,7 @@ public class CredentialsHelper {
 
             if (c != null) {
                 propertiesCredentialsMap.put(propertyKey, c);
+                CredentialsProvider.track(build, c);
             } else {
                 listener.getLogger().println("Could not find credentials [" + credentialsId + "] for " + build);
             }
