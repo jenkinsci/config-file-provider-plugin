@@ -30,8 +30,6 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.model.Action;
 import hudson.model.Item;
-import hudson.model.Job;
-import hudson.security.Permission;
 import hudson.util.FormValidation;
 
 import com.cloudbees.hudson.plugins.folder.AbstractFolder;
@@ -60,7 +58,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
          * a) add a new entry
          * b) there is an existing entry
          */
-        boolean hasPerm = folder.hasPermission(Item.CONFIGURE) || (folder.hasPermission(Item.EXTENDED_READ) && hasStore());
+        boolean hasPerm = folder.hasAnyPermission(ConfigFilesManagement.MANAGE_FOLDER_FILES) || (folder.hasPermission(Item.EXTENDED_READ) && hasStore());
         return hasPerm ? ConfigFilesManagement.ICON_PATH : null;
     }
 
@@ -77,12 +75,12 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public String getDisplayName() {
-        return folder.hasPermission(Item.EXTENDED_READ) ? "Config Files" : null;
+        return folder.hasAnyPermission(ConfigFilesManagement.MANAGE_FOLDER_FILES, Item.EXTENDED_READ) ? "Config Files" : null;
     }
 
     @Override
     public String getUrlName() {
-        return folder.hasPermission(Item.EXTENDED_READ) ? "configfiles" : null;
+        return folder.hasAnyPermission(ConfigFilesManagement.MANAGE_FOLDER_FILES, Item.EXTENDED_READ) ? "configfiles" : null;
     }
 
     @Override
@@ -117,7 +115,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     @Override
     @POST
     public HttpResponse doSaveConfig(StaplerRequest2 req) throws IOException, ServletException {
-        checkPermission(Item.CONFIGURE);
+        checkPermission();
         try {
             JSONObject json = req.getSubmittedForm().getJSONObject("config");
             Config config = req.bindJSON(Config.class, json);
@@ -156,7 +154,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public void doShow(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
-        folder.checkPermission(Item.EXTENDED_READ);
+        folder.checkAnyPermission(ConfigFilesManagement.MANAGE_FOLDER_FILES, Item.EXTENDED_READ);
         Config config = getStore().getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
@@ -165,7 +163,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public void doEditConfig(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
-        checkPermission(Job.CONFIGURE);
+        checkPermission();
         Config config = getStore().getById(configId);
         req.setAttribute("contentType", config.getProvider().getContentType());
         req.setAttribute("config", config);
@@ -177,7 +175,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     @Override
     @POST
     public void doAddConfig(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("providerId") String providerId, @QueryParameter("configId") String configId) throws IOException, ServletException {
-        checkPermission(Item.CONFIGURE);
+        checkPermission();
 
         FormValidation error = null;
         if (providerId == null || providerId.isEmpty()) {
@@ -192,7 +190,6 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
         if (error != null) {
             req.setAttribute("error", error);
-            checkPermission(Job.CONFIGURE);
             req.setAttribute("providers", getProviders());
             req.setAttribute("configId", configId);
             req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);
@@ -220,7 +217,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public void doSelectProvider(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException, ServletException {
-        checkPermission(Job.CONFIGURE);
+        checkPermission();
         req.setAttribute("providers", getProviders());
         req.setAttribute("configId", UUID.randomUUID().toString());
         req.getView(this, JELLY_RESOURCES_PATH + "selectprovider.jelly").forward(req, rsp);
@@ -229,7 +226,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
     @RequirePOST
     @Override
     public HttpResponse doRemoveConfig(StaplerRequest2 res, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException {
-        checkPermission(Job.CONFIGURE);
+        checkPermission();
 
         getStore().remove(configId);
 
@@ -238,7 +235,7 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
 
     @Override
     public FormValidation doCheckConfigId(@QueryParameter("configId") String configId) {
-        checkPermission(Job.CONFIGURE);
+        checkPermission();
         
         if (configId == null || configId.isEmpty()) {
             return FormValidation.warning(Messages.ConfigFilesManagement_configIdCannotBeEmpty());
@@ -270,13 +267,13 @@ public class FolderConfigFileAction implements Action, ConfigFilesUIContract, St
         }
     }
 
-    private void checkPermission(Permission permission) {
-        folder.checkPermission(permission);
+    private void checkPermission() {
+        folder.checkPermission(ConfigFilesManagement.MANAGE_FOLDER_FILES);
     }
 
     @Override
     public Object getTarget() {
-        checkPermission(Item.EXTENDED_READ);
+        folder.checkAnyPermission(ConfigFilesManagement.MANAGE_FOLDER_FILES, Item.EXTENDED_READ);
         return this;
     }
 }

@@ -25,6 +25,7 @@ import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
+import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
 import org.jenkinsci.plugins.configfiles.GlobalConfigFiles;
 import org.jenkinsci.plugins.configfiles.HtmlElementUtil;
 import org.jenkinsci.plugins.configfiles.custom.CustomConfig;
@@ -286,7 +287,7 @@ class FolderConfigFileActionTest {
                 .toEveryone()
 
                 // config access on the folder to this user
-                .grant(Item.CONFIGURE)
+                .grant(ConfigFilesManagement.MANAGE_FOLDER_FILES)
                 .onFolders(f1)
                 .to("folderConfigurer"));
 

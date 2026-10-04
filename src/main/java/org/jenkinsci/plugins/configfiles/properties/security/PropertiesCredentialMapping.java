@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.configfiles.properties.security;
 
+import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
@@ -14,6 +15,7 @@ import hudson.security.AccessControlled;
 import hudson.security.Permission;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -51,12 +53,12 @@ public class PropertiesCredentialMapping extends AbstractDescribableImpl<Propert
     public static class DescriptorImpl extends Descriptor<PropertiesCredentialMapping> {
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item projectOrFolder, @QueryParameter String propertyKey) {
-            Permission permToCheck = projectOrFolder == null ? Jenkins.MANAGE : Item.CONFIGURE;
+            List<Permission> permsToCheck = projectOrFolder == null ? List.of(ConfigFilesManagement.MANAGE_FILES) : List.of(ConfigFilesManagement.MANAGE_FOLDER_FILES, Item.EXTENDED_READ, CredentialsProvider.USE_ITEM);
             AccessControlled contextToCheck = projectOrFolder == null ? Jenkins.get() : projectOrFolder;
 
             // If we're on the global page and we don't have Overall/Manage permission or if we're in a project or folder
             // and we don't have configure permission there
-            if (!contextToCheck.hasPermission(permToCheck)) {
+            if (!contextToCheck.hasAnyPermission(permsToCheck.toArray(new Permission[0]))) {
                 return new StandardUsernameListBoxModel().includeCurrentValue(propertyKey);
             }
             

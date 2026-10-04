@@ -36,6 +36,7 @@ import hudson.model.queue.Tasks;
 import hudson.security.ACL;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -73,7 +74,7 @@ public class CustomizedCredentialMapping extends AbstractDescribableImpl<Customi
 
             StandardListBoxModel result = new StandardListBoxModel();
             if (item == null) {
-                if (!Jenkins.get().hasPermission(Jenkins.MANAGE)) {
+                if (!Jenkins.get().hasPermission(ConfigFilesManagement.MANAGE_FILES)) {
                     return result.includeCurrentValue(credentialsId);
                 }
                 return result
@@ -94,8 +95,7 @@ public class CustomizedCredentialMapping extends AbstractDescribableImpl<Customi
                         .includeCurrentValue(credentialsId);
             }
 
-            if (!item.hasPermission(Item.EXTENDED_READ)
-                && !item.hasPermission(CredentialsProvider.USE_ITEM)) {
+            if (!item.hasAnyPermission(ConfigFilesManagement.MANAGE_FOLDER_FILES, Item.EXTENDED_READ, CredentialsProvider.USE_ITEM)) {
                 return result.includeCurrentValue(credentialsId);
             }
             return result

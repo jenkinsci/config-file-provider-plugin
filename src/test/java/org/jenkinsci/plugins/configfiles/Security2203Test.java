@@ -302,8 +302,8 @@ class Security2203Test {
     }
 
     /**
-     * The {@link ConfigFilesManagement#getTarget()} is only accessible by people able to manage jenkins. It guarantees
-     * all methods in the class require {@link Jenkins#MANAGE}.
+     * The {@link ConfigFilesManagement#getTarget()} is only accessible by people able to manage files globally in jenkins.
+     * It guarantees all methods in the class require {@link ConfigFilesManagement#MANAGE_FILES}.
      */
     @Issue("SECURITY-2203")
     @Test
@@ -314,7 +314,7 @@ class Security2203Test {
             configFilesManagement.getTarget();
         };
 
-        assertWhoCanExecute(run, Jenkins.MANAGE, "ConfigFilesManagement#getTarget");
+        assertWhoCanExecute(run, ConfigFilesManagement.MANAGE_FILES, "ConfigFilesManagement#getTarget");
     }
 
     /**
@@ -327,7 +327,7 @@ class Security2203Test {
         final Map<Permission, String> userWithPermission = Stream.of(
                         new AbstractMap.SimpleEntry<>(Jenkins.READ, "reader"),
                         new AbstractMap.SimpleEntry<>(Item.CONFIGURE, "projectConfigurer"),
-                        new AbstractMap.SimpleEntry<>(Jenkins.MANAGE, "manager"))
+                        new AbstractMap.SimpleEntry<>(ConfigFilesManagement.MANAGE_FILES, "administer"))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         try (ACLContext ctx = ACL.as(User.getOrCreateByIdOrFullName("reader"))) {

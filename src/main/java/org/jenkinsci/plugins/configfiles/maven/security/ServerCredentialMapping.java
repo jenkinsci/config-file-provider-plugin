@@ -8,6 +8,7 @@ import java.util.List;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import hudson.model.*;
 import hudson.security.Permission;
+import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -51,15 +52,16 @@ public class ServerCredentialMapping extends AbstractDescribableImpl<ServerCrede
     public static class DescriptorImpl extends Descriptor<ServerCredentialMapping> {
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup context, @AncestorInPath Item projectOrFolder, @QueryParameter String serverId) {
-            List<Permission> permsToCheck = projectOrFolder == null ? Arrays.asList(Jenkins.MANAGE) : Arrays.asList(Item.EXTENDED_READ, CredentialsProvider.USE_ITEM);
+            List<Permission> permsToCheck = projectOrFolder == null ? List.of(ConfigFilesManagement.MANAGE_FILES) : List.of(ConfigFilesManagement.MANAGE_FOLDER_FILES, Item.EXTENDED_READ, CredentialsProvider.USE_ITEM);
             AccessControlled contextToCheck = projectOrFolder == null ? Jenkins.get() : projectOrFolder;
-            
+
             // If we're on the global page and we don't have Overall/Manage permission or if we're in a project or folder
             // and we don't have permission to use credentials and extended read in the item
-            if (permsToCheck.stream().anyMatch( per -> !contextToCheck.hasPermission(per))) {
+            if (!contextToCheck.hasAnyPermission(permsToCheck.toArray(new Permission[0]))) {
                 return new StandardUsernameListBoxModel().includeCurrentValue(serverId);
             }
-            
+
+
             List<DomainRequirement> domainRequirements = Collections.emptyList();
             if (serverId != null && !serverId.isBlank()) {
                 domainRequirements = Collections.singletonList(new MavenServerIdRequirement(serverId));
