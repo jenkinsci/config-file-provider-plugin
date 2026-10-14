@@ -61,18 +61,18 @@ THE SOFTWARE.
 						<p id="usage-present">
 							${%This managed file has been recorded as used in the following places}:
 						</p>
-						<table class="fingerprint-summary">
+						<table>
 							<j:forEach var="j" items="${jobs}">
 								<j:set var="job" value="${app.getItemByFullName(j)}"/>
 								<j:set var="range" value="${usage[j]}"/>
 								<tr>
-									<td class="fingerprint-summary-header">
+									<td>
 										<j:choose>
 											<j:when test="${job!=null}">
 												<a href="${rootURL}/${job.url}" class="model-link inside">${j}</a>
 											</j:when>
 											<j:otherwise>
-												${j}
+												${%Unknown}
 											</j:otherwise>
 										</j:choose>
 									</td>
