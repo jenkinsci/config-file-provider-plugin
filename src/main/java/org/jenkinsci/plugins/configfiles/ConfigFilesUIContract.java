@@ -64,6 +64,8 @@ public interface ConfigFilesUIContract {
 
     public void doShow(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException;
 
+    public void doUsage(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException;
+
     /**
      * Loads the config by its id and forwards the request to "edit.jelly".
      *

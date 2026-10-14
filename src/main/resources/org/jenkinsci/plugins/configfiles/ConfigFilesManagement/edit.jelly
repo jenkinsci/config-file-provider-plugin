@@ -24,11 +24,21 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-	<l:settings-subpage title="${%Edit Configuration File}" permission="${app.MANAGE}" noDefer="true">
+	<j:set var="header">
+		<l:view>
+			<l:app-bar title="${%Edit Configuration File}">
+				<a href="usage?id=${config.id}" class="jenkins-button">
+					<l:icon src="symbol-finger-print-outline plugin-ionicons-api" />
+					${%Usage}
+				</a>
+			</l:app-bar>
+		</l:view>
+	</j:set>
+	<l:settings-subpage header="${header}" permission="${app.MANAGE}" noDefer="true">
 		<j:set var="config" value="${config}"/>
 		<j:set var="contentType" value="${contentType}"/>
 		<j:set var="instance" value="${instance}"/>
-		<f:form method="post" action="saveConfig">
+		<f:form method="post" action="saveConfig" name="config">
 		   <f:section title="${%The configuration}" name="config">
 		   		<input type="hidden" name="stapler-class" value="${config.class.name}" />
 		   		<j:choose>

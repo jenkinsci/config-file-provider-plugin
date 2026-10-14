@@ -39,6 +39,7 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ConfigFileManager;
 import org.jenkinsci.lib.configprovider.model.ContentType;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
@@ -49,6 +50,7 @@ import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.interceptor.RequirePOST;
+import org.kohsuke.stapler.verb.GET;
 import org.kohsuke.stapler.verb.POST;
 
 /**
@@ -174,6 +176,7 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         return new HttpRedirect("index");
     }
 
+    @Override
     public void doShow(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
         // permission handled in getTarget
 
@@ -200,6 +203,28 @@ public class ConfigFilesManagement extends ManagementLink implements ConfigFiles
         req.setAttribute("config", config);
         req.setAttribute("provider", config.getProvider());
         req.getView(this, "edit.jelly").forward(req, rsp);
+    }
+
+    /**
+     * Loads the config by its id and forwards the request to "usage.jelly".
+     *
+     * @param req      request
+     * @param rsp      response
+     * @param configId the id of the config to be loaded in to the edit view.
+     * @throws IOException
+     * @throws ServletException
+     */
+    @Override
+    @GET
+    // lgtm[jenkins/no-permission-check]
+    public void doUsage(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter("id") String configId) throws IOException, ServletException {
+        // permission handled in getTarget
+
+        Config config = store.getById(configId);
+        req.setAttribute("config", config);
+        req.setAttribute("usage", store.getUsage(configId));
+        req.setAttribute("usageTrackingEnabled", ConfigFileManager.isUsageTrackingEnabled());
+        req.getView(this, "usage.jelly").forward(req, rsp);
     }
 
     /**

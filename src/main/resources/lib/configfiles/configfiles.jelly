@@ -40,6 +40,7 @@ THE SOFTWARE.
                     <th scope="col">${%Content Type}</th>
                     <th scope="col" />
                     <th scope="col" />
+                    <th scope="col" />
                 </tr>
             </thead>
             <tbody>
@@ -54,6 +55,12 @@ THE SOFTWARE.
                         <td class="jenkins-table__cell jenkins-table__cell--tight">
                             <a href="editConfig?id=${t.id}">
                                 <l:icon tooltip="${%Edit script} ${t.name}" src="symbol-create-outline plugin-ionicons-api"
+                                        class="icon-md"/>
+                            </a>
+                        </td>
+                        <td class="jenkins-table__cell jenkins-table__cell--tight">
+                            <a href="usage?id=${t.id}">
+                                <l:icon tooltip="${%Usage} ${t.name}" src="symbol-finger-print-outline plugin-ionicons-api"
                                         class="icon-md"/>
                             </a>
                         </td>

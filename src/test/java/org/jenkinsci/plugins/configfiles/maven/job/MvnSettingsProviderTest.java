@@ -11,6 +11,7 @@ import hudson.model.Item;
 import hudson.model.Result;
 import hudson.tasks.Maven;
 import jakarta.inject.Inject;
+import java.util.Set;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.html.HtmlTextInput;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
@@ -143,6 +144,39 @@ class MvnSettingsProviderTest {
 
         jenkins.assertBuildStatus(
                 Result.SUCCESS, p.scheduleBuild2(0, new Cause.UserIdCause()).get());
+    }
+
+    @Test
+    @Issue("JENKINS-76554")
+    void mavenSettingsUsageMustBeTracked(JenkinsRule jenkins) throws Exception {
+        jenkins.jenkins.getInjector().injectMembers(this);
+
+        final FreeStyleProject p = jenkins.createFreeStyleProject();
+
+        String mvnName = ToolInstallations.configureMaven35().getName();
+        Config c1 = createSetting(jenkins, mavenSettingProvider);
+        Config c2 = createSetting(jenkins, globalMavenSettingsConfigProvider);
+
+        MvnSettingsProvider s1 = new MvnSettingsProvider(c1.id);
+        MvnGlobalSettingsProvider s2 = new MvnGlobalSettingsProvider(c2.id);
+
+        Maven m = new Maven("clean", mvnName, null, null, null, false, s1, s2);
+        p.getBuildersList().add(m);
+        p.setScm(new ExtractResourceSCM(getClass().getResource("/maven3-project.zip")));
+
+        jenkins.assertBuildStatus(
+                Result.SUCCESS, p.scheduleBuild2(0, new Cause.UserIdCause()).get());
+
+        GlobalConfigFiles globalConfigFiles =
+                jenkins.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        assertEquals(
+                Set.of(p.getFullName()),
+                globalConfigFiles.getUsage(c1.id).keySet(),
+                "usage of the settings.xml config must be tracked");
+        assertEquals(
+                Set.of(p.getFullName()),
+                globalConfigFiles.getUsage(c2.id).keySet(),
+                "usage of the global settings.xml config must be tracked");
     }
 
     @Test

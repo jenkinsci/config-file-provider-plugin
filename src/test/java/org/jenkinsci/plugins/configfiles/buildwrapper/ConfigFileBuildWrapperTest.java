@@ -71,6 +71,32 @@ class ConfigFileBuildWrapperTest {
     }
 
     @Test
+    void usageOfManagedFileMustBeTracked(JenkinsRule j) throws Exception {
+        j.jenkins.getInjector().injectMembers(this);
+
+        final Config customFile =
+                createCustomFile(j, "config-id-usage", customConfigProvider, "echo ${ENV, var=\"JOB_NAME\"}");
+
+        final FreeStyleProject p = j.createFreeStyleProject("usage-tracked");
+
+        final ManagedFile mCustom = new ManagedFile(customFile.id, "/tmp/new_custom_usage.sh", null, true);
+        ConfigFileBuildWrapper bw = new ConfigFileBuildWrapper(Collections.singletonList(mCustom));
+        p.getBuildWrappersList().add(bw);
+
+        j.assertBuildStatus(
+                Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
+        j.assertBuildStatus(
+                Result.SUCCESS, p.scheduleBuild2(0, new UserIdCause()).get());
+
+        GlobalConfigFiles globalConfigFiles =
+                j.jenkins.getExtensionList(GlobalConfigFiles.class).get(GlobalConfigFiles.class);
+        java.util.Map<String, hudson.model.Fingerprint.RangeSet> usage = globalConfigFiles.getUsage(customFile.id);
+        assertEquals(Collections.singleton(p.getFullName()), usage.keySet());
+        assertTrue(usage.get(p.getFullName()).includes(1));
+        assertTrue(usage.get(p.getFullName()).includes(2));
+    }
+
+    @Test
     void envVariableMustBeReplacedInFileContent(JenkinsRule j) throws Exception {
         j.jenkins.getInjector().injectMembers(this);
 

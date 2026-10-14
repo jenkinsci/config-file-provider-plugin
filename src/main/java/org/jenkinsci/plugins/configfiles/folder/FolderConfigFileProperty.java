@@ -12,7 +12,9 @@ import org.jenkinsci.lib.configprovider.model.Config;
 import org.jenkinsci.plugins.configfiles.ConfigByIdComparator;
 import org.jenkinsci.plugins.configfiles.ConfigByNameComparator;
 import org.jenkinsci.plugins.configfiles.ConfigFileStore;
+import org.jenkinsci.plugins.configfiles.ConfigFileUsageStore;
 import org.jenkinsci.plugins.configfiles.ConfigProviderComparator;
+import hudson.model.Fingerprint.RangeSet;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest2;
 
@@ -121,6 +123,16 @@ public class FolderConfigFileProperty extends AbstractFolderProperty<AbstractFol
             configs = newConfigs;
         }
         return this;
+    }
+
+    @Override
+    public void trackUsage(String configId, Run<?, ?> run) {
+        ConfigFileUsageStore.forRootDir(getOwner().getRootDir()).trackUsage(configId, run);
+    }
+
+    @Override
+    public Map<String, RangeSet> getUsage(String configId) {
+        return ConfigFileUsageStore.forRootDir(getOwner().getRootDir()).getUsage(configId);
     }
 
     public FolderConfigFileProperty reconfigure(StaplerRequest2 req, JSONObject form) throws Descriptor.FormException {

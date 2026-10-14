@@ -5,6 +5,8 @@ import hudson.ExtensionList;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
 import hudson.model.Descriptor;
+import hudson.model.Fingerprint.RangeSet;
+import hudson.model.Run;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
@@ -138,6 +140,16 @@ public class GlobalConfigFiles extends GlobalConfiguration implements ConfigFile
     @Override
     public String getDisplayName() {
         return Messages.display_name();
+    }
+
+    @Override
+    public void trackUsage(String configId, Run<?, ?> run) {
+        ConfigFileUsageStore.forRootDir(Jenkins.get().getRootDir()).trackUsage(configId, run);
+    }
+
+    @Override
+    public Map<String, RangeSet> getUsage(String configId) {
+        return ConfigFileUsageStore.forRootDir(Jenkins.get().getRootDir()).getUsage(configId);
     }
 
     private Object readResolve() {

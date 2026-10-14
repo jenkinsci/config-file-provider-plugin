@@ -27,6 +27,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.*;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
@@ -128,4 +130,8 @@ public abstract class Config implements Serializable, Describable<Config> {
         return "[" + getClass().getSimpleName() + ": id=" + id + ", name=" + name + ", providerId=" + providerId + "]";
     }
 
+    @Restricted(NoExternalUse.class)
+    public boolean isUsageTrackingEnabled() {
+        return ConfigFileManager.USAGE_TRACKING_ENABLED;
+    }
 }
