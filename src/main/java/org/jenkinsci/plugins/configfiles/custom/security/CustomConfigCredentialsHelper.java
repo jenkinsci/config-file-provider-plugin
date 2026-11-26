@@ -37,7 +37,10 @@ import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -89,6 +92,7 @@ public class CustomConfigCredentialsHelper {
                     sensitiveStrings.add(supc.getUsername());
                 }
                 sensitiveStrings.add(supc.getPassword().getPlainText());
+                sensitiveStrings.add(basicAuthOf(supc));
             } else if (credential instanceof SSHUserPrivateKey) {
                 SSHUserPrivateKey sshUserPrivateKey = (SSHUserPrivateKey) credential;
                 if (sshUserPrivateKey.isUsernameSecret()) {
@@ -132,6 +136,7 @@ public class CustomConfigCredentialsHelper {
 
             credentialTokens.add(new TokenValueMacro(tokenKey + "_USR", tokenUser));
             credentialTokens.add(new TokenValueMacro(tokenKey + "_PSW", tokenValue));
+            credentialTokens.add(new TokenValueMacro(tokenKey + "_BASIC_AUTH", basicAuthOf(usernamePasswordCredentials)));
             tokenValue = tokenUser + ":" + tokenValue;
         } else if (credential instanceof SSHUserPrivateKey) {
             SSHUserPrivateKey sshUserPrivateKey = (SSHUserPrivateKey) credential;
@@ -158,4 +163,17 @@ public class CustomConfigCredentialsHelper {
 
         return credentialTokens;
     }
+
+
+    /**
+     * create a basic auth string {@code base64(username + ":" + password)} from the credentials
+     * @param supc
+     * @return encoded credential suitable for use in HTTP Basic authentication.
+     */
+    private static String basicAuthOf(StandardUsernamePasswordCredentials supc) {
+        Encoder encoder = Base64.getEncoder();
+        String auth = supc.getUsername() + ":" + supc.getPassword().getPlainText();
+        return encoder.encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+    }
+
 }
