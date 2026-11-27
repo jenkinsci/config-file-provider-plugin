@@ -29,8 +29,12 @@ THE SOFTWARE.
 
 					<j:set var="descriptor" value="${config.descriptor}"/>
 					<st:include page="id-name-and-comment"  class="${descriptor.clazz}"/>
+					<f:entry>
+						<f:checkbox title="${%Remove unavailabe JDK toolchains}" field="removeUnavailableJdkToolchains" default="false" checked="${config.removeUnavailableJdkToolchains}"/>
+					</f:entry>
 					<f:entry title="${%Content}">
 						<f:textarea id="config.content" name="config.content" value="${config.content}" /> 
 					</f:entry>
+
 					
 </j:jelly>
