@@ -82,6 +82,7 @@ public class ManagedFileUtil {
             FilePath target = ConfigFileManager.provisionConfigFile(managedFile, env, build, workspace, listener, tempFiles);
             file2Path.put(managedFile, target);
         }
+        ConfigFileManager.trackUsage(managedFiles, build);
 
         return file2Path;
     }

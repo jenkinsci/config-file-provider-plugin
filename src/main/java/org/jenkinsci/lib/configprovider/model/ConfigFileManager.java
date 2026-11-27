@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.jenkinsci.lib.configprovider.ConfigProvider;
 import org.jenkinsci.plugins.configfiles.ConfigFiles;
+import org.jenkinsci.plugins.configfiles.buildwrapper.ManagedFile;
 import org.jenkinsci.plugins.configfiles.buildwrapper.Messages;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
@@ -44,19 +45,26 @@ import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.slaves.WorkspaceList;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 public class ConfigFileManager {
     private final static Logger LOGGER = Logger.getLogger(ConfigFileManager.class.getName());
 
+    private static final String USAGE_TRACKING_ENABLED_NAME = ConfigFileManager.class.getSimpleName() + ".usageTrackingEnabled";
+    @Restricted(NoExternalUse.class)
+    /* package-protected */ static /* not final */ boolean USAGE_TRACKING_ENABLED = Boolean.parseBoolean(System.getProperty(USAGE_TRACKING_ENABLED_NAME, "true"));
+
+
     /**
      * Provisions (publishes) the given file to the workspace.
      *
-     * @param configFile  the file to be provisioned
-     * @param env enhanced environment to use in the variable substitution
-     * @param build a build being run
-     * @param workspace    target workspace
-     * @param listener     the listener
-     * @param tempFiles    temp files created by this method, these files should be deleted by the caller
+     * @param configFile the file to be provisioned
+     * @param env        enhanced environment to use in the variable substitution
+     * @param build      a build being run
+     * @param workspace  target workspace
+     * @param listener   the listener
+     * @param tempFiles  temp files created by this method, these files should be deleted by the caller
      * @return remote location path of the provided file.
      * @throws IOException
      * @throws InterruptedException
@@ -139,4 +147,18 @@ public class ConfigFileManager {
         return target;
     }
 
+    @Restricted(NoExternalUse.class)
+    public static void trackUsage(List<ManagedFile> managedFiles, Run<?, ?> build) {
+        for (ManagedFile managedFile : managedFiles) {
+            ConfigFiles.jobUsed(build, managedFile.getFileId());
+        }
+    }
+
+    /**
+     * Whether usage tracking (recording which job/build used which configuration file) is enabled.
+     */
+    @Restricted(NoExternalUse.class)
+    public static boolean isUsageTrackingEnabled() {
+        return USAGE_TRACKING_ENABLED;
+    }
 }

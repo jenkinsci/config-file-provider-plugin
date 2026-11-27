@@ -28,13 +28,14 @@ THE SOFTWARE.
 		<cf:sitepanel />
 
 		<l:main-panel>
-			<div class="jenkins-app-bar">
-				<div class="jenkins-app-bar__content">
-					<h1>
-						${%Edit Configuration File}
-					</h1>
-				</div>
-			</div>
+			<div style="max-width: 1800px;">
+
+			<l:app-bar title="${%Edit Configuration File}">
+				<a href="usage?id=${config.id}" class="jenkins-button">
+					<l:icon src="symbol-finger-print-outline plugin-ionicons-api" />
+					${%Usage}
+				</a>
+			</l:app-bar>
 
 			<f:form method="post" action="saveConfig">
 			   <f:section title="${%The configuration}" name="config">
@@ -52,6 +53,7 @@ THE SOFTWARE.
 					</f:block>
 				</f:section>
 			</f:form>
+			</div>
 		</l:main-panel>
 	</l:layout>
 	<j:if test="${contentType!=null}">

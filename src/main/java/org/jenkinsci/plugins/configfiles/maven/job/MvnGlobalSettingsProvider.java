@@ -123,6 +123,7 @@ public class MvnGlobalSettingsProvider extends GlobalSettingsProvider {
                         // Temporarily attach info about the files to be deleted to the build - this action gets removed from the build again by
                         // 'org.jenkinsci.plugins.configfiles.common.CleanTempFilesRunListener'
                         build.addAction(new CleanTempFilesAction(configurationFile.getRemote()));
+                        ConfigFiles.jobUsed(build, settingsConfigId);
                         return configurationFile;
                     } else {
                         listener.getLogger().println("ERROR: can't supply maven settings, workspace is null / agent seems not connected...");

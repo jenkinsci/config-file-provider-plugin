@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.cloudbees.hudson.plugins.folder.Folder;
 import hudson.model.Descriptor;
+import hudson.model.Fingerprint;
 import hudson.model.Item;
 import hudson.util.VersionNumber;
 import java.io.IOException;
@@ -153,6 +154,44 @@ class FolderConfigFileActionTest {
         r.assertBuildStatusSuccess(jobInRoot.scheduleBuild2(0));
         r.assertBuildStatusSuccess(jobInFolder1.scheduleBuild2(0));
         r.assertBuildStatusSuccess(jobInFolder2.scheduleBuild2(0));
+    }
+
+    /**
+     * Same configuration id defined both globally and in a folder: usage must be recorded
+     * against the store (location) that actually resolved/provided the configuration for each
+     * job, not mixed together. Also verifies that build numbers of repeated builds of the same
+     * job collapse into a single range.
+     */
+    @Test
+    void usageIsTrackedPerLocationNotGlobally(JenkinsRule r) throws Exception {
+        GlobalConfigFiles globalConfigFiles =
+                r.jenkins.getExtensionList(ConfigFileStore.class).get(GlobalConfigFiles.class);
+        globalConfigFiles.save(newMvnSettings(r, "my-file-id"));
+
+        WorkflowJob jobInRoot = r.jenkins.createProject(WorkflowJob.class, "root-job");
+        jobInRoot.setDefinition(getNewJobDefinition());
+
+        Folder folder1 = createFolder(r);
+        ConfigFileStore folderStore = getStore(folder1);
+        folderStore.save(newMvnSettings(r, "my-file-id"));
+
+        WorkflowJob jobInFolder1 = folder1.createProject(WorkflowJob.class, "p");
+        jobInFolder1.setDefinition(getNewJobDefinition());
+
+        // build the root job twice to verify build numbers collapse into a single range
+        r.assertBuildStatusSuccess(jobInRoot.scheduleBuild2(0));
+        r.assertBuildStatusSuccess(jobInRoot.scheduleBuild2(0));
+        r.assertBuildStatusSuccess(jobInFolder1.scheduleBuild2(0));
+
+        Map<String, Fingerprint.RangeSet> globalUsage = globalConfigFiles.getUsage("my-file-id");
+        assertThat(globalUsage.keySet(), Matchers.contains(jobInRoot.getFullName()));
+        Fingerprint.RangeSet rootRange = globalUsage.get(jobInRoot.getFullName());
+        assertTrue(rootRange.includes(1));
+        assertTrue(rootRange.includes(2));
+
+        Map<String, Fingerprint.RangeSet> folderUsage = folderStore.getUsage("my-file-id");
+        assertThat(folderUsage.keySet(), Matchers.contains(jobInFolder1.getFullName()));
+        assertTrue(folderUsage.get(jobInFolder1.getFullName()).includes(1));
     }
 
     @Test

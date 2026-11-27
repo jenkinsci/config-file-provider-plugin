@@ -10,6 +10,7 @@ import hudson.model.ItemGroup;
 import hudson.model.Run;
 import jenkins.model.Jenkins;
 import org.jenkinsci.lib.configprovider.model.Config;
+import org.jenkinsci.lib.configprovider.model.ConfigFileManager;
 import org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty;
 
 import java.util.ArrayList;
@@ -93,35 +94,8 @@ public class ConfigFiles {
      * @throws IllegalArgumentException if while walking up the tree, one of the parents is not either of type {@link AbstractFolder}, {@link Item} or {@link Jenkins}
      */
     public static <T extends Config> T getByIdOrNull(@Nullable ItemGroup itemGroup, @NonNull String configId) {
-
-        while (itemGroup != null) {
-            itemGroup = resolveItemGroup(itemGroup);
-            if (folderPluginInstalled() && itemGroup instanceof AbstractFolder) {
-                final AbstractFolder<?> folder = AbstractFolder.class.cast(itemGroup);
-                ConfigFileStore store = folder.getProperties().get(FolderConfigFileProperty.class);
-                if (store != null) {
-                    Config config = store.getById(configId);
-                    if (config != null) {
-                        return (T) config;
-                    }
-                }
-            }
-            if (itemGroup instanceof Item) {
-                itemGroup = Item.class.cast(itemGroup).getParent();
-            }
-            if (itemGroup instanceof Jenkins) {
-                // we are on top scope...
-                return (T) GlobalConfigFiles.get().getById(configId);
-            } else {
-                if ((itemGroup instanceof AbstractFolder) || (itemGroup instanceof Item)) {
-                    continue;
-                } else {
-                    throw new IllegalArgumentException("can not determine current context/parent for: " + itemGroup.getFullName() + " of type " + itemGroup.getClass());
-                }
-            }
-        }
-
-        return null;
+        StoreAndConfig result = getStoreAndConfigOrNull(itemGroup, configId);
+        return result == null ? null : (T) result.config;
     }
 
     /**
@@ -136,15 +110,8 @@ public class ConfigFiles {
      * @throws IllegalArgumentException if while walking up the tree, one of the parents is not either of type {@link AbstractFolder}, {@link Item} or {@link Jenkins}
      */
     public static <T extends Config> T getByIdOrNull(@NonNull Item item, @NonNull String configId) {
-        if (folderPluginInstalled() && item instanceof AbstractFolder) {
-            // configfiles defined in the folder should be available in the context of the folder
-            return (T) getByIdOrNull((ItemGroup) item, configId);
-        }
-        if (item != null) {
-            LOGGER.log(Level.FINE, "try with: " + item.getParent());
-            return (T) getByIdOrNull(item.getParent(), configId);
-        }
-        return null;
+        StoreAndConfig result = getStoreAndConfigOrNull(item, configId);
+        return result == null ? null : (T) result.config;
     }
 
     /**
@@ -161,15 +128,33 @@ public class ConfigFiles {
      * @throws IllegalArgumentException if while walking up the tree, one of the parents is not either of type {@link AbstractFolder}, {@link Item} or {@link Jenkins}
      */
     public static <T extends Config> T getByIdOrNull(@NonNull Run<?, ?> build, @NonNull String configId) {
-        Item parent = build.getParent();
-        Config configFile;
-        if (parent instanceof ItemGroup) {
-            configFile = getByIdOrNull((ItemGroup) parent, configId);
-        } else {
-            configFile = getByIdOrNull(parent, configId);
-        }
+        StoreAndConfig result = getStoreAndConfigOrNull(build, configId);
+        return result == null ? null : (T) result.config;
+    }
 
-        return (T) configFile;
+    /**
+     * Records that the given build actually used the configuration file with the given id.
+     * The usage is recorded against the very store (global or folder) that owns the
+     * configuration resolved for the context of the given build, i.e. the same store that
+     * {@link #getByIdOrNull(Run, String)} would resolve the configuration from.
+     * <p>
+     * This should only be called when the configuration file is genuinely used/provisioned for
+     * the build - not when it is merely looked up to be displayed, edited or validated.
+     *
+     * @param build    the build that used the configuration file
+     * @param configId id of the configuration file that was used
+     */
+    public static void jobUsed(@NonNull Run<?, ?> build, @NonNull String configId) {
+        if (!ConfigFileManager.isUsageTrackingEnabled()) {
+            LOGGER.log(Level.FINEST, "Usage tracking is disabled, not tracking usage of configuration file {0}", configId);
+            return;
+        }
+        StoreAndConfig result = getStoreAndConfigOrNull(build, configId);
+        if (result != null) {
+            result.store.trackUsage(configId, build);
+        } else {
+            LOGGER.log(Level.FINE, "Could not track usage of configuration file {0}, not found in the context of {1}", new Object[]{configId, build});
+        }
     }
 
     private static ItemGroup resolveItemGroup(ItemGroup itemGroup) {
@@ -180,5 +165,81 @@ public class ConfigFiles {
             }
         }
         return itemGroup;
+    }
+
+    /**
+     * Walks up the context tree (folder by folder) starting at the given item group, until a
+     * configuration file with the given id is found, returning both the configuration and the
+     * {@link ConfigFileStore} it was found in (i.e. its location).
+     *
+     * @param itemGroup context to start the lookup from
+     * @param configId  id of the configuration to search for
+     * @return <code>null</code> if no configuration was found
+     * @throws IllegalArgumentException if while walking up the tree, one of the parents is not either of type {@link AbstractFolder}, {@link Item} or {@link Jenkins}
+     */
+    private static StoreAndConfig getStoreAndConfigOrNull(@Nullable ItemGroup itemGroup, @NonNull String configId) {
+
+        while (itemGroup != null) {
+            itemGroup = resolveItemGroup(itemGroup);
+            if (folderPluginInstalled() && itemGroup instanceof AbstractFolder) {
+                final AbstractFolder<?> folder = AbstractFolder.class.cast(itemGroup);
+                ConfigFileStore store = folder.getProperties().get(FolderConfigFileProperty.class);
+                if (store != null) {
+                    Config config = store.getById(configId);
+                    if (config != null) {
+                        return new StoreAndConfig(store, config);
+                    }
+                }
+            }
+            if (itemGroup instanceof Item) {
+                itemGroup = Item.class.cast(itemGroup).getParent();
+            }
+            if (itemGroup instanceof Jenkins) {
+                // we are on top scope...
+                ConfigFileStore store = GlobalConfigFiles.get();
+                Config config = store.getById(configId);
+                return config != null ? new StoreAndConfig(store, config) : null;
+            } else {
+                if ((itemGroup instanceof AbstractFolder) || (itemGroup instanceof Item)) {
+                    continue;
+                } else {
+                    throw new IllegalArgumentException("can not determine current context/parent for: " + itemGroup.getFullName() + " of type " + itemGroup.getClass());
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static StoreAndConfig getStoreAndConfigOrNull(@NonNull Item item, @NonNull String configId) {
+        if (folderPluginInstalled() && item instanceof AbstractFolder) {
+            // configfiles defined in the folder should be available in the context of the folder
+            return getStoreAndConfigOrNull((ItemGroup) item, configId);
+        }
+        if (item != null) {
+            LOGGER.log(Level.FINE, "try with: " + item.getParent());
+            return getStoreAndConfigOrNull(item.getParent(), configId);
+        }
+        return null;
+    }
+
+    private static StoreAndConfig getStoreAndConfigOrNull(@NonNull Run<?, ?> build, @NonNull String configId) {
+        Item parent = build.getParent();
+        if (parent instanceof ItemGroup) {
+            return getStoreAndConfigOrNull((ItemGroup) parent, configId);
+        } else {
+            return getStoreAndConfigOrNull(parent, configId);
+        }
+    }
+
+    /** Holds a resolved configuration together with the store (location) it was found in. */
+    private static final class StoreAndConfig {
+        private final ConfigFileStore store;
+        private final Config config;
+
+        private StoreAndConfig(ConfigFileStore store, Config config) {
+            this.store = store;
+            this.config = config;
+        }
     }
 }
