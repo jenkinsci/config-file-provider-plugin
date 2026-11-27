@@ -74,6 +74,7 @@ public class CustomConfigCredentialsHelper {
 
             if (c != null) {
                 customizedCredentialsMap.put(tokenKey, c);
+                CredentialsProvider.track(build, c);
             } else {
                 listener.getLogger().println("Could not find credentials [" + credentialsId + "] for " + build);
             }
