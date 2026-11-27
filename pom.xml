@@ -32,7 +32,7 @@
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.baseline>2.555</jenkins.baseline>
-        <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+        <jenkins.version>${jenkins.baseline}.3</jenkins.version>
         <hpi.compatibleSinceVersion>2.15</hpi.compatibleSinceVersion>
         <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
     </properties>
@@ -59,7 +59,7 @@
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-${jenkins.baseline}.x</artifactId>
-                <version>6549.v96f8c826373f</version>
+                <version>7169.vb_32a_cfd93fa_6</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -155,6 +155,7 @@
         <dependency>
             <groupId>org.jenkins-ci.main</groupId>
             <artifactId>maven-plugin</artifactId>
+            <version>3.27</version>
             <scope>test</scope>
         </dependency>
         <dependency>
