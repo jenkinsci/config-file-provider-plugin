@@ -28,22 +28,24 @@ THE SOFTWARE.
 		<j:set var="config" value="${config}"/>
 		<j:set var="contentType" value="${contentType}"/>
 		<j:set var="instance" value="${instance}"/>
-		<f:form method="post" action="saveConfig">
+		<f:form method="post" action="saveConfig" name="config">
 		   <f:section title="${%The configuration}" name="config">
-		   		<input type="hidden" name="stapler-class" value="${config.class.name}" />
-		   		<j:choose>
+			   <input type="hidden" name="stapler-class" value="${config.class.name}" />
+			   <j:choose>
 		          <j:when test="${config.class.name == 'org.jenkinsci.lib.configprovider.model.Config'}">
-		            	<st:include page="edit-config.jelly" from="${instance}"/>
+					  <st:include page="edit-config.jelly" from="${instance}"/>
 		          </j:when>
 		          <j:otherwise>
-		            	<st:include page="edit-config.jelly" from="${config}" it="${config}"/>
+					  <st:include page="edit-config.jelly" from="${config}" it="${config}"/>
 		          </j:otherwise>
-		        </j:choose>
-				<f:block>
-					<f:submit value="${%Submit}" />
-				</f:block>
+			   </j:choose>
+			   <f:bottomButtonBar>
+				   <f:submit value="${%Submit}" />
+				   <a href="." class="jenkins-button">${%Cancel}</a>
+			   </f:bottomButtonBar>
 			</f:section>
 		</f:form>
+		<st:adjunct includes="lib.form.confirm" />
 	</l:settings-subpage>
 	<j:if test="${contentType!=null}">
 		<st:adjunct includes="
