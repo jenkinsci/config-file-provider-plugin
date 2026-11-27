@@ -21,6 +21,7 @@ import hudson.security.ACLContext;
 import hudson.util.ListBoxModel;
 import java.util.function.Supplier;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.configfiles.ConfigFilesManagement;
 import org.jenkinsci.plugins.configfiles.maven.security.ServerCredentialMapping;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,16 +54,15 @@ class Security2254Test {
 
         // Reader. No permissions to manage credentials
         strategy.grant(Item.READ).everywhere().to("reader");
-
         // accredited with own credentials store and able to use them in project
         strategy.grant(Item.EXTENDED_READ).onItems(project).to("accredited");
         strategy.grant(CredentialsProvider.USE_ITEM).onItems(project).to("accredited");
 
         // Project configurer on project
-        strategy.grant(Item.CONFIGURE).onItems(project).to("projectConfigurer");
+        strategy.grant(ConfigFilesManagement.MANAGE_FOLDER_FILES).onItems(project).to("projectConfigurer");
 
         // Folder configurer
-        strategy.grant(Item.CONFIGURE).onItems(folder).to("folderConfigurer");
+        strategy.grant(ConfigFilesManagement.MANAGE_FOLDER_FILES).onItems(folder).to("folderConfigurer");
 
         // Administer
         strategy.grant((Jenkins.ADMINISTER)).everywhere().to("administer");
